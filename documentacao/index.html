@@ -766,7 +766,7 @@ async function addCatItem(entity, inputId) {
 async function addCatModel() {
   const mfgId = document.getElementById('newModelManuf')?.value;
   const model = (document.getElementById('newModel')?.value||'').trim();
-  if (!model) return;
+  if (!mfgId || !model) return;
   await apiFetch('/doc/catalog/models', { method:'POST', body: JSON.stringify({ manufacturer_id: mfgId||null, model }) });
   document.getElementById('newModel').value = '';
   await loadCatSection('models');
