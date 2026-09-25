@@ -724,7 +724,7 @@ function renderCatList(entity, items) {
   const el = document.getElementById('cat-' + entity + '-list'); if (!el) return;
   if (!items.length) { el.innerHTML = '<div style="color:#475569;font-size:13px;padding:12px 0">Nenhum item cadastrado</div>'; return; }
   const isModel = entity === 'models';
-  el.innerHTML = `<table class="tbl" style="margin-top:4px"><thead><tr><th>${isModel?'Modelo':'Nome'}</th>${isModel?'<th>Fabricante</th>':''}<th style="width:60px"></th></tr></thead><tbody>${items.map(i=>`<tr><td style="color:#e2e8f0">${i.name||i.model}</td>${isModel?`<td style="color:#64748b;font-size:12px">${i.manufacturer_name||'—'}</td>`:''}<td><button class="btn btn-danger btn-sm" style="padding:1px 7px" onclick="deleteCatItem('${entity}',${i.id})">✕</button></td></tr>`).join('')}</tbody></table>`;
+  el.innerHTML = `<table class="tbl" style="margin-top:4px"><thead><tr><th>${isModel?'Modelo':'Nome'}</th>${isModel?'<th>Fabricante</th>':''}<th style="width:60px"></th></tr></thead><tbody>${items.map(i=>`<tr data-mfg-id="${i.manufacturer_id||''}"><td style="color:#e2e8f0">${i.name||i.model}</td>${isModel?`<td style="color:#64748b;font-size:12px">${i.manufacturer_name||'—'}</td>`:''}<td style="white-space:nowrap"><button class="btn btn-secondary btn-sm" style="padding:1px 7px;margin-right:4px" onclick="editCatItemInline('${entity}',${i.id},this)">✎</button><button class="btn btn-danger btn-sm" style="padding:1px 7px" onclick="deleteCatItem('${entity}',${i.id})">✕</button></td></tr>`).join('')}</tbody></table>`;
 }
 
 function filterCatList(entity) {
@@ -773,6 +773,40 @@ async function addCatModel() {
   await populateCatalogSelects();
 }
 
+async function editCatItemInline(entity, id, btn) {
+  const tr = btn.closest('tr');
+  const nameTd = tr.querySelector('td:first-child');
+  const isModel = entity === 'models';
+  const mfgTd = isModel ? tr.querySelector('td:nth-child(2)') : null;
+  const currentName = nameTd.textContent.trim();
+  if (tr.dataset.editing) {
+    // save
+    const inp = nameTd.querySelector('input');
+    const newName = (inp?.value||'').trim().toUpperCase();
+    if (!newName) return;
+    const body = isModel ? { model: newName } : { name: newName };
+    if (isModel) {
+      const sel = mfgTd?.querySelector('select');
+      if (sel) body.manufacturer_id = sel.value || null;
+    }
+    await apiFetch('/doc/catalog/' + entity + '/' + id, { method:'PUT', body: JSON.stringify(body) });
+    delete tr.dataset.editing;
+    await loadCatSection(entity);
+    if (entity === 'manufacturers') await populateCatModelManuf();
+    await populateCatalogSelects();
+  } else {
+    // enter edit mode
+    tr.dataset.editing = '1';
+    nameTd.innerHTML = `<input class="form-control form-control-sm" value="${currentName}" style="width:100%;min-width:120px">`;
+    if (isModel && mfgTd) {
+      const mfgs = await apiFetch('/doc/catalog/manufacturers');
+      const opts = (mfgs?.items||[]).map(m=>`<option value="${m.id}" ${String(m.id)===String(tr.dataset.mfgId)?'selected':''}>${m.name}</option>`).join('');
+      mfgTd.innerHTML = `<select class="form-control form-control-sm" style="min-width:120px"><option value="">—</option>${opts}</select>`;
+    }
+    btn.textContent = '✔';
+    btn.title = 'Salvar';
+  }
+}
 async function deleteCatItem(entity, id) {
   showDeleteConfirm('Remover este item do catálogo?', async () => {
     await apiFetch('/doc/catalog/' + entity + '/' + id, { method:'DELETE' });
