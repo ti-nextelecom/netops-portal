@@ -709,9 +709,9 @@ function renderDevices(devs) {
   if (!devs.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhum dispositivo encontrado</p></div></td></tr>'; return; }
   tbody.innerHTML = devs.map(d => {
     const statusBadge = { active:'badge-green', offline:'badge-red', planned:'badge-gray', staged:'badge-blue', decommissioning:'badge-orange' }[d.status] || 'badge-gray';
-    const src = d.source === 'netbox' ? '<span class="badge badge-blue" style="font-size:9px">NB</span>' : '';
+
     return `<tr>
-      <td><div style="font-weight:500;color:#e2e8f0">${d.name} ${src}</div><div style="font-size:11px;color:#475569">${d.hostname||''}</div></td>
+      <td><div style="font-weight:500;color:#e2e8f0">${d.name}</div><div style="font-size:11px;color:#475569">${d.hostname||''}</div></td>
       <td>${d.role ? `<span class="badge badge-gray">${d.role}</span>` : '<span style="color:#475569">—</span>'}</td>
       <td><div>${d.site_name||'—'}</div>${d.pop_name?`<div style="font-size:11px;color:#64748b">${d.pop_name}</div>`:''}</td>
       <td>${d.management_ip ? `<span class="mono">${d.management_ip}</span>` : '<span style="color:#475569">—</span>'}</td>
