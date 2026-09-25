@@ -741,6 +741,15 @@ function switchCatTab(entity) {
   document.getElementById('cattab-' + entity)?.classList.add('active');
   document.getElementById('catcontent-' + entity)?.classList.add('active');
   loadCatSection(entity);
+  if (entity === 'models') populateCatModelManuf();
+}
+
+async function populateCatModelManuf() {
+  const d = await apiFetch('/doc/catalog/manufacturers');
+  const sel = document.getElementById('newModelManuf');
+  if (sel && d?.items) {
+    sel.innerHTML = '<option value="">Fabricante...</option>' + d.items.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  }
 }
 
 async function addCatItem(entity, inputId) {
@@ -751,6 +760,7 @@ async function addCatItem(entity, inputId) {
   input.value = '';
   await loadCatSection(entity);
   await populateCatalogSelects();
+  if (entity === 'manufacturers') await populateCatModelManuf();
 }
 
 async function addCatModel() {
