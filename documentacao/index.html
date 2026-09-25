@@ -449,6 +449,7 @@ select.form-control option{background:#1a2235}
         </div>
       </div>
       <div class="form-group"><label>IP de Gerência</label><input class="form-control" id="devMgmtIp" placeholder="ex: 10.20.30.1"></div>
+      <div class="form-group"><label>Dono / Operadora</label><input class="form-control" id="devOwner" placeholder="NEX, GGC, FNA, OCA..."></div>
       <div class="form-group"><label>Notas</label><textarea class="form-control" id="devNotes" rows="2" placeholder="Informações adicionais..."></textarea></div>
       <div id="devAlert"></div>
     </div>
@@ -750,6 +751,7 @@ function editDevice(d) {
   document.getElementById('devModel').value = d.model || '';
   document.getElementById('devSite').value = d.site_name || '';
   document.getElementById('devMgmtIp').value = d.management_ip || '';
+  document.getElementById('devOwner').value = d.owner || '';
   document.getElementById('devNotes').value = d.notes || '';
   populatePopSelect('devPop', d.pop_id);
   openModal('modalDevice');
@@ -780,7 +782,7 @@ async function saveDevice() {
 
 function resetDeviceModal() {
   document.getElementById('modalDeviceTitle').textContent = 'Novo Dispositivo';
-  ['devId','devName','devHostname','devRole','devManuf','devModel','devSite','devMgmtIp','devNotes'].forEach(id => document.getElementById(id).value = '');
+  ['devId','devName','devHostname','devRole','devManuf','devModel','devSite','devMgmtIp','devOwner','devNotes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('devStatus').value = 'active';
   document.getElementById('devAlert').innerHTML = '';
 }
