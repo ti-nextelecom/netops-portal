@@ -233,6 +233,7 @@ select.form-control option{background:#1a2235}
     <button class="tab-btn" onclick="switchTab('ipv6')" id="tab-ipv6">Prefixos IPv6</button>
     <button class="tab-btn" onclick="switchTab('asn')" id="tab-asn">ASN</button>
     <button class="tab-btn" onclick="switchTab('pops')" id="tab-pops">POPs</button>
+    <button class="tab-btn" onclick="switchTab('catalogo')" id="tab-catalogo">⚙ Catálogos</button>
     <button class="tab-btn" onclick="switchTab('changelog')" id="tab-changelog">📋 Changelog</button>
   </div>
 
@@ -253,7 +254,7 @@ select.form-control option{background:#1a2235}
       <select class="form-control" id="devSiteFilter" onchange="filterDevices()" style="width:180px">
         <option value="">Todos os sites</option>
       </select>
-      <button class="btn btn-primary btn-sm" onclick="openModal('modalDevice')">
+      <button class="btn btn-primary btn-sm" onclick="newDevice()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Novo Dispositivo
       </button>
@@ -384,6 +385,60 @@ select.form-control option{background:#1a2235}
         <tbody id="changelogTbody"></tbody>
       </table>
     </div>
+
+  <div class="tab-content" id="content-catalogo">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+      <div style="background:#0f1623;border:1px solid #1e2635;border-radius:8px;padding:16px">
+        <h4 style="color:#e2e8f0;margin:0 0 12px;font-size:14px;font-weight:600">Fabricantes</h4>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-control" id="newManuf" placeholder="Nome do fabricante..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="addCatItem('manufacturers','newManuf')">+</button>
+        </div>
+        <div id="cat-manufacturers-list"></div>
+      </div>
+
+      <div style="background:#0f1623;border:1px solid #1e2635;border-radius:8px;padding:16px">
+        <h4 style="color:#e2e8f0;margin:0 0 12px;font-size:14px;font-weight:600">Modelos de Dispositivo</h4>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <select class="form-control" id="newModelManuf"><option value="">Fabricante...</option></select>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-control" id="newModel" placeholder="Nome do modelo..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="addCatModel()">+</button>
+        </div>
+        <div id="cat-models-list"></div>
+      </div>
+
+      <div style="background:#0f1623;border:1px solid #1e2635;border-radius:8px;padding:16px">
+        <h4 style="color:#e2e8f0;margin:0 0 12px;font-size:14px;font-weight:600">Roles / Tipo</h4>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-control" id="newRole" placeholder="ex: roteador, switch, OLT..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="addCatItem('roles','newRole')">+</button>
+        </div>
+        <div id="cat-roles-list"></div>
+      </div>
+
+      <div style="background:#0f1623;border:1px solid #1e2635;border-radius:8px;padding:16px">
+        <h4 style="color:#e2e8f0;margin:0 0 12px;font-size:14px;font-weight:600">Sites</h4>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-control" id="newSite" placeholder="ex: CALLCENTER, POP-PQS..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="addCatItem('sites','newSite')">+</button>
+        </div>
+        <div id="cat-sites-list"></div>
+      </div>
+
+      <div style="background:#0f1623;border:1px solid #1e2635;border-radius:8px;padding:16px">
+        <h4 style="color:#e2e8f0;margin:0 0 12px;font-size:14px;font-weight:600">Donos / Operadoras</h4>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input class="form-control" id="newOwnerCat" placeholder="ex: NEX, GGC, FNA, OCA..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="addCatItem('owners','newOwnerCat')">+</button>
+        </div>
+        <div id="cat-owners-list"></div>
+      </div>
+
+    </div>
+  </div>
   </div>
 </div>
 
@@ -427,7 +482,7 @@ select.form-control option{background:#1a2235}
         <div class="form-group"><label>Hostname</label><input class="form-control" id="devHostname" placeholder="ex: sw-pqs-01.nex"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Role</label><input class="form-control" id="devRole" placeholder="ex: Core Switch"></div>
+        <div class="form-group"><label>Role</label><select class="form-control" id="devRole"><option value=""></option></select></div>
         <div class="form-group"><label>Status</label>
           <select class="form-control" id="devStatus">
             <option value="active">Ativo</option>
@@ -439,17 +494,17 @@ select.form-control option{background:#1a2235}
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Fabricante</label><input class="form-control" id="devManuf" placeholder="ex: Huawei"></div>
-        <div class="form-group"><label>Modelo</label><input class="form-control" id="devModel" placeholder="ex: CE6720"></div>
+        <div class="form-group"><label>Fabricante</label><select class="form-control" id="devManuf" onchange="loadModelOptions()"><option value=""></option></select></div>
+        <div class="form-group"><label>Modelo</label><select class="form-control" id="devModel"><option value=""></option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Site</label><input class="form-control" id="devSite" placeholder="ex: PQS"></div>
+        <div class="form-group"><label>Site</label><select class="form-control" id="devSite"><option value=""></option></select></div>
         <div class="form-group"><label>POP</label>
           <select class="form-control" id="devPop"><option value="">Selecionar POP...</option></select>
         </div>
       </div>
       <div class="form-group"><label>IP de Gerência</label><input class="form-control" id="devMgmtIp" placeholder="ex: 10.20.30.1"></div>
-      <div class="form-group"><label>Dono / Operadora</label><input class="form-control" id="devOwner" placeholder="NEX, GGC, FNA, OCA..."></div>
+      <div class="form-group"><label>Dono / Operadora</label><select class="form-control" id="devOwner"><option value=""></option></select></div>
       <div class="form-group"><label>Notas</label><textarea class="form-control" id="devNotes" rows="2" placeholder="Informações adicionais..."></textarea></div>
       <div id="devAlert"></div>
     </div>
@@ -645,6 +700,7 @@ function switchTab(name) {
   else if (name === 'asn') loadAsn();
   else if (name === 'pops') loadPops();
   else if (name === 'changelog') loadChangelog();
+  else if (name === 'catalogo') loadCatalogo();
 }
 
 // GLOBAL SEARCH
