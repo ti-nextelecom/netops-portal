@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escritório PQS — 1º Andar | NEX NetOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon/favicon-180x180.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Inter",sans-serif;background:#f8f8f6;color:#1a1a1a;display:flex;flex-direction:column;font-size:14px}
+
+/* ── Topbar ── */
+.topbar{background:#1a1a1a;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;height:48px;z-index:200}
+.topbar h1{font-size:14px;font-weight:600;color:#fff}
+.topbar p{font-size:11px;color:#666}
+.topbar-right{display:flex;gap:8px}
+.tbtn{font-size:11px;font-weight:500;padding:5px 12px;border-radius:5px;border:0.5px solid #444;text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:transparent;color:#888}
+.tbtn:hover{color:#fff;border-color:#888}
+.tbtn-red{color:#f08080;border-color:#6b2b2b}
+.tbtn-red:hover{background:#2d1414;border-color:#f08080}
+
+/* ── Tabs ── */
+.tabs{background:#fff;border-bottom:0.5px solid #d3d1c7;display:flex;align-items:stretch;flex-shrink:0;padding:0 1.25rem}
+.tab{padding:0 1.25rem;height:40px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:#888780;cursor:pointer;border-bottom:2px solid transparent;transition:color 0.15s;user-select:none}
+.tab:hover{color:#1a1a1a}
+.tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+.tab-content{display:none;flex:1;overflow:hidden;flex-direction:column}
+.tab-content.active{display:flex}
+.dash-scroll{flex:1;overflow-y:auto;padding:1.25rem}
+
+/* ── Cards ── */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.card{background:#fff;border:0.5px solid #d3d1c7;border-radius:8px;padding:0.875rem 1rem}
+.card-label{font-size:11px;color:#888780;margin-bottom:4px}
+.card-value{font-size:24px;font-weight:600;color:#1a1a1a}
+.card-sub{font-size:11px;color:#b4b2a9;margin-top:2px}
+
+/* ── Two-col ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start;margin-bottom:1.25rem}
+
+/* ── Rack ── */
+.rack-panel{border:1px solid #2a2a2a;border-radius:10px;overflow:hidden;background:#111;box-shadow:0 2px 12px rgba(0,0,0,0.15)}
+.rack-sides{display:grid;grid-template-columns:1fr 1fr}
+.rack-side-hdr{padding:7px 10px;font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;display:flex;align-items:center;gap:6px;border-bottom:1px solid #2a2a2a}
+.rack-side-hdr.front{background:#0d0d0d;color:#aaa;border-right:1px solid #2a2a2a}
+.rack-side-hdr.back{background:#0d0d0d;color:#999}
+.rack-hdrs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #2a2a2a}
+.rack-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:0.5px solid #1e1e1e}
+.rack-row:last-child{border-bottom:none}
+.rack-cell{display:flex;align-items:center;gap:0;min-height:20px}
+.rack-cell.back{border-left:1px solid #2a2a2a}
+.u-pos{width:26px;flex-shrink:0;text-align:center;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;border-right:1px solid #1e1e1e;align-self:stretch}
+.rack-cell.back .u-pos{border-right:none;border-left:1px solid #1e1e1e}
+.u-eq{flex:1;padding:2px 8px;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:4px}
+.u-lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.u-tag{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0}
+/* tipos */
+.u-blank{background:#1a1a1a}.u-blank .u-pos{background:#161616;color:#666;border-color:#222}.u-blank .u-eq{color:#666;font-style:italic;font-size:10px}
+.u-sw2{background:linear-gradient(90deg,#0a1f12,#122a1a)}.u-sw2 .u-pos{background:#081510;color:#5acc80;border-color:#152010}.u-sw2 .u-eq{color:#a8f0c0;font-weight:600}
+.u-sw1{background:linear-gradient(90deg,#0a1628,#101e38)}.u-sw1 .u-pos{background:#081020;color:#5a9ad8;border-color:#101828}.u-sw1 .u-eq{color:#a8d4f8;font-weight:600}
+.u-pp2{background:linear-gradient(90deg,#0a1f12,#0f2216)}.u-pp2 .u-pos{background:#081510;color:#5acc80;border-color:#152010}.u-pp2 .u-eq{color:#b8f0d0;font-weight:500}
+.u-pp1{background:linear-gradient(90deg,#0a1628,#0d1a30)}.u-pp1 .u-pos{background:#081020;color:#5a9ad8;border-color:#101828}.u-pp1 .u-eq{color:#b8d8f8;font-weight:500}
+.u-org{background:#242424}.u-org .u-pos{background:#1e1e1e;color:#999;border-color:#2a2a2a}.u-org .u-eq{color:#aaa;font-size:10px;font-weight:400}
+.u-infra{background:linear-gradient(90deg,#1a0e00,#241400)}.u-infra .u-pos{background:#120a00;color:#885520;border-color:#1e1200}.u-infra .u-eq{color:#ffb040;font-weight:600}
+.u-bat{background:linear-gradient(90deg,#1a0a0a,#2a0d0d)}.u-bat .u-pos{background:#150808;color:#cc4444;border-color:#2a1010}.u-bat .u-eq{color:#ff6666;font-size:10px;font-weight:500}
+.u-ater{background:linear-gradient(90deg,#0a1f12,#10281a)}.u-ater .u-pos{background:#081510;color:#3a8855;border-color:#152010}.u-ater .u-eq{color:#a8f0c0;font-weight:600}
+.u-pdu{background:linear-gradient(90deg,#1a0800,#221000)}.u-pdu .u-pos{background:#120500;color:#885020;border-color:#1a0c00}.u-pdu .u-eq{color:#ffb050;font-weight:600}
+.t2{background:#0a1f12;color:#6dd898;border:0.5px solid #1e5035}
+.t1{background:#0a1628;color:#6aaae8;border:0.5px solid #1a3860}
+.rack-cell.highlight-2{box-shadow:inset 0 0 0 2px #3ddc84,0 0 12px rgba(61,220,132,0.4);transition:box-shadow 0.2s}
+.rack-cell.highlight-1{box-shadow:inset 0 0 0 2px #4aacff,0 0 12px rgba(74,172,255,0.4);transition:box-shadow 0.2s}
+.rack-cell{transition:box-shadow 0.2s}
+
+/* ── Grid de portas ── */
+.section-title{font-size:11px;font-weight:600;color:#5f5e5a;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+.port-grid{display:grid;gap:8px}
+.pp-block{border:0.5px solid #d3d1c7;border-radius:8px;overflow:hidden;background:#fff;transition:box-shadow 0.2s,border-color 0.2s}
+.pp-block.hl-pp1{border-color:#4aacff;box-shadow:0 0 0 2px #4aacff,0 0 20px rgba(74,172,255,0.6)}
+.pp-block.hl-pp2{border-color:#3ddc84;box-shadow:0 0 0 2px #3ddc84,0 0 20px rgba(61,220,132,0.6)}
+.pp-head{padding:6px 10px;font-size:12px;font-weight:500;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid #d3d1c7}
+.pp-head span:last-child{font-weight:400;font-size:11px;color:#888780}
+.pp-h-1{background:#e6f1fb;color:#0c447c}
+.pp-h-2{background:#e6f1fb;color:#0c447c}
+.pp-h-3{background:#e6f1fb;color:#0c447c}
+.pp-ports{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;padding:7px;background:#f8f8f6}
+.port{width:100%;aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;cursor:default;position:relative}
+.port:hover .port-tip{display:block}
+.port-tip{display:none;position:absolute;bottom:calc(100%+5px);left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;font-size:10px;padding:4px 8px;border-radius:5px;white-space:nowrap;z-index:100;pointer-events:none;font-weight:400}
+.port-tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:4px solid transparent;border-top-color:#1a1a1a}
+.p-rede{background:#c0392b;color:#fff}
+.p-cam{background:#2980b9;color:#fff}
+.p-ap{background:#27ae60;color:#fff}
+.p-esp{background:#d4ac0d;color:#fff}
+.p-livre{background:#f0f0ee;color:#b4b2a9;border:0.5px solid #d3d1c7}
+.leg{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#5f5e5a}
+.leg-sq{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.chart-wrap{position:relative;width:100%;height:130px;margin-top:1rem}
+
+/* ── Dispositivos especiais ── */
+.divider{height:0.5px;background:#d3d1c7;margin:1.25rem 0}
+.devices{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.device-card{border:0.5px solid #d3d1c7;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;background:#fff}
+.device-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.di-amber{background:#faeeda}
+.di-green{background:#eaf3de}
+.device-name{font-size:12px;font-weight:500;color:#1a1a1a}
+.device-sub{font-size:11px;color:#888780;margin-top:1px}
+.footer{margin-top:1.25rem;font-size:11px;color:#b4b2a9;text-align:right}
+
+/* ── Rack legend ── */
+.rack-leg{display:flex;gap:12px;margin-bottom:8px}
+.rack-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#888780}
+.rack-leg-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── Mapa ── */
+.mapa-wrap{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.mapa-filters{background:#fff;border-bottom:0.5px solid #d3d1c7;padding:6px 1.25rem;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.filter-label{font-size:11px;color:#888780;margin-right:4px}
+.filter-btn{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid #d3d1c7;background:transparent;color:#888780;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s}
+.filter-btn.active{color:#fff}
+.f-all.active{background:#3f3f3f;border-color:#3f3f3f}
+.f-rede.active{background:#c0392b;border-color:#c0392b}
+.f-cam.active{background:#2980b9;border-color:#2980b9}
+.f-ap.active{background:#27ae60;border-color:#27ae60}
+.f-esp.active{background:#d4ac0d;border-color:#d4ac0d}
+.dot-mini{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mapa-stats{margin-left:auto;display:flex;gap:12px}
+.mapa-stat{font-size:11px;color:#888780;display:flex;align-items:center;gap:4px}
+.mapa-stat span{color:#1a1a1a;font-weight:500}
+.map-container{flex:1;overflow:hidden;position:relative;cursor:grab;background:#e8e8e6}
+.map-container.grabbing{cursor:grabbing}
+.map-inner{position:absolute;transform-origin:0 0}
+.map-img{display:block;user-select:none;pointer-events:none}
+.point{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:transform 0.1s;z-index:10}
+.point:hover{transform:translate(-50%,-50%) scale(1.4);z-index:50}
+.point-dot{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.point:hover .point-dot{box-shadow:0 0 0 4px rgba(0,0,0,0.15),0 2px 8px rgba(0,0,0,0.5)}
+.point.rede .point-dot{background:#c0392b}
+.point.cam  .point-dot{background:#2980b9}
+.point.ap   .point-dot{background:#27ae60}
+.point.esp  .point-dot{background:#d4ac0d}
+.point.hidden{display:none}
+.map-tooltip{display:none;position:fixed;background:#1a1a1a;border:0.5px solid #3a3a3a;border-radius:10px;padding:12px 14px;font-size:12px;z-index:500;pointer-events:none;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+.map-tooltip.visible{display:block}
+.tt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tt-label{font-weight:600;font-size:13px;color:#fff}
+.tt-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+.badge-rede{background:#4a1a1a;color:#f5c4b3}
+.badge-cam{background:#1a2e4a;color:#aed6f1}
+.badge-ap{background:#1a3a1a;color:#a9dfbf}
+.badge-esp{background:#4a3000;color:#fdebd0}
+.tt-divider{height:0.5px;background:#2a2a2a;margin-bottom:8px}
+.tt-row{display:flex;justify-content:space-between;gap:16px;margin-bottom:4px}
+.tt-key{color:#555;font-size:11px}
+.tt-val{color:#bbb;font-size:11px;font-weight:500;text-align:right}
+.tt-etiq{color:#666;font-size:10px;font-family:monospace;text-align:right}
+.zoom-controls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:4px;z-index:100}
+.zoom-btn{width:30px;height:30px;background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;color:#5f5e5a;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zoom-btn:hover{background:#f1efe8}
+.zoom-level{background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;color:#888780;font-size:10px;text-align:center;padding:4px 0;font-weight:500}
+.map-info{position:absolute;bottom:16px;left:16px;background:rgba(255,255,255,0.9);border:0.5px solid #d3d1c7;border-radius:6px;padding:5px 10px;font-size:10px;color:#888780;z-index:100}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div>
+    <h1>Escritório PQS — 1º Andar</h1>
+    <p>NEX Telecom · UBNT-SW-03 (48p) · UBNT-SW-04 (24p) · PP-01, PP-02, PP-03</p>
+  </div>
+  <div class="topbar-right">
+    <a href="/" class="tbtn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Portal</a>
+    <a href="/logout" class="tbtn tbtn-red" onclick="return doLogout()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair</a>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('rack',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    Dashboard do Rack
+  </div>
+  <div class="tab" onclick="switchTab('mapa',this)">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+    Mapa de Rede
+  </div>
+</div>
+
+<!-- Tab: Rack -->
+<div class="tab-content active" id="tab-rack">
+<div class="dash-scroll">
+
+  <!-- Título -->
+  <div style="margin-bottom:1.25rem">
+    <div style="font-size:15px;font-weight:600;color:#1a1a1a">Rack Central NEX <span style="font-weight:400;color:#888780">— Dashboard 1º Andar</span></div>
+    <p style="font-size:11px;color:#888780;margin-top:2px">UBNT-SW-03 (48p) · UBNT-SW-04 (24p) · PP-01, PP-02, PP-03 · Rev. 28/05/2026</p>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+    <div class="card"><div class="card-label">Pontos de rede</div><div class="card-value">41</div><div class="card-sub">PP-01 (24) + PP-02 (17)</div></div>
+    <div class="card"><div class="card-label">Câmeras IP</div><div class="card-value">18</div><div class="card-sub">PP-02 (4) + PP-03 (14)</div></div>
+    <div class="card"><div class="card-label">Access points</div><div class="card-value">2</div><div class="card-sub">AP1 + AP2 — PP-02</div></div>
+    <div class="card"><div class="card-label">Portas livres</div><div class="card-value">11</div><div class="card-sub">PP-03 (9) + disponíveis</div></div>
+  </div>
+
+  <!-- Two-col: Rack + Grid portas -->
+  <div class="two-col">
+    <div>
+      <!-- Rack legend -->
+      <div class="rack-leg" style="margin-bottom:8px">
+        <span class="rack-leg-item"><span class="rack-leg-sq" style="background:linear-gradient(90deg,#0a1f12,#122a1a)"></span>2º andar</span>
+        <span class="rack-leg-item"><span class="rack-leg-sq" style="background:linear-gradient(90deg,#0a1628,#101e38)"></span>1º andar</span>
+        <span class="rack-leg-item"><span class="rack-leg-sq" style="background:#161616;border:0.5px solid #333"></span>Infra</span>
+      </div>
+      <div class="rack-panel">
+        <div class="rack-hdrs">
+          <div class="rack-side-hdr front"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="18" rx="2"/></svg>FRENTE</div>
+          <div class="rack-side-hdr back"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="18" rx="2"/></svg>FUNDO</div>
+        </div>
+        <div class="rack-sides">
+          <div id="rack-front"></div>
+          <div id="rack-back"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="section-title">Ocupação de portas por patch panel</p>
+      <div class="port-grid">
+        <div class="pp-block">
+          <div class="pp-head pp-h-1"><span>PP-01 → UBNT-SW-03 (Gi0/1–24)</span><span>24/24 usadas</span></div>
+          <div class="pp-ports" id="pp01-ports"></div>
+        </div>
+        <div class="pp-block">
+          <div class="pp-head pp-h-2"><span>PP-02 → UBNT-SW-03 (Gi0/25–48)</span><span>24/24 usadas</span></div>
+          <div class="pp-ports" id="pp02-ports"></div>
+        </div>
+        <div class="pp-block">
+          <div class="pp-head pp-h-3"><span>PP-03 → UBNT-SW-04 (Gi0/1–24)</span><span>15/24 usadas</span></div>
+          <div class="pp-ports" id="pp03-ports"></div>
+        </div>
+      </div>
+      <div class="leg">
+        <span class="leg-item"><span class="leg-sq" style="background:#c0392b"></span>Ponto de rede</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#2980b9"></span>Câmera IP</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#27ae60"></span>Access point</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#d4ac0d"></span>Especial</span>
+        <span class="leg-item"><span class="leg-sq" style="background:#f0f0ee;border:0.5px solid #d3d1c7"></span>Livre</span>
+      </div>
+      <div class="chart-wrap"><canvas id="tipoChart" role="img" aria-label="Distribuição de portas por tipo">Rede:41 Câmeras:18 APs:2 Especiais:2 Livres:9</canvas></div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <p class="section-title">Dispositivos especiais</p>
+  <div class="devices">
+    <div class="device-card"><div class="device-icon di-amber">🕐</div><div><div class="device-name">Relógio de ponto</div><div class="device-sub">PP-02 / PT-15 → SW03 Gi0/39</div></div></div>
+    <div class="device-card"><div class="device-icon di-amber">🔒</div><div><div class="device-name">Fechadura reconhecimento facial</div><div class="device-sub">PP-02 / PT-18 → SW03 Gi0/42</div></div></div>
+    <div class="device-card"><div class="device-icon di-green">📶</div><div><div class="device-name">Access point AP1</div><div class="device-sub">PP-02 / PT-19 → SW03 Gi0/43</div></div></div>
+    <div class="device-card"><div class="device-icon di-green">📶</div><div><div class="device-name">Access point AP2</div><div class="device-sub">PP-02 / PT-20 → SW03 Gi0/44</div></div></div>
+  </div>
+  <div class="footer">NEX Telecom · Rack Central · 1º Andar · Rev. 28/05/2026</div>
+
+</div>
+</div>
+
+<!-- Tab: Mapa -->
+<div class="tab-content" id="tab-mapa">
+  <div class="mapa-wrap">
+    <div class="mapa-filters">
+      <span class="filter-label">Filtrar:</span>
+      <button class="filter-btn f-all active" onclick="setFilter('all')"><span class="dot-mini" style="background:#888"></span>Todos</button>
+      <button class="filter-btn f-rede" onclick="setFilter('rede')"><span class="dot-mini" style="background:#c0392b"></span>Pontos de rede</button>
+      <button class="filter-btn f-cam" onclick="setFilter('cam')"><span class="dot-mini" style="background:#2980b9"></span>Câmeras IP</button>
+      <button class="filter-btn f-ap" onclick="setFilter('ap')"><span class="dot-mini" style="background:#27ae60"></span>Access points</button>
+      <button class="filter-btn f-esp" onclick="setFilter('esp')"><span class="dot-mini" style="background:#d4ac0d"></span>Especiais</button>
+      <div class="mapa-stats">
+        <span class="mapa-stat"><span id="cnt-rede">0</span> rede</span>
+        <span class="mapa-stat"><span id="cnt-cam">0</span> câmeras</span>
+        <span class="mapa-stat"><span id="cnt-ap">0</span> APs</span>
+        <span class="mapa-stat"><span id="cnt-esp">0</span> especiais</span>
+      </div>
+    </div>
+    <div class="map-container" id="mapContainer">
+      <div class="map-inner" id="mapInner">
+        <img src="mapa_rede_1andar.png" class="map-img" id="mapImg" draggable="false">
+        <div id="pointsLayer"></div>
+      </div>
+    </div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoom(0.2)">+</button>
+      <div class="zoom-level" id="zoomLevel">100%</div>
+      <button class="zoom-btn" onclick="zoom(-0.2)">−</button>
+      <button class="zoom-btn" onclick="resetView()">⌂</button>
+    </div>
+    <div class="map-info">Scroll = zoom · Arrastar = mover · Hover = detalhes</div>
+  </div>
+</div>
+
+<div class="map-tooltip" id="mapTooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ── Tabs ──────────────────────────────────────────────────────────
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active')});
+  el.classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='mapa'&&!window._mapaInit){window._mapaInit=true;renderPoints();resetView();}
+}
+
+// ── Rack ─────────────────────────────────────────────────────────
+var FRENTE=[
+  {u:44,t:'u-pp2',l:'PP-01 — 24p',tag:'2º andar',tc:'t2'},
+  {u:43,t:'u-blank',l:'tampa cega'},
+  {u:42,t:'u-org',l:'organizador (1U)'},
+  {u:41,t:'u-blank',l:'tampa cega'},
+  {u:40,t:'u-sw2',l:'GS-SW-01 — 48p',tag:'2º andar',tc:'t2'},
+  {u:39,t:'u-org',l:'organizador (1U)'},
+  {u:38,t:'u-blank',l:'tampa cega'},
+  {u:37,t:'u-blank',l:'tampa cega'},
+  {u:36,t:'u-pp2',l:'PP-02 — 24p',tag:'2º andar',tc:'t2'},
+  {u:35,t:'u-blank',l:'tampa cega'},
+  {u:34,t:'u-pp2',l:'PP-03 — 24p',tag:'2º andar',tc:'t2'},
+  {u:33,t:'u-blank',l:'tampa cega'},
+  {u:32,t:'u-org',l:'organizador (1U)'},
+  {u:31,t:'u-blank',l:'tampa cega'},
+  {u:30,t:'u-sw2',l:'GS-SW-02 — 48p',tag:'2º andar',tc:'t2'},
+  {u:29,t:'u-blank',l:'tampa cega'},
+  {u:28,t:'u-org',l:'organizador (1U)'},
+  {u:27,t:'u-pp2',l:'PP-04 — 24p',tag:'2º andar',tc:'t2'},
+  {u:26,t:'u-blank',l:'tampa cega'},
+  {u:25,t:'u-pp1',l:'PP-01 — 24p',tag:'1º andar',tc:'t1'},
+  {u:24,t:'u-blank',l:'tampa cega'},
+  {u:23,t:'u-org',l:'organizador (1U)'},
+  {u:22,t:'u-blank',l:'tampa cega'},
+  {u:21,t:'u-sw1',l:'UBNT-SW-03 — 48p',tag:'1º andar',tc:'t1'},
+  {u:20,t:'u-blank',l:'tampa cega'},
+  {u:19,t:'u-org',l:'organizador (1U)'},
+  {u:18,t:'u-pp1',l:'PP-02 — 24p',tag:'1º andar',tc:'t1'},
+  {u:17,t:'u-blank',l:'tampa cega'},
+  {u:16,t:'u-pp1',l:'PP-03 — 24p',tag:'1º andar',tc:'t1'},
+  {u:15,t:'u-blank',l:'tampa cega'},
+  {u:14,t:'u-org',l:'organizador (1U)'},
+  {u:13,t:'u-blank',l:'tampa cega'},
+  {u:12,t:'u-sw1',l:'UBNT-SW-04 — 24p',tag:'1º andar',tc:'t1'},
+  {u:11,t:'u-blank',l:'tampa cega'},
+  {u:10,t:'u-org',l:'organizador (1U)'},
+  {u:9,t:'u-org',l:'organizador (1U)'},
+  {u:8,t:'u-blank',l:''},
+  {u:7,t:'u-blank',l:''},
+  {u:6,t:'u-blank',l:''},
+  {u:5,t:'u-blank',l:''},
+  {u:4,t:'u-org',l:'organizador (1U)'},
+  {u:3,t:'u-infra',l:'Inversor / Retificador'},{u:2,t:'u-infra',l:''},{u:1,t:'u-infra',l:''}
+];
+var FUNDO=[
+  {u:44,t:'u-blank',l:''},{u:43,t:'u-blank',l:''},
+  {u:42,t:'u-ater',l:'Barra de aterramento'},
+  {u:41,t:'u-blank',l:''},{u:40,t:'u-blank',l:''},
+  {u:39,t:'u-blank',l:''},{u:38,t:'u-blank',l:''},
+  {u:37,t:'u-blank',l:''},{u:36,t:'u-blank',l:''},
+  {u:35,t:'u-pdu',l:'PDU AC'},
+  {u:34,t:'u-blank',l:'tampa cega'},
+  {u:33,t:'u-org',l:'organizador (1U)'},
+  {u:32,t:'u-blank',l:'tampa cega'},
+  {u:31,t:'u-blank',l:''},{u:30,t:'u-blank',l:''},
+  {u:29,t:'u-blank',l:''},{u:28,t:'u-blank',l:''},
+  {u:27,t:'u-blank',l:''},{u:26,t:'u-blank',l:''},
+  {u:25,t:'u-blank',l:''},{u:24,t:'u-blank',l:''},
+  {u:23,t:'u-blank',l:''},{u:22,t:'u-blank',l:''},
+  {u:21,t:'u-blank',l:''},{u:20,t:'u-blank',l:''},
+  {u:19,t:'u-blank',l:''},{u:18,t:'u-blank',l:''},
+  {u:17,t:'u-blank',l:''},{u:16,t:'u-blank',l:''},
+  {u:15,t:'u-blank',l:''},{u:14,t:'u-blank',l:''},
+  {u:13,t:'u-blank',l:''},{u:12,t:'u-blank',l:''},
+  {u:11,t:'u-bat',l:'BATERIAS'},
+  {u:10,t:'u-bat',l:''},{u:9,t:'u-bat',l:''},
+  {u:8,t:'u-blank',l:''},
+  {u:7,t:'u-bat',l:'BATERIAS'},
+  {u:6,t:'u-bat',l:''},{u:5,t:'u-bat',l:''},{u:4,t:'u-blank',l:''},
+  {u:3,t:'u-blank',l:''},{u:2,t:'u-blank',l:''},
+  {u:1,t:'u-blank',l:''}
+];
+
+function buildRack(){
+  var front=document.getElementById('rack-front');
+  var back=document.getElementById('rack-back');
+  var fCells=[], bCells=[];
+
+  FRENTE.forEach(function(r){
+    var d=document.createElement('div');
+    d.className='rack-cell '+r.t;
+    var tag=r.tag?'<span class="u-tag '+r.tc+'">'+r.tag+'</span>':'';
+    d.innerHTML='<span class="u-pos">'+r.u+'</span><span class="u-eq"><span class="u-lbl">'+r.l+'</span>'+tag+'</span>';
+    front.appendChild(d);
+    fCells.push(d);
+  });
+  FUNDO.forEach(function(r){
+    var d=document.createElement('div');
+    d.className='rack-cell back '+r.t;
+    d.innerHTML='<span class="u-eq"><span class="u-lbl">'+r.l+'</span></span><span class="u-pos">'+r.u+'</span>';
+    back.appendChild(d);
+    bCells.push(d);
+  });
+
+  // Hover sincronizado
+  var ppBlocks=document.querySelectorAll('.pp-block');
+  function getPPIdx(cell){
+    var lbl=cell.querySelector('.u-lbl');
+    if(!lbl||!cell.classList.contains('u-pp1')) return -1;
+    var t=lbl.textContent.trim();
+    if(t.indexOf('PP-01')===0) return 0;
+    if(t.indexOf('PP-02')===0) return 1;
+    if(t.indexOf('PP-03')===0) return 2;
+    return -1;
+  }
+  function attachHover(cell, idx, others){
+    var is2=cell.classList.contains('u-pp2')||cell.classList.contains('u-sw2');
+    var is1=cell.classList.contains('u-pp1')||cell.classList.contains('u-sw1');
+    if(!is1&&!is2) return;
+    var hlC='highlight-'+(is2?'2':'1');
+    var ppHlC=is1?'hl-pp1':'hl-pp2';
+    var ppIdx=getPPIdx(cell);
+    cell.addEventListener('mouseenter',function(){
+      cell.classList.add(hlC);
+      if(others[idx]) others[idx].classList.add(hlC);
+      if(ppIdx>=0&&ppBlocks[ppIdx]) ppBlocks[ppIdx].classList.add(ppHlC);
+    });
+    cell.addEventListener('mouseleave',function(){
+      cell.classList.remove(hlC);
+      if(others[idx]) others[idx].classList.remove(hlC);
+      if(ppIdx>=0&&ppBlocks[ppIdx]) ppBlocks[ppIdx].classList.remove(ppHlC);
+    });
+  }
+  fCells.forEach(function(c,i){attachHover(c,i,bCells)});
+  bCells.forEach(function(c,i){attachHover(c,i,fCells)});
+}
+buildRack();
+
+
+
+// ── Grid de portas ────────────────────────────────────────────────
+var PP01=[
+  {p:1,t:'rede',tip:'PT01 · Gi0/1',etiq:'PP01-P01-SW03-P01',sala:'Coordenação'},
+  {p:2,t:'rede',tip:'PT02 · Gi0/2',etiq:'PP01-P02-SW03-P02',sala:'Coordenação'},
+  {p:3,t:'rede',tip:'PT03 · Gi0/3',etiq:'PP01-P03-SW03-P03',sala:'Comercial'},
+  {p:4,t:'rede',tip:'PT04 · Gi0/4',etiq:'PP01-P04-SW03-P04',sala:'Comercial'},
+  {p:5,t:'rede',tip:'PT05 · Gi0/5',etiq:'PP01-P05-SW03-P05',sala:'Comercial'},
+  {p:6,t:'rede',tip:'PT06 · Gi0/6',etiq:'PP01-P06-SW03-P06',sala:'Comercial'},
+  {p:7,t:'rede',tip:'PT07 · Gi0/7',etiq:'PP01-P07-SW03-P07',sala:'Comercial'},
+  {p:8,t:'rede',tip:'PT08 · Gi0/8',etiq:'PP01-P08-SW03-P08',sala:'Comercial'},
+  {p:9,t:'rede',tip:'PT09 · Gi0/9',etiq:'PP01-P09-SW03-P09',sala:'Comercial'},
+  {p:10,t:'rede',tip:'PT10 · Gi0/10',etiq:'PP01-P10-SW03-P10',sala:'Comercial'},
+  {p:11,t:'rede',tip:'PT11 · Gi0/11',etiq:'PP01-P11-SW03-P11',sala:'Comercial'},
+  {p:12,t:'rede',tip:'PT12 · Gi0/12',etiq:'PP01-P12-SW03-P12',sala:'Comercial'},
+  {p:13,t:'rede',tip:'PT13 · Gi0/13',etiq:'PP01-P13-SW03-P13',sala:'Comercial'},
+  {p:14,t:'rede',tip:'PT14 · Gi0/14',etiq:'PP01-P14-SW03-P14',sala:'Comercial'},
+  {p:15,t:'rede',tip:'PT15 · Gi0/15',etiq:'PP01-P15-SW03-P15',sala:'Comercial'},
+  {p:16,t:'rede',tip:'PT16 · Gi0/16',etiq:'PP01-P16-SW03-P16',sala:'Comercial'},
+  {p:17,t:'rede',tip:'PT17 · Gi0/17',etiq:'PP01-P17-SW03-P17',sala:'Comercial'},
+  {p:18,t:'rede',tip:'PT18 · Gi0/18',etiq:'PP01-P18-SW03-P18',sala:'Comercial'},
+  {p:19,t:'rede',tip:'PT19 · Gi0/19',etiq:'PP01-P19-SW03-P19',sala:'Comercial'},
+  {p:20,t:'rede',tip:'PT20 · Gi0/20',etiq:'PP01-P20-SW03-P20',sala:'Auditório'},
+  {p:21,t:'rede',tip:'PT21 · Gi0/21',etiq:'PP01-P21-SW03-P21',sala:'RH+Seg.'},
+  {p:22,t:'rede',tip:'PT22 · Gi0/22',etiq:'PP01-P22-SW03-P22',sala:'RH+Seg.'},
+  {p:23,t:'rede',tip:'PT23 · Gi0/23',etiq:'PP01-P23-SW03-P23',sala:'RH+Seg.'},
+  {p:24,t:'rede',tip:'PT24 · Gi0/24',etiq:'PP01-P24-SW03-P24',sala:'RH+Seg.'}
+];
+var PP02=[
+  {p:1,t:'rede',tip:'PT01 · Gi0/25',etiq:'PP02-P01-SW03-P25',sala:'RH+Seg.'},
+  {p:2,t:'rede',tip:'PT02 · Gi0/26',etiq:'PP02-P02-SW03-P26',sala:'RH+Seg.'},
+  {p:3,t:'rede',tip:'PT03 · Gi0/27',etiq:'PP02-P03-SW03-P27',sala:'Projetos'},
+  {p:4,t:'rede',tip:'PT04 · Gi0/28',etiq:'PP02-P04-SW03-P28',sala:'Projetos'},
+  {p:5,t:'rede',tip:'PT05 · Gi0/29',etiq:'PP02-P05-SW03-P29',sala:'Projetos'},
+  {p:6,t:'rede',tip:'PT06 · Gi0/30',etiq:'PP02-P06-SW03-P30',sala:'Projetos'},
+  {p:7,t:'rede',tip:'PT07 · Gi0/31',etiq:'PP02-P07-SW03-P31',sala:'Projetos'},
+  {p:8,t:'rede',tip:'PT08 · Gi0/32',etiq:'PP02-P08-SW03-P32',sala:'Projetos'},
+  {p:9,t:'rede',tip:'PT09 · Gi0/33',etiq:'PP02-P09-SW03-P33',sala:'Projetos'},
+  {p:10,t:'rede',tip:'PT10 · Gi0/34',etiq:'PP02-P10-SW03-P34',sala:'Marketing'},
+  {p:11,t:'rede',tip:'PT11 · Gi0/35',etiq:'PP02-P11-SW03-P35',sala:'Marketing'},
+  {p:12,t:'rede',tip:'PT12 · Gi0/36',etiq:'PP02-P12-SW03-P36',sala:'Marketing'},
+  {p:13,t:'rede',tip:'PT13 · Gi0/37',etiq:'PP02-P13-SW03-P37',sala:'Marketing'},
+  {p:14,t:'rede',tip:'PT14 · Gi0/38',etiq:'PP02-P14-SW03-P38',sala:'Marketing'},
+  {p:15,t:'esp',tip:'Relógio de ponto · PT15 · Gi0/39',etiq:'PP02-P15-SW03-P39',sala:'Recepção'},
+  {p:16,t:'rede',tip:'PT16 · Gi0/40',etiq:'PP02-P16-SW03-P40',sala:'Reunião'},
+  {p:17,t:'rede',tip:'PT17 · Gi0/41',etiq:'PP02-P17-SW03-P41',sala:'RH+Seg.'},
+  {p:18,t:'esp',tip:'Fechadura facial · PT18 · Gi0/42',etiq:'PP02-P18-SW03-P42',sala:'Marketing'},
+  {p:19,t:'ap',tip:'Access Point 1 · AP1 · Gi0/43',etiq:'PP02-P19-SW03-P43',sala:'Comercial'},
+  {p:20,t:'ap',tip:'Access Point 2 · AP2 · Gi0/44',etiq:'PP02-P20-SW03-P44',sala:'Corredor'},
+  {p:21,t:'cam',tip:'Câmera 01 · CA01 · Gi0/45',etiq:'PP02-P21-SW03-P45',sala:'Coordenação'},
+  {p:22,t:'cam',tip:'Câmera 02 · CA02 · Gi0/46',etiq:'PP02-P22-SW03-P46',sala:'Comercial'},
+  {p:23,t:'cam',tip:'Câmera 03 · CA03 · Gi0/47',etiq:'PP02-P23-SW03-P47',sala:'Comercial'},
+  {p:24,t:'cam',tip:'Câmera 04 · CA04 · Gi0/48',etiq:'PP02-P24-SW03-P48',sala:'Auditório'}
+];
+var PP03=[
+  {p:1,t:'cam',tip:'Câmera 05 · CA05 · Gi0/1',etiq:'PP03-P01-SW04-P01',sala:'Auditório'},
+  {p:2,t:'cam',tip:'Câmera 06 · CA06 · Gi0/2',etiq:'PP03-P02-SW04-P02',sala:'RH+Seg.'},
+  {p:3,t:'cam',tip:'Câmera 07 · CA07 · Gi0/3',etiq:'PP03-P03-SW04-P03',sala:'RH+Seg.'},
+  {p:4,t:'cam',tip:'Câmera 08 · CA08 · Gi0/4',etiq:'PP03-P04-SW04-P04',sala:'Projetos'},
+  {p:5,t:'cam',tip:'Câmera 09 · CA09 · Gi0/5',etiq:'PP03-P05-SW04-P05',sala:'Projetos'},
+  {p:6,t:'cam',tip:'Câmera 10 · CA10 · Gi0/6',etiq:'PP03-P06-SW04-P06',sala:'Marketing'},
+  {p:7,t:'cam',tip:'Câmera 11 · CA11 · Gi0/7',etiq:'PP03-P07-SW04-P07',sala:'Marketing'},
+  {p:8,t:'cam',tip:'Câmera 12 · CA12 · Gi0/8',etiq:'PP03-P08-SW04-P08',sala:'Recepção'},
+  {p:9,t:'cam',tip:'Câmera 13 · CA13 · Gi0/9',etiq:'PP03-P09-SW04-P09',sala:'Recepção'},
+  {p:10,t:'cam',tip:'Câmera 14 · CA14 · Gi0/10',etiq:'PP03-P10-SW04-P10',sala:'Descanso'},
+  {p:11,t:'cam',tip:'Câmera 15 · CA15 · Gi0/11',etiq:'PP03-P11-SW04-P11',sala:'Descanso'},
+  {p:12,t:'cam',tip:'Câmera 16 · CA16 · Gi0/12',etiq:'PP03-P12-SW04-P12',sala:'Reunião'},
+  {p:13,t:'cam',tip:'Câmera 17 · CA17 · Gi0/13',etiq:'PP03-P13-SW04-P13',sala:'Reunião'},
+  {p:14,t:'cam',tip:'Câmera 18 · CA18 · Gi0/14',etiq:'PP03-P14-SW04-P14',sala:'Entrada'},
+  {p:15,t:'rede',tip:'PT15 · Gi0/15',etiq:'PP03-P15-SW04-P15',sala:'Auditório'},
+  {p:16,t:'livre',tip:' · Gi0/16',etiq:'PP03-P16-SW04-P16',sala:''},
+  {p:17,t:'livre',tip:' · Gi0/17',etiq:'PP03-P17-SW04-P17',sala:''},
+  {p:18,t:'livre',tip:' · Gi0/18',etiq:'PP03-P18-SW04-P18',sala:''},
+  {p:19,t:'livre',tip:' · Gi0/19',etiq:'PP03-P19-SW04-P19',sala:''},
+  {p:20,t:'livre',tip:' · Gi0/20',etiq:'PP03-P20-SW04-P20',sala:''},
+  {p:21,t:'livre',tip:' · Gi0/21',etiq:'PP03-P21-SW04-P21',sala:''},
+  {p:22,t:'livre',tip:' · Gi0/22',etiq:'PP03-P22-SW04-P22',sala:''},
+  {p:23,t:'livre',tip:' · Gi0/23',etiq:'PP03-P23-SW04-P23',sala:''},
+  {p:24,t:'livre',tip:' · Gi0/24',etiq:'PP03-P24-SW04-P24',sala:''}
+];
+var CLS={rede:'p-rede',cam:'p-cam',ap:'p-ap',esp:'p-esp',livre:'p-livre'};
+function renderPorts(id,data){
+  var el=document.getElementById(id);
+  if(!el)return;
+  data.forEach(function(d){
+    var div=document.createElement('div');
+    div.className='port '+(CLS[d.t]||'p-livre');
+    div.textContent=d.p;
+    var tip=document.createElement('div');
+    tip.className='port-tip';
+    tip.textContent=d.tip||('PT-'+String(d.p).padStart(2,'0'));
+    div.appendChild(tip);
+    el.appendChild(div);
+  });
+}
+renderPorts('pp01-ports',PP01);
+renderPorts('pp02-ports',PP02);
+renderPorts('pp03-ports',PP03);
+
+// ── Gráfico ───────────────────────────────────────────────────────
+var ctx=document.getElementById('tipoChart');
+if(ctx&&window.Chart){
+  new Chart(ctx,{type:'bar',
+    data:{labels:['Rede','Câmeras','APs','Especiais','Livres'],
+      datasets:[{data:[41,18,2,2,9],
+        backgroundColor:['#c0392b','#2980b9','#27ae60','#d4ac0d','#d3d1c7'],
+        borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{font:{size:11},color:'#5f5e5a'},grid:{display:false},border:{display:false}},
+        y:{ticks:{font:{size:11},color:'#888780',stepSize:10},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false},beginAtZero:true}}}
+  });
+}
+
+// ── Mapa ──────────────────────────────────────────────────────────
+var IMG_W=5480,IMG_H=3141;
+var TIPO_LABEL={rede:'Ponto de rede',cam:'Câmera IP',ap:'Access Point',esp:'Dispositivo especial'};
+var TIPO_BADGE={rede:'badge-rede',cam:'badge-cam',ap:'badge-ap',esp:'badge-esp'};
+var PONTOS=[
+  ['PT01-PP01',74.599,31.073,'rede','PP-01','01','UBNT-SW-03','Gi0/1','Coordenação'],
+  ['PT02-PP01',65.693,16.683,'rede','PP-01','02','UBNT-SW-03','Gi0/2','Coordenação'],
+  ['PT03-PP01',59.58,16.555,'rede','PP-01','03','UBNT-SW-03','Gi0/3','Comercial'],
+  ['PT04-PP01',51.314,19.102,'rede','PP-01','04','UBNT-SW-03','Gi0/4','Comercial'],
+  ['PT05-PP01',47.245,19.039,'rede','PP-01','05','UBNT-SW-03','Gi0/5','Comercial'],
+  ['PT06-PP01',43.066,19.007,'rede','PP-01','06','UBNT-SW-03','Gi0/6','Comercial'],
+  ['PT07-PP01',52.336,29.799,'rede','PP-01','07','UBNT-SW-03','Gi0/7','Comercial'],
+  ['PT08-PP01',47.865,29.863,'rede','PP-01','08','UBNT-SW-03','Gi0/8','Comercial'],
+  ['PT09-PP01',43.029,29.799,'rede','PP-01','09','UBNT-SW-03','Gi0/9','Comercial'],
+  ['PT10-PP01',55.931,41.834,'rede','PP-01','10','UBNT-SW-03','Gi0/10','Comercial'],
+  ['PT11-PP01',51.35,41.802,'rede','PP-01','11','UBNT-SW-03','Gi0/11','Comercial'],
+  ['PT12-PP01',47.08,41.738,'rede','PP-01','12','UBNT-SW-03','Gi0/12','Comercial'],
+  ['PT13-PP01',42.901,41.611,'rede','PP-01','13','UBNT-SW-03','Gi0/13','Comercial'],
+  ['PT14-PP01',55.967,52.436,'rede','PP-01','14','UBNT-SW-03','Gi0/14','Comercial'],
+  ['PT15-PP01',51.551,52.34,'rede','PP-01','15','UBNT-SW-03','Gi0/15','Comercial'],
+  ['PT16-PP01',47.099,52.499,'rede','PP-01','16','UBNT-SW-03','Gi0/16','Comercial'],
+  ['PT17-PP01',42.901,52.499,'rede','PP-01','17','UBNT-SW-03','Gi0/17','Comercial'],
+  ['PT18-PP01',41.04,23.814,'rede','PP-01','18','UBNT-SW-03','Gi0/18','Comercial'],
+  ['PT19-PP01',41.423,46.864,'rede','PP-01','19','UBNT-SW-03','Gi0/19','Comercial'],
+  ['PT20-PP01',22.573,40.528,'rede','PP-01','20','UBNT-SW-03','Gi0/20','Auditório'],
+  ['PT21-PP01',14.434,56.001,'rede','PP-01','21','UBNT-SW-03','Gi0/21','RH+Seg.'],
+  ['PT22-PP01',9.635,56.16,'rede','PP-01','22','UBNT-SW-03','Gi0/22','RH+Seg.'],
+  ['PT23-PP01',6.442,57.307,'rede','PP-01','23','UBNT-SW-03','Gi0/23','RH+Seg.'],
+  ['PT24-PP01',6.77,51.894,'rede','PP-01','24','UBNT-SW-03','Gi0/24','RH+Seg.'],
+  ['PT01-PP02',7.555,44.19,'rede','PP-02','01','UBNT-SW-03','Gi0/25','RH+Seg.'],
+  ['PT02-PP02',12.956,38.077,'rede','PP-02','02','UBNT-SW-03','Gi0/26','RH+Seg.'],
+  ['PT03-PP02',6.405,65.521,'rede','PP-02','03','UBNT-SW-03','Gi0/27','Projetos'],
+  ['PT04-PP02',6.186,72.875,'rede','PP-02','04','UBNT-SW-03','Gi0/28','Projetos'],
+  ['PT05-PP02',5.456,79.975,'rede','PP-02','05','UBNT-SW-03','Gi0/29','Projetos'],
+  ['PT06-PP02',5.474,89.685,'rede','PP-02','06','UBNT-SW-03','Gi0/30','Projetos'],
+  ['PT07-PP02',10.949,89.462,'rede','PP-02','07','UBNT-SW-03','Gi0/31','Projetos'],
+  ['PT08-PP02',15.73,89.43,'rede','PP-02','08','UBNT-SW-03','Gi0/32','Projetos'],
+  ['PT09-PP02',16.387,75.263,'rede','PP-02','09','UBNT-SW-03','Gi0/33','Projetos'],
+  ['PT10-PP02',34.945,81.344,'rede','PP-02','10','UBNT-SW-03','Gi0/34','Marketing'],
+  ['PT11-PP02',30.128,81.152,'rede','PP-02','11','UBNT-SW-03','Gi0/35','Marketing'],
+  ['PT12-PP02',26.624,81.471,'rede','PP-02','12','UBNT-SW-03','Gi0/36','Marketing'],
+  ['PT13-PP02',23.248,81.407,'rede','PP-02','13','UBNT-SW-03','Gi0/37','Marketing'],
+  ['PT14-PP02',24.635,70.519,'rede','PP-02','14','UBNT-SW-03','Gi0/38','Marketing'],
+  ['PT16-PP02',63.595,47.851,'rede','PP-02','16','UBNT-SW-03','Gi0/40','Reunião'],
+  ['PT17-PP02',17.19,26.106,'rede','PP-02','17','UBNT-SW-03','Gi0/41','RH+Seg.'],
+  ['PT18-FECHADURA',39.015,83.572,'esp','PP-02','18','UBNT-SW-03','Gi0/42','Fechadura Facial'],
+  ['PT15-RELOGIO',67.956,76.345,'esp','PP-02','15','UBNT-SW-03','Gi0/39','Relógio de Ponto'],
+  ['AP1',60.201,55.269,'ap','PP-02','19','UBNT-SW-03','Gi0/43','Access Point 1'],
+  ['AP2',24.653,63.069,'ap','PP-02','20','UBNT-SW-03','Gi0/44','Access Point 2'],
+  ['CA01',71.971,20.439,'cam','PP-03','01','UBNT-SW-04','Gi0/1','Câmera 01'],
+  ['CA02',53.723,12.767,'cam','PP-03','02','UBNT-SW-04','Gi0/2','Câmera 02'],
+  ['CA03',60.164,46.896,'cam','PP-03','03','UBNT-SW-04','Gi0/3','Câmera 03'],
+  ['CA04',38.485,55.333,'cam','PP-03','04','UBNT-SW-04','Gi0/4','Câmera 04'],
+  ['CA05',24.398,27.125,'cam','PP-03','05','UBNT-SW-04','Gi0/5','Câmera 05'],
+  ['CA06',19.982,28.653,'cam','PP-03','06','UBNT-SW-04','Gi0/6','Câmera 06'],
+  ['CA07',19.854,45.4,'cam','PP-03','07','UBNT-SW-04','Gi0/7','Câmera 07'],
+  ['CA08',9.252,62.114,'cam','PP-03','08','UBNT-SW-04','Gi0/8','Câmera 08'],
+  ['CA09',7.555,86.087,'cam','PP-03','09','UBNT-SW-04','Gi0/9','Câmera 09'],
+  ['CA10',22.609,75.135,'cam','PP-03','10','UBNT-SW-04','Gi0/10','Câmera 10'],
+  ['CA11',36.04,69.277,'cam','PP-03','11','UBNT-SW-04','Gi0/11','Câmera 11'],
+  ['CA12',46.46,79.975,'cam','PP-03','12','UBNT-SW-04','Gi0/12','Câmera 12'],
+  ['CA13',64.964,70.455,'cam','PP-03','13','UBNT-SW-04','Gi0/13','Câmera 13'],
+  ['CA14',72.482,63.419,'cam','PP-03','14','UBNT-SW-04','Gi0/14','Câmera 14'],
+  ['CA15',83.522,64.343,'cam','PP-03','15','UBNT-SW-04','Gi0/15','Câmera 15'],
+  ['CA16',64.288,55.301,'cam','PP-03','16','UBNT-SW-04','Gi0/16','Câmera 16'],
+  ['CA17',65.748,39.255,'cam','PP-03','17','UBNT-SW-04','Gi0/17','Câmera 17'],
+  ['CA18',39.544,89.717,'cam','PP-03','18','UBNT-SW-04','Gi0/18','Câmera 18'],
+  ['PT15-PP03',22.609,57.338,'rede','PP-03','15','UBNT-SW-04','Gi0/15','Auditório']
+];
+var mapTooltip=document.getElementById('mapTooltip');
+function renderPoints(){
+  var layer=document.getElementById('pointsLayer');
+  layer.innerHTML='';
+  var cnts={rede:0,cam:0,ap:0,esp:0};
+  PONTOS.forEach(function(p){
+    var label=p[0],xp=p[1],yp=p[2],tipo=p[3],pp=p[4],porta=p[5],sw=p[6],swp=p[7],sala=p[8];
+    cnts[tipo]=(cnts[tipo]||0)+1;
+    var div=document.createElement('div');
+    div.className='point '+tipo;
+    div.style.left=(xp/100*IMG_W)+'px';
+    div.style.top=(yp/100*IMG_H)+'px';
+    div.dataset.tipo=tipo;
+    var dot=document.createElement('div');
+    dot.className='point-dot';
+    var m=label.match(/[0-9]+/);
+    dot.textContent=m?m[0]:label.slice(0,3);
+    div.appendChild(dot);
+    div.addEventListener('mouseenter',function(e){showTip(e,p)});
+    div.addEventListener('mouseleave',function(){mapTooltip.classList.remove('visible')});
+    div.addEventListener('mousemove',moveTip);
+    layer.appendChild(div);
+  });
+  document.getElementById('cnt-rede').textContent=cnts.rede||0;
+  document.getElementById('cnt-cam').textContent=cnts.cam||0;
+  document.getElementById('cnt-ap').textContent=cnts.ap||0;
+  document.getElementById('cnt-esp').textContent=cnts.esp||0;
+}
+function showTip(e,p){
+  var label=p[0],tipo=p[3],pp=p[4],porta=p[5],sw=p[6],swp=p[7],sala=p[8];
+  var ppn=pp.replace('PP-','');var swn=sw.replace('UBNT-SW-0','');var swpn=swp.replace('Gi0/','');
+  var etiq='PP'+ppn.padStart(2,'0')+'-P'+porta.padStart(2,'0')+'-SW0'+swn+'-P'+swpn.padStart(2,'0');
+  mapTooltip.innerHTML='<div class="tt-header"><span class="tt-label">'+label+'</span><span class="tt-badge '+TIPO_BADGE[tipo]+'">'+TIPO_LABEL[tipo]+'</span></div><div class="tt-divider"></div><div class="tt-row"><span class="tt-key">Sala</span><span class="tt-val">'+sala+'</span></div><div class="tt-row"><span class="tt-key">Patch Panel</span><span class="tt-val">'+pp+' · Porta '+porta.padStart(2,'0')+'</span></div><div class="tt-row"><span class="tt-key">Switch</span><span class="tt-val">'+sw+'</span></div><div class="tt-row"><span class="tt-key">Porta SW</span><span class="tt-val">'+swp+'</span></div><div class="tt-row"><span class="tt-key">Etiqueta</span><span class="tt-etiq">'+etiq+'</span></div>';
+  mapTooltip.classList.add('visible');moveTip(e);
+}
+function moveTip(e){
+  var x=e.clientX+16,y=e.clientY-10;
+  if(x+220>window.innerWidth)x=e.clientX-236;
+  if(y+160>window.innerHeight)y=e.clientY-160;
+  mapTooltip.style.left=x+'px';mapTooltip.style.top=y+'px';
+}
+function setFilter(f){
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelector('.f-'+f).classList.add('active');
+  document.querySelectorAll('.point').forEach(function(pt){pt.classList.toggle('hidden',f!=='all'&&pt.dataset.tipo!==f)});
+}
+var container=document.getElementById('mapContainer'),inner=document.getElementById('mapInner');
+var scale=1,tx=0,ty=0,dragging=false,startX,startY,startTx,startTy;
+function applyT(){inner.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';document.getElementById('zoomLevel').textContent=Math.round(scale*100)+'%';}
+function zoom(d,cx,cy){var rect=container.getBoundingClientRect();var mx=(cx!==undefined?cx:rect.left+rect.width/2)-rect.left;var my=(cy!==undefined?cy:rect.top+rect.height/2)-rect.top;var ns=Math.max(0.1,Math.min(5,scale+d));var r=ns/scale;tx=mx-r*(mx-tx);ty=my-r*(my-ty);scale=ns;applyT();}
+function resetView(){var rect=container.getBoundingClientRect();if(!rect.width)return;scale=Math.min(rect.width/IMG_W,rect.height/IMG_H)*0.97;tx=(rect.width-IMG_W*scale)/2;ty=(rect.height-IMG_H*scale)/2;applyT();}
+container.addEventListener('wheel',function(e){e.preventDefault();zoom(e.deltaY>0?-0.12:0.12,e.clientX,e.clientY)},{passive:false});
+container.addEventListener('mousedown',function(e){dragging=true;startX=e.clientX;startY=e.clientY;startTx=tx;startTy=ty;container.classList.add('grabbing')});
+document.addEventListener('mousemove',function(e){if(!dragging)return;tx=startTx+(e.clientX-startX);ty=startTy+(e.clientY-startY);applyT()});
+document.addEventListener('mouseup',function(){dragging=false;container.classList.remove('grabbing')});
+function doLogout(){fetch('/logout',{headers:{'Authorization':'Basic '+btoa('logout:logout')}}).finally(function(){window.location.href='/logout'});return false;}
+</script>
+</body>
+</html>

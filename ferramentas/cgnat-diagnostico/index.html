@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CGNAT Diagnóstico — NetOps NexTelecom</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',sans-serif;min-height:100vh}
+/* ── Navbar NetOps ── */
+.navbar{position:sticky;top:0;left:0;right:0;height:60px;z-index:200;background:rgba(15,20,28,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,102,0,0.15);display:flex;align-items:center;padding:0 1.25rem;gap:0}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:1rem;flex-shrink:0}
+.nav-logo{width:30px;height:30px;filter:drop-shadow(0 0 6px rgba(255,102,0,.35))}
+.nav-title-text{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+.nav-title-text span{color:#FF6600}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1}
+.nav-item{position:relative}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.open{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-btn svg{transition:transform .2s}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 10px);left:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:240px;box-shadow:0 16px 48px rgba(0,0,0,.5);overflow:hidden;z-index:300}
+.nav-dropdown.open{display:block}
+.nav-dd-header{font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
+.nav-dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;text-decoration:none;color:#CBD5E0;font-size:13px;font-weight:500;transition:background .12s,color .12s}
+.nav-dd-item:hover{background:rgba(255,102,0,0.08);color:#fff}
+.nav-dd-item.disabled{opacity:.45;cursor:default;pointer-events:none}
+.nav-dd-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:4px 0}
+.dd-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dd-icon.orange{background:rgba(255,102,0,0.15)}
+.dd-icon.blue{background:rgba(41,120,255,0.15)}
+.dd-icon.purple{background:rgba(112,64,192,0.15)}
+.dd-icon.teal{background:rgba(0,210,200,0.12)}
+.dd-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+.dd-badge.green{background:rgba(34,197,94,0.15);color:#4ade80}
+.dd-badge.amber{background:rgba(245,158,11,0.12);color:#fbbf24}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.user-btn{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-family:inherit;color:#CBD5E0;font-size:13px;font-weight:500;transition:border-color .15s,background .15s;white-space:nowrap}
+.user-btn:hover{border-color:rgba(255,102,0,0.4);background:rgba(255,102,0,0.06);color:#fff}
+.user-avatar{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#FF6600,#FF3500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-dropdown{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:200px;box-shadow:0 16px 48px rgba(0,0,0,.5);padding:.75rem;z-index:300}
+.user-dropdown.open{display:block}
+.ud-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.ud-role{font-size:11px;color:#929EB0;margin-bottom:.75rem}
+.ud-sep{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:.5rem 0}
+.btn-ud-logout{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:#ff8080;text-align:left;transition:background .12s}
+.btn-ud-logout:hover{background:rgba(255,100,100,0.08)}
+.nex-xlink{display:flex;align-items:center;gap:5px;padding:5px 10px;background:rgba(255,102,0,0.1);border:1px solid rgba(255,102,0,0.22);border-radius:8px;color:#FF9940;font-size:12px;font-weight:600;text-decoration:none;transition:.15s;white-space:nowrap}
+.nex-xlink:hover{background:rgba(255,102,0,0.2);color:#FF6600}
+.container{max-width:960px;margin:40px auto;padding:0 24px}
+h1{font-size:22px;font-weight:600;margin-bottom:8px;color:#e6edf3}
+.subtitle{color:#8b949e;font-size:14px;margin-bottom:28px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:24px;margin-bottom:20px}
+.form-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+input[type=text]{flex:1;min-width:200px;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 14px;color:#e6edf3;font-size:15px;outline:none;transition:.2s}
+input[type=text]:focus{border-color:#58a6ff;box-shadow:0 0 0 3px rgba(88,166,255,.1)}
+input[type=text]::placeholder{color:#484f58}
+button{background:#238636;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap}
+button:hover{background:#2ea043}
+button:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
+.spinner{display:none;width:18px;height:18px;border:2px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .7s linear infinite;margin-left:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.section-title{font-size:13px;font-weight:600;color:#8b949e;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat-box{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px 16px;text-align:center}
+.stat-val{font-size:26px;font-weight:700;color:#58a6ff;margin-bottom:4px}
+.stat-val.ok{color:#3fb950}
+.stat-val.warn{color:#d29922}
+.stat-val.danger{color:#f85149}
+.stat-lbl{font-size:12px;color:#8b949e}
+.sat-bars{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+.sat-item{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px}
+.sat-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sat-title{font-size:12px;color:#8b949e}
+.sat-pct{font-size:14px;font-weight:700}
+.sat-pct.ok{color:#3fb950}
+.sat-pct.warn{color:#d29922}
+.sat-pct.danger{color:#f85149}
+.progress-bar{height:6px;background:#21262d;border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .4s}
+.fill-ok{background:#3fb950}
+.fill-warn{background:#d29922}
+.fill-danger{background:#f85149}
+.sat-detail{font-size:11px;color:#484f58;margin-top:4px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-a1{background:#1f4776;color:#58a6ff}
+.badge-a2{background:#1c3a2a;color:#3fb950}
+.badge-ok{background:#1c3a2a;color:#3fb950}
+.badge-warn{background:#3a2a00;color:#d29922}
+.badge-danger{background:#2d1c1c;color:#f85149}
+.badge-none{background:#21262d;color:#8b949e}
+.badge-suspenso{background:#3a2000;color:#e3a000}
+.badge-cancelado{background:#2d1c1c;color:#f85149}
+.badge-ativo{background:#1c3a2a;color:#3fb950}
+.badge-nex{background:#2d1800;color:#FF8040;border:1px solid rgba(255,100,0,.45);border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;display:inline-block}
+.badge-alfa{background:#1a1042;color:#bc8cff;border:1px solid rgba(140,87,229,.45);border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;display:inline-block}
+pre{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px;font-size:12px;color:#e6edf3;overflow:auto;max-height:300px;white-space:pre-wrap;word-break:break-all;line-height:1.5}
+.hop-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+.hop-table th{text-align:left;padding:6px 10px;color:#8b949e;border-bottom:1px solid #30363d;font-weight:500}
+.hop-table td{padding:7px 10px;border-bottom:1px solid #21262d;color:#e6edf3;font-family:'Consolas','SF Mono',monospace}
+.hop-table tr:last-child td{border-bottom:none}
+.hop-num{color:#484f58;width:30px;text-align:right}
+.hop-host{color:#58a6ff}
+.hop-ip{color:#8b949e;font-size:12px}
+.hop-rtt{color:#3fb950}
+.hop-err{color:#f85149}
+.ont-badge{display:inline-block;background:#1f3a4f;border:1px solid #1d5e8a;border-radius:6px;padding:4px 12px;font-size:12px;color:#58a6ff;margin-bottom:12px;font-family:monospace}
+.error-box{background:#2d1c1c;border:1px solid #6e2c2c;border-radius:8px;padding:14px;color:#f85149;font-size:13px;margin-bottom:16px}
+.warn-box{background:#2a2000;border:1px solid #6e5300;border-radius:8px;padding:14px;color:#d29922;font-size:13px;margin-bottom:16px}
+#results{display:none}
+.info-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:14px}
+.info-lbl{color:#8b949e;min-width:160px}
+.info-val{color:#e6edf3;font-weight:500}
+.alert-box{background:#1c2a1c;border:1px solid #2ea043;border-radius:8px;padding:14px 18px;margin-top:12px}
+.alert-box .alert-title{color:#3fb950;font-weight:600;font-size:13px;margin-bottom:6px}
+.alert-box ul{color:#e6edf3;font-size:13px;padding-left:16px;line-height:1.7}
+.alert-box.danger-alert{background:#2d1c1c;border-color:#f85149}
+.alert-box.danger-alert .alert-title{color:#f85149}
+.hist-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.hist-table th{text-align:left;padding:6px 10px;color:#8b949e;border-bottom:1px solid #30363d;font-weight:500}
+.hist-table td{padding:7px 10px;border-bottom:1px solid #21262d;color:#e6edf3}
+.hist-table tr:last-child td{border-bottom:none}
+.hint{font-size:12px;color:#484f58;margin-top:8px}
+.btn-backlog{background:transparent;border:1px solid #30363d;color:#8b949e;padding:6px 14px;font-size:13px;border-radius:6px;cursor:pointer;display:inline-block}
+.btn-backlog:hover{background:#21262d;color:#e6edf3;border-color:#8b949e}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#161b22;border:1px solid #30363d;border-radius:12px;width:100%;max-width:680px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;margin:16px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #30363d}
+.modal-header h2{font-size:16px;font-weight:700;color:#e6edf3}
+.modal-close{background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.modal-close:hover{color:#e6edf3;background:#21262d}
+.modal-body{overflow-y:auto;padding:16px 24px}
+.bl-entry{border-left:3px solid #30363d;padding:10px 16px;margin-bottom:12px;background:#0d1117;border-radius:0 6px 6px 0}
+.bl-entry:last-child{margin-bottom:0}
+.bl-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.bl-date{font-size:11px;color:#8b949e;font-family:monospace}
+.bl-type{font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px}
+.bl-type.fix{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+.bl-type.feature{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd}
+.bl-type.deploy{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+.bl-type.melhoria{background:#1a1442;color:#bc8cff;border:1px solid #8957e5}
+.bl-title{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:3px}
+.bl-desc{font-size:12px;color:#8b949e;line-height:1.5}
+@media(max-width:768px){
+  body{overflow-x:hidden}
+  .nav-links{display:none}
+  .nav-brand{margin-right:auto}
+  .container{padding:0 12px;margin:20px auto}
+  .form-row{flex-direction:column;align-items:stretch}
+  .sat-bars{grid-template-columns:1fr}
+  .info-lbl{min-width:110px}
+  .modal{max-width:calc(100vw - 32px)}
+  .hop-table{font-size:11px}
+}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="nav-brand" href="/">
+    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="nbog" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#FF3500"/><stop offset="100%" stop-color="#FF7A00"/></linearGradient>
+        <linearGradient id="nbbl" x1="1" y1="0" x2=".2" y2="1"><stop offset="0%" stop-color="#0A44B0"/><stop offset="100%" stop-color="#2978FF"/></linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="#0B1221"/>
+      <path fill="url(#nbbl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
+      <path fill="url(#nbog)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
+      <path fill="url(#nbog)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
+      <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
+      <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
+      <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
+    </svg>
+    <span class="nav-title-text">NEX <span>NetOps</span></span>
+  </a>
+  <div class="nav-links">
+    <div class="nav-item">
+      <button class="nav-btn" id="btnFerramentas" onclick="toggleNavDD('ferramentasDD','btnFerramentas')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ferramentas
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="ferramentasDD">
+        <div class="nav-dd-header">Gerador de Scripts</div>
+        <a href="/ferramentas/link-dedicado/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Dedicado<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/link-semi-dedicado/" class="nav-dd-item"><div class="dd-icon purple"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Semi-Dedicado<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Consultas</div>
+        <a href="/ferramentas/circuitos/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>Circuitos Provisionados<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/inadimplencia/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(255,80,80,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>Inadimplência<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(74,222,128,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv4<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc6/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(129,140,248,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv6<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/gpon-diagnostico/" class="nav-dd-item"><div class="dd-icon teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>GPON Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/cgnat-diagnostico/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>CGNAT Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/synapse/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(0,200,255,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></svg></div>Synapse IoT Builder<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <button class="nav-btn" id="btnTopologias" onclick="toggleNavDD('topologiasDD','btnTopologias')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><path d="M5 9v4h14V9"/><line x1="12" y1="13" x2="12" y2="15"/></svg>
+        Topologias de Rede
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="topologiasDD">
+        <div class="nav-dd-header">Escritório PQS</div>
+        <a href="/rede/escritorio-pqs-1andar/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>1º Andar — Rack Central<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Backbone</div>
+        <a href="/topologias/bgp-upstream/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Topologia BGP — AS265019<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="/ferramentas/gpon-diagnostico/" class="nex-xlink">⇄ GPON</a>
+    <button class="btn-backlog" id="btnBacklog" onclick="document.getElementById('modalBacklog').classList.add('open')">📋 Backlog</button>
+    <div class="nav-item" style="position:relative">
+      <button class="user-btn" id="userBtn" onclick="toggleNavDD('userDD','userBtn')">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userLabel">...</span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="user-dropdown" id="userDD">
+        <div class="ud-name" id="udName">—</div>
+        <div class="ud-role" id="udRole">—</div>
+        <hr class="ud-sep">
+        <button class="btn-ud-logout" onclick="localStorage.removeItem('netops_token');window.location.href='/login'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Backlog -->
+<div class="modal-overlay" id="modalBacklog" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📋 Backlog — CGNAT Diagnóstico</h2>
+      <button class="modal-close" onclick="document.getElementById('modalBacklog').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">24/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Identificação de bloco IPv4 e ASN no IP público NAT</div>
+        <div class="bl-desc">Novo campo "ASN / Bloco" e tag colorida ao lado do IP NAT identificam o bloco de origem: ALFA (45.183.80.0/23 · AS269270 — empresa adquirida) e NEX (170.84.36.0/22 · AS265019 — NexTelecom).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Identificação de OLT pela interface BNG</div>
+        <div class="bl-desc">Novo campo "Vinculado a OLT" exibe a OLT do cliente com base na interface BNG (Eth-Trunk 1.3XXXX). Mapeamento: 30XXX→OLT-PQS, 31XXX→OLT-MUSSURUNGA, 32XXX→OLT-LIBERDADE, 33XXX→OLT-ITINGA-1, 34XXX→OLT-ITINGA-2, 35XXX→OLT-LAURO.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">A10 API — paginação corrigida</div>
+        <div class="bl-desc">Query alterada para <code>?inside-addr=IP</code> em vez de busca na lista completa (limitada a 2.275 entradas). Agora todos os clientes retornam IP NAT, portas e sessões corretamente.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Traceroute — coluna Device com labels internos</div>
+        <div class="bl-desc">Hops internos identificados automaticamente: BNG (100.65.255.2), A10-01 (.82/.106), A10-02 (.83/.107), SW-CORE (195.25/.41), eBGP (10.10.1.161). Mapeamento derivado do Mapa CGNAT.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Traceroute — timeout 45s → 60s + resultado parcial</div>
+        <div class="bl-desc">Polling aumentado para 12 tentativas (60s). Se a ONT tiver hops coletados ao atingir o timeout, exibe resultado parcial com aviso em laranja. maxhops reduzido de 20 → 15.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">Traceroute — campos Huawei ONT normalizados</div>
+        <div class="bl-desc">ONTs Huawei (HG8145V5-V2) usam HopHost/HopRTTimes/HopHostAddress em vez de Host/RTTimes/HostAddress (TP-Link). Frontend agora normaliza ambos os formatos, incluindo RTT ("2.740 ms, 9.594 ms").</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">A10 — mensagem diferenciada: sem sessão vs NAT dinâmico</div>
+        <div class="bl-desc">Quando cliente tem sessão BNG ativa mas não aparece na lista A10 (NAT dinâmico sem PBA), exibe aviso âmbar explicativo em vez de "Sem sessão CGNAT ativa".</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#58a6ff">
+        <div class="bl-meta"><span class="bl-date">set/2026</span><span class="bl-type feature">Feature</span></div>
+        <div class="bl-title">Traceroute ONT via TR-069 (OLT-CLOUD) — 2 etapas</div>
+        <div class="bl-desc">Diagnóstico rápido (~3s) na primeira etapa. Traceroute real pela ONT do assinante disponível como segunda etapa, com destino configurável. Suporta ONTs TP-Link e Huawei via OLT-CLOUD API.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#3fb950">
+        <div class="bl-meta"><span class="bl-date">set/2026</span><span class="bl-type deploy">Deploy</span></div>
+        <div class="bl-title">Integração BNG NE40-E via SSH</div>
+        <div class="bl-desc">Consulta de sessão PPPoE por IP: username, estado, interface, MAC, uptime, plano (CIR down/up), velocidade atual (RADIUS).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#3fb950">
+        <div class="bl-meta"><span class="bl-date">set/2026</span><span class="bl-type deploy">Deploy</span></div>
+        <div class="bl-title">Deploy inicial — Diagnóstico CGNAT</div>
+        <div class="bl-desc">Ferramenta lançada com consulta A10 aXAPI (IP NAT, portas, sessões, saturação) e identificação de A10-01 (100.65.128.0/18) e A10-02 (100.65.192.0/18).</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <h1>CGNAT Diagnóstico</h1>
+  <p class="subtitle">Informe o IP privado CGNAT do assinante para verificar sessões, pool NAT, identificação e latência de rotas.</p>
+
+  <div class="card">
+    <div class="form-row">
+      <input type="text" id="ipInput" placeholder="IP do assinante — ex: 100.65.200.10" maxlength="15">
+      <button id="btnDiag" onclick="executarDiag()">Diagnosticar</button>
+      <div class="spinner" id="spinner"></div>
+    </div>
+    <div class="hint">Ranges válidos: 100.65.128.0/18 (A10-01) &nbsp;|&nbsp; 100.65.192.0/18 (A10-02)</div>
+  </div>
+
+  <div id="results">
+    <div id="errorBox" class="error-box" style="display:none"></div>
+    <div id="warnBox" class="warn-box" style="display:none"></div>
+
+    <!-- Identificação CGNAT -->
+    <div class="card">
+      <div class="section-title">Identificação CGNAT</div>
+      <div class="info-row"><span class="info-lbl">IP do assinante</span><span class="info-val" id="resIP">—</span></div>
+      <div class="info-row"><span class="info-lbl">A10 responsável</span><span class="info-val" id="resA10">—</span></div>
+      <div class="info-row"><span class="info-lbl">Range do pool</span><span class="info-val" id="resRange">—</span></div>
+      <div class="info-row"><span class="info-lbl">IP público NAT</span><span class="info-val" id="resNatIP">—</span></div>
+      <div class="info-row"><span class="info-lbl">ASN / Bloco</span><span class="info-val" id="resNatASN">—</span></div>
+      <div class="info-row"><span class="info-lbl">Pool / LID</span><span class="info-val" id="resPool">—</span></div>
+    </div>
+
+    <!-- Cliente -->
+    <div class="card" id="clienteCard">
+      <div class="section-title">Cliente (BNG)</div>
+      <div class="info-row"><span class="info-lbl">Username PPPoE</span><span class="info-val" id="cliUser">—</span></div>
+      <div class="info-row"><span class="info-lbl">Estado da sessão</span><span class="info-val" id="cliState">—</span></div>
+      <div class="info-row"><span class="info-lbl">Tipo de acesso</span><span class="info-val" id="cliType">—</span></div>
+      <div class="info-row"><span class="info-lbl">Interface BNG</span><span class="info-val" id="cliInterface">—</span></div>
+      <div class="info-row"><span class="info-lbl">Vinculado a OLT</span><span class="info-val" id="cliOlt">—</span></div>
+      <div class="info-row"><span class="info-lbl">MAC</span><span class="info-val" id="cliMac">—</span></div>
+      <div class="info-row"><span class="info-lbl">Conectado desde</span><span class="info-val" id="cliStart">—</span></div>
+      <div class="info-row"><span class="info-lbl">Tempo online</span><span class="info-val" id="cliOnline">—</span></div>
+      <div class="info-row"><span class="info-lbl">Plano contratado</span><span class="info-val" id="cliPlano">—</span></div>
+      <div class="info-row"><span class="info-lbl">Velocidade atual</span><span class="info-val" id="cliVelocidade">—</span></div>
+    </div>
+
+    <!-- Stats sessões -->
+    <div class="card" id="statsCard">
+      <div class="section-title">Uso de Portas e Sessões</div>
+      <div class="result-grid">
+        <div class="stat-box"><div class="stat-val" id="statSessoes">—</div><div class="stat-lbl">Sessões ativas</div></div>
+        <div class="stat-box"><div class="stat-val" id="statTCP">—</div><div class="stat-lbl">Portas TCP alocadas</div></div>
+        <div class="stat-box"><div class="stat-val" id="statUDP">—</div><div class="stat-lbl">Portas UDP alocadas</div></div>
+        <div class="stat-box"><div class="stat-val" id="statFC">—</div><div class="stat-lbl">Full-cone sessions</div></div>
+        <div class="stat-box"><div class="stat-val" id="statDS">—</div><div class="stat-lbl">Data sessions</div></div>
+      </div>
+      <div class="section-title" style="margin-top:4px">Saturação</div>
+      <div class="sat-bars">
+        <div class="sat-item">
+          <div class="sat-header"><span class="sat-title">Sessões</span><span class="sat-pct" id="satSessPct">—</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="satSessBar" style="width:0"></div></div>
+          <div class="sat-detail" id="satSessDetail">— / 15.000</div>
+        </div>
+        <div class="sat-item">
+          <div class="sat-header"><span class="sat-title">Portas TCP</span><span class="sat-pct" id="satTcpPct">—</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="satTcpBar" style="width:0"></div></div>
+          <div class="sat-detail" id="satTcpDetail">— / 4.096</div>
+        </div>
+        <div class="sat-item">
+          <div class="sat-header"><span class="sat-title">Portas UDP</span><span class="sat-pct" id="satUdpPct">—</span></div>
+          <div class="progress-bar"><div class="progress-fill" id="satUdpBar" style="width:0"></div></div>
+          <div class="sat-detail" id="satUdpDetail">— / 4.096</div>
+        </div>
+      </div>
+      <div id="alertCgnat"></div>
+    </div>
+
+    <!-- Traceroute via ONT TR-069 -->
+    <div class="card" id="trOntCard" style="display:none">
+      <div class="section-title">Traceroute via ONT (TR-069)</div>
+      <div id="trOntBadge" style="margin-bottom:12px"></div>
+      <div class="form-row" style="margin-bottom:16px">
+        <input type="text" id="trDestInput" placeholder="Destino (ex: 8.8.8.8 ou 1.1.1.1)" value="8.8.8.8" maxlength="64" style="max-width:320px">
+        <button id="btnTraceroute" onclick="executarTraceroute()">Executar Traceroute</button>
+        <div class="spinner" id="spinnerTr"></div>
+      </div>
+      <div id="trOntError" class="error-box" style="display:none"></div>
+      <table class="hop-table" id="trOntTable" style="display:none">
+        <thead><tr><th>#</th><th>Host</th><th>IP</th><th>Device</th><th>RTT</th></tr></thead>
+        <tbody id="trOntBody"></tbody>
+      </table>
+      <div id="trOntNone" style="color:#8b949e;font-size:13px;display:none">—</div>
+    </div>
+
+    <!-- Raw A10 output -->
+    <div class="card">
+      <div class="section-title">Output bruto A10</div>
+      <pre id="rawA10">—</pre>
+    </div>
+  </div>
+</div>
+<script>
+const API = '/api';
+const token = localStorage.getItem('netops_token');
+
+function setSatBar(pctId, barId, detailId, value, total, label) {
+  const pct = Math.min(100, Math.round(value / total * 100));
+  const cls = pct < 60 ? 'ok' : pct < 85 ? 'warn' : 'danger';
+  const fillCls = pct < 60 ? 'fill-ok' : pct < 85 ? 'fill-warn' : 'fill-danger';
+  document.getElementById(pctId).textContent = pct + '%';
+  document.getElementById(pctId).className = 'sat-pct ' + cls;
+  document.getElementById(barId).style.width = pct + '%';
+  document.getElementById(barId).className = 'progress-fill ' + fillCls;
+  document.getElementById(detailId).textContent = `${value.toLocaleString('pt-BR')} / ${total.toLocaleString('pt-BR')}`;
+}
+
+function ipToInt(ip){return ip.split('.').reduce((a,o)=>(a<<8)+parseInt(o,10),0)>>>0}
+function inCIDR(ip,cidr){const[b,bits]=cidr.split('/'),mask=~((1<<(32-+bits))-1)>>>0;return(ipToInt(ip)&mask)===(ipToInt(b)&mask)}
+function getNatIpInfo(ip){
+  if(!ip)return null;
+  if(inCIDR(ip,'45.183.80.0/23'))return{tag:'ALFA',asn:'AS269270',cls:'badge-alfa'};
+  if(inCIDR(ip,'170.84.36.0/22'))return{tag:'NEX',asn:'AS265019',cls:'badge-nex'};
+  return null;
+}
+
+async function executarDiag() {
+  const ip = document.getElementById('ipInput').value.trim();
+  if (!ip) return;
+  document.getElementById('btnDiag').disabled = true;
+  document.getElementById('spinner').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('warnBox').style.display = 'none';
+
+  try {
+    const r = await fetch(`${API}/cgnat/diagnostico`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ ip_cliente: ip })
+    });
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || 'Erro desconhecido');
+    renderResultado(data.resultado);
+  } catch(e) {
+    document.getElementById('errorBox').textContent = 'Erro: ' + e.message;
+    document.getElementById('errorBox').style.display = 'block';
+    document.getElementById('results').style.display = 'block';
+  } finally {
+    document.getElementById('btnDiag').disabled = false;
+    document.getElementById('spinner').style.display = 'none';
+  }
+}
+
+const OLT_MAP = { '0':'OLT-PQS', '1':'OLT-MUSSURUNGA', '2':'OLT-LIBERDADE', '3':'OLT-ITINGA-1', '4':'OLT-ITINGA-2', '5':'OLT-LAURO' };
+function getOltLabel(iface) {
+  const m = iface && iface.match(/1\.3(\d)/);
+  return m ? (OLT_MAP[m[1]] || null) : null;
+}
+
+function renderResultado(r) {
+  document.getElementById('results').style.display = 'block';
+
+  // Identificação CGNAT
+  document.getElementById('resIP').textContent = r.ip_cliente;
+  const a10Badge = r.a10.nome === 'A10-01' ? 'badge-a1' : 'badge-a2';
+  document.getElementById('resA10').innerHTML = `<span class="badge ${a10Badge}">${r.a10.nome}</span> — ${r.a10.ip_mgmt}`;
+  document.getElementById('resRange').textContent = r.a10.range;
+
+  // Dados do cliente (BNG NE40E)
+  const cli = r.cliente;
+  const cliIds = ['cliUser','cliState','cliType','cliInterface','cliOlt','cliMac','cliStart','cliOnline','cliPlano','cliVelocidade'];
+  if (cli && !cli.sem_sessao && !cli.erro) {
+    document.getElementById('cliUser').textContent = cli.username || '—';
+    const stateUsed = cli.state === 'Used';
+    document.getElementById('cliState').innerHTML = stateUsed
+      ? '<span class="badge badge-ativo">Ativa</span>'
+      : `<span class="badge badge-none">${cli.state || '—'}</span>`;
+    document.getElementById('cliType').textContent = cli.access_type || '—';
+    const ifaceRaw = cli.interface || '—';
+    document.getElementById('cliInterface').textContent = ifaceRaw;
+    const oltLabel = getOltLabel(ifaceRaw);
+    document.getElementById('cliOlt').innerHTML = oltLabel
+      ? `<span style="background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd;border-radius:4px;padding:2px 10px;font-size:12px;font-weight:700">${oltLabel}</span>`
+      : '—';
+    document.getElementById('cliMac').textContent = cli.mac || '—';
+    document.getElementById('cliStart').textContent = cli.access_start || '—';
+    document.getElementById('cliOnline').textContent = cli.online_time || '—';
+
+    // Plano: download = Outbound CIR, upload = Inbound CIR (perspectiva BNG)
+    const dlMbps = cli.download_cir_kbps ? Math.round(cli.download_cir_kbps / 1000) : null;
+    const ulMbps = cli.upload_cir_kbps ? Math.round(cli.upload_cir_kbps / 1000) : null;
+    document.getElementById('cliPlano').textContent = dlMbps && ulMbps
+      ? `↓ ${dlMbps} Mbps  ↑ ${ulMbps} Mbps` : '—';
+
+    // Velocidade atual: kbyte/min × 8 / 60 / 1000 = Mbps
+    const dlRt = cli.download_rt_kbmin != null ? (cli.download_rt_kbmin * 8 / 60 / 1000).toFixed(2) : null;
+    const ulRt = cli.upload_rt_kbmin != null ? (cli.upload_rt_kbmin * 8 / 60 / 1000).toFixed(2) : null;
+    document.getElementById('cliVelocidade').textContent = dlRt && ulRt
+      ? `↓ ${dlRt} Mbps  ↑ ${ulRt} Mbps` : '—';
+  } else if (cli && cli.sem_sessao) {
+    document.getElementById('cliUser').textContent = 'Não encontrado no BNG';
+    cliIds.slice(1).forEach(id => document.getElementById(id).textContent = '—');
+  } else {
+    if (cli && cli.erro) {
+      document.getElementById('warnBox').textContent = 'BNG indisponível: ' + cli.erro;
+      document.getElementById('warnBox').style.display = 'block';
+    }
+    cliIds.forEach(id => document.getElementById(id).textContent = '—');
+  }
+
+  const cg = r.cgnat;
+  if (cg && !cg.sem_sessao) {
+    const natIpInfo = getNatIpInfo(cg.nat_ip);
+    const natTagHtml = natIpInfo ? ` <span class="${natIpInfo.cls}">${natIpInfo.tag}</span>` : '';
+    document.getElementById('resNatIP').innerHTML = `<strong>${cg.nat_ip || '—'}</strong>${natTagHtml}`;
+    document.getElementById('resNatASN').textContent = natIpInfo ? natIpInfo.asn : '—';
+    document.getElementById('resPool').textContent = `${cg.pool || '—'} / LID ${cg.lid || '—'}`;
+
+    // Stats
+    document.getElementById('statSessoes').textContent = (cg.sessoes_ativas||0).toLocaleString('pt-BR');
+    document.getElementById('statTCP').textContent = (cg.tcp_quota||0).toLocaleString('pt-BR');
+    document.getElementById('statUDP').textContent = (cg.udp_quota||0).toLocaleString('pt-BR');
+    document.getElementById('statFC').textContent = (cg.full_cone_count||0).toLocaleString('pt-BR');
+    document.getElementById('statDS').textContent = (cg.data_sessions||0).toLocaleString('pt-BR');
+
+    // Saturação — 3 barras separadas, ceilings corretos
+    setSatBar('satSessPct','satSessBar','satSessDetail', cg.sessoes_ativas||0, 15000);
+    setSatBar('satTcpPct','satTcpBar','satTcpDetail', cg.tcp_quota||0, 4096);
+    setSatBar('satUdpPct','satUdpBar','satUdpDetail', cg.udp_quota||0, 4096);
+
+    // Alertas automáticos
+    const alertas = [];
+    const pctSess = (cg.sessoes_ativas||0) / 15000 * 100;
+    const pctTcp  = (cg.tcp_quota||0) / 4096 * 100;
+    const pctUdp  = (cg.udp_quota||0) / 4096 * 100;
+
+    if (pctSess >= 85) alertas.push(`Sessões críticas: ${cg.sessoes_ativas.toLocaleString('pt-BR')} / 15.000 (${Math.round(pctSess)}%)`);
+    else if (pctSess >= 60) alertas.push(`Sessões em atenção: ${cg.sessoes_ativas.toLocaleString('pt-BR')} / 15.000 (${Math.round(pctSess)}%)`);
+
+    if (pctTcp >= 85) alertas.push(`Portas TCP críticas: ${cg.tcp_quota.toLocaleString('pt-BR')} / 4.096 (${Math.round(pctTcp)}%)`);
+    if (pctUdp >= 85) alertas.push(`Portas UDP críticas: ${cg.udp_quota.toLocaleString('pt-BR')} / 4.096 (${Math.round(pctUdp)}%)`);
+
+    if (pctSess >= 60 && pctTcp < 60 && pctUdp < 60)
+      alertas.push('Perfil suspeito: muitas sessões com poucas portas — possível compartilhamento (gato net)');
+
+    const maxPct = Math.max(pctSess, pctTcp, pctUdp);
+    const alEl = document.getElementById('alertCgnat');
+    if (alertas.length) {
+      const isCritical = maxPct >= 85;
+      alEl.innerHTML = `<div class="alert-box ${isCritical?'danger-alert':''}">
+        <div class="alert-title">${isCritical ? '⚠ Alertas Críticos' : '⚠ Alertas'}</div>
+        <ul>${alertas.map(a=>`<li>${a}</li>`).join('')}</ul>
+      </div>`;
+    } else {
+      alEl.innerHTML = '';
+    }
+
+    document.getElementById('rawA10').textContent = cg.raw || '';
+  } else if (cg && cg.sem_sessao) {
+    const clienteAtivo = r.cliente && !r.cliente.sem_sessao && !r.cliente.erro;
+    document.getElementById('resNatIP').innerHTML = clienteAtivo
+      ? '<span style="color:#d29922">CGNAT ativo (NAT dinâmico — sem rastreamento individual de quota no A10)</span>'
+      : '<span style="color:#8b949e">Sem sessão CGNAT ativa</span>';
+    document.getElementById('resNatASN').textContent = '—';
+    document.getElementById('resPool').textContent = '—';
+    document.getElementById('rawA10').textContent = '';
+    ['statSessoes','statTCP','statUDP','statFC','statDS'].forEach(id => {
+      document.getElementById(id).textContent = clienteAtivo ? '—' : '0';
+    });
+    setSatBar('satSessPct','satSessBar','satSessDetail',0,15000);
+    setSatBar('satTcpPct','satTcpBar','satTcpDetail',0,4096);
+    setSatBar('satUdpPct','satUdpBar','satUdpDetail',0,4096);
+    if (clienteAtivo) {
+      document.getElementById('alertCgnat').innerHTML = '<div class="hint" style="margin-top:8px">O A10 não mantém rastreamento individual de quota para este cliente (NAT dinâmico sem PBA). O CGNAT está em uso — comprovado pelo traceroute abaixo.</div>';
+    } else {
+      document.getElementById('alertCgnat').innerHTML = '';
+    }
+  } else {
+    const erros = r.erros?.join('; ') || 'Falha ao consultar A10';
+    document.getElementById('errorBox').textContent = 'A10: ' + erros;
+    document.getElementById('errorBox').style.display = 'block';
+  }
+
+  // Traceroute ONT (TR-069) — seção separada
+  const ontSerial = r.ont_serial || null;
+  const ontModel = r.ont_model || null;
+  window._cgnatIpCliente = r.ip_cliente;
+  window._ontSerial = ontSerial;
+  const trCard = document.getElementById('trOntCard');
+  if (ontSerial) {
+    trCard.style.display = 'block';
+    document.getElementById('trOntBadge').innerHTML = `<span class="ont-badge">${ontSerial}${ontModel ? ' — ' + ontModel : ''}</span>`;
+    document.getElementById('trOntTable').style.display = 'none';
+    document.getElementById('trOntNone').style.display = 'none';
+    document.getElementById('trOntError').style.display = 'none';
+  } else {
+    trCard.style.display = 'none';
+  }
+}
+
+async function executarTraceroute() {
+  const host = document.getElementById('trDestInput').value.trim() || '8.8.8.8';
+  document.getElementById('btnTraceroute').disabled = true;
+  document.getElementById('spinnerTr').style.display = 'block';
+  document.getElementById('trOntError').style.display = 'none';
+  document.getElementById('trOntTable').style.display = 'none';
+  document.getElementById('trOntNone').style.display = 'none';
+  try {
+    const r = await fetch(`${API}/cgnat/traceroute-ont`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ ip_cliente: window._cgnatIpCliente, ont_serial: window._ontSerial, traceroute_host: host }),
+    });
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || 'Erro desconhecido');
+    const tr = data.traceroute;
+    if (tr && tr.route && typeof tr.route === 'object' && Object.keys(tr.route).length > 0) {
+      const HOP_LABELS = {
+        // BNG
+        '100.65.255.2':    'BNG',
+        // A10 — interfaces subscriber (ve130 range 1, ve135 range 2, ve118/122/128 desuso)
+        '100.127.192.61':  'A10-01',
+        '100.127.192.69':  'A10-01',
+        '100.127.192.82':  'A10-01',
+        '100.127.192.83':  'A10-02',
+        '100.127.192.101': 'A10-01',
+        '100.127.192.106': 'A10-01',
+        '100.127.192.107': 'A10-02',
+        // SW-CORE — interfaces upstream dos A10
+        '100.127.195.25': 'SW-CORE',
+        '100.127.195.41': 'SW-CORE',
+        '10.10.1.161':    'eBGP',
+        '10.10.1.162':    'SW-CORE',
+      };
+      const hops = Object.entries(tr.route).sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
+      document.getElementById('trOntBody').innerHTML = hops.map(([num, hop]) => {
+        // Normalizar campos: TP-Link usa Host/RTTimes/HostAddress/ErrorCode; Huawei usa HopHost/HopRTTimes/HopHostAddress/HopErrorCode
+        const rttsRaw = hop.RTTimes || hop.HopRTTimes || '';
+        const rtts = rttsRaw.includes('ms')
+          ? rttsRaw.split(',').map(x => x.trim()).join('  ')
+          : rttsRaw.split(',').filter(Boolean).map(x => x.trim()+'ms').join('  ');
+        const errCode = hop.ErrorCode || hop.HopErrorCode || '0';
+        const isErr = errCode !== '0';
+        const hostRaw = hop.Host || hop.HopHost || hop.HostAddress || hop.HopHostAddress || '*';
+        const hostDisp = hostRaw.replace(/\s*\([^)]+\)/, '');
+        const ipRaw = hop.HostAddress || hop.HopHostAddress || '';
+        const ipDisp = (ipRaw && ipRaw !== hostDisp) ? ipRaw : '';
+        const deviceLabel = HOP_LABELS[ipRaw] || HOP_LABELS[hostDisp] || '';
+        const deviceCell = deviceLabel
+          ? `<span style="background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700">${deviceLabel}</span>`
+          : '—';
+        return `<tr>
+          <td class="hop-num">${num}</td>
+          <td class="hop-host">${hostDisp}</td>
+          <td class="hop-ip">${ipDisp}</td>
+          <td style="text-align:center">${deviceCell}</td>
+          <td class="${isErr ? 'hop-err' : 'hop-rtt'}">${isErr ? 'timeout' : (rtts || '—')}</td>
+        </tr>`;
+      }).join('');
+      const titleSuffix = tr.status === 'Timeout' ? ' ⚠ resultado parcial' : '';
+      document.querySelector('#trOntCard .section-title').textContent = `Traceroute via ONT (TR-069) → ${host}${titleSuffix}`;
+      if (tr.status === 'Timeout') {
+        document.getElementById('trOntError').textContent = 'Traceroute atingiu timeout (60s) — exibindo hops coletados até o momento.';
+        document.getElementById('trOntError').style.cssText = 'display:block;background:#2d1f00;border-color:#9e6a03;color:#e3b341';
+      }
+      document.getElementById('trOntTable').style.display = 'table';
+    } else {
+      document.getElementById('trOntNone').textContent = 'Traceroute sem resultado (status: ' + (tr?.status || '?') + ')';
+      document.getElementById('trOntNone').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('trOntError').textContent = 'Erro: ' + e.message;
+    document.getElementById('trOntError').style.display = 'block';
+  } finally {
+    document.getElementById('btnTraceroute').disabled = false;
+    document.getElementById('spinnerTr').style.display = 'none';
+  }
+}
+
+document.getElementById('ipInput').addEventListener('keypress', e => { if(e.key==='Enter') executarDiag(); });
+
+if (!token) window.location.href = '/login';
+// Navbar user info
+fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d.ok) { localStorage.clear(); window.location.href = '/login'; return; }
+    var u = d.user;
+    var nm = u.name || u.email || '?';
+    document.getElementById('userLabel').textContent = nm;
+    document.getElementById('userAvatar').textContent = nm.charAt(0).toUpperCase();
+    document.getElementById('udName').textContent = nm;
+    document.getElementById('udRole').textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1) + (u.email ? ' · ' + u.email : '');
+  })
+  .catch(function(){ localStorage.clear(); window.location.href = '/login'; });
+var _openNavDD = { id: null, btn: null };
+function toggleNavDD(ddId, btnId) {
+  var dd = document.getElementById(ddId);
+  var btn = document.getElementById(btnId);
+  var isOpen = _openNavDD.id === ddId;
+  if (_openNavDD.id) {
+    var prev = document.getElementById(_openNavDD.id);
+    if (prev) prev.classList.remove('open');
+    if (_openNavDD.btn) _openNavDD.btn.classList.remove('open');
+    _openNavDD = { id: null, btn: null };
+  }
+  if (!isOpen && dd) {
+    dd.classList.add('open');
+    if (btn) btn.classList.add('open');
+    _openNavDD = { id: ddId, btn: btn };
+  }
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.nav-item') && !e.target.closest('.user-btn')) {
+    if (_openNavDD.id) {
+      var d2 = document.getElementById(_openNavDD.id);
+      if (d2) d2.classList.remove('open');
+      if (_openNavDD.btn) _openNavDD.btn.classList.remove('open');
+      _openNavDD = { id: null, btn: null };
+    }
+    var ud = document.querySelector('.user-dropdown');
+    if (ud) ud.classList.remove('open');
+  }
+});
+// Fechar modal com Escape
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.getElementById('modalBacklog').classList.remove('open'); });
+</script>
+</body>
+</html>

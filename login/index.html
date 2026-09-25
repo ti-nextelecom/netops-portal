@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEX NetOps — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:#1A222E;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+canvas{
+  position:fixed;top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+}
+.wrapper{
+  position:relative;z-index:1;
+  width:100%;max-width:400px;
+  padding:1.25rem;
+}
+.card{
+  background:rgba(38,49,64,0.90);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,102,0,0.20);
+  border-radius:20px;
+  padding:2.5rem 2.25rem 2rem;
+  box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,0.04);
+}
+.logo-area{
+  display:flex;flex-direction:column;
+  align-items:center;
+  margin-bottom:2rem;
+}
+.logo-svg{
+  width:80px;height:80px;
+  margin-bottom:12px;
+  filter:drop-shadow(0 0 18px rgba(255,102,0,0.45));
+}
+.brand-title{
+  font-size:19px;font-weight:700;
+  color:#fff;letter-spacing:-.02em;
+  text-align:center;
+}
+.brand-sub{
+  font-size:12px;color:#929EB0;
+  margin-top:4px;text-align:center;
+}
+.divider{height:1px;background:rgba(255,255,255,0.07);margin-bottom:1.5rem}
+label{display:block;font-size:12px;font-weight:500;color:#929EB0;margin-bottom:6px;letter-spacing:.01em}
+input{
+  width:100%;padding:10px 13px;
+  background:rgba(26,34,46,0.85);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:9px;font-size:14px;
+  font-family:inherit;color:#fff;
+  outline:none;margin-bottom:1.1rem;
+  transition:border-color .18s,box-shadow .18s;
+}
+input::placeholder{color:#3D4E63}
+input:focus{border-color:rgba(255,102,0,0.65);box-shadow:0 0 0 3px rgba(255,102,0,0.12)}
+.btn{
+  width:100%;padding:11px;
+  background:#FF6600;color:#fff;border:none;
+  border-radius:9px;font-size:14px;font-weight:600;
+  font-family:inherit;cursor:pointer;
+  transition:background .15s,transform .1s,box-shadow .15s;
+  box-shadow:0 4px 20px rgba(255,102,0,0.38);
+  letter-spacing:.01em;
+}
+.btn:hover{background:#e55a00;box-shadow:0 4px 26px rgba(255,102,0,0.55)}
+.btn:active{transform:scale(0.98)}
+.btn:disabled{background:#344051;box-shadow:none;cursor:not-allowed;transform:none}
+.err{font-size:12px;color:#ff6b6b;margin-top:.75rem;text-align:center;min-height:18px}
+.foot{margin-top:1.5rem;font-size:11px;color:#344051;text-align:center;letter-spacing:.02em}
+@media(max-width:480px){
+  body{padding:16px;overflow-x:hidden}
+  .card{padding:1.5rem 1.25rem}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="wrapper">
+  <div class="card">
+
+    <!-- Logo SVG vetorizado -->
+    <div class="logo-area">
+      <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <linearGradient id="og" x1="0" y1="0" x2="0.4" y2="1">
+            <stop offset="0%" stop-color="#FF3500"/>
+            <stop offset="100%" stop-color="#FF7A00"/>
+          </linearGradient>
+          <linearGradient id="bl" x1="1" y1="0" x2="0.2" y2="1">
+            <stop offset="0%" stop-color="#0A44B0"/>
+            <stop offset="100%" stop-color="#2978FF"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background rounded square -->
+        <rect width="100" height="100" rx="22" fill="#0B1221"/>
+
+        <!-- Blue hexagon (behind, right-pointing) -->
+        <path fill="url(#bl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
+
+        <!-- Orange upper arm -->
+        <path fill="url(#og)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
+
+        <!-- Orange lower arm + chat tail -->
+        <path fill="url(#og)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
+
+        <!-- Three dots -->
+        <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
+        <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
+        <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
+      </svg>
+      <div class="brand-title">NEX NetOps Portal</div>
+      <div class="brand-sub">NexTelecom · AS265019</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <form id="form" onsubmit="doLogin(event)">
+      <label for="u">Email</label>
+      <input id="u" type="email" autocomplete="email" placeholder="seu@email.com" required>
+      <label for="p">Senha</label>
+      <input id="p" type="password" autocomplete="current-password" placeholder="••••••••" required>
+      <button class="btn" id="btn" type="submit">Entrar</button>
+      <div class="err" id="err"></div>
+    </form>
+    <div class="foot">netops.nextelecom.com.br</div>
+  </div>
+</div>
+
+<script>
+// ── Fiber Optic Canvas ────────────────────────────────────────
+const CV = document.getElementById('bg');
+const CX = CV.getContext('2d');
+const COLORS=[{r:255,g:102,b:0},{r:26,g:129,b:255},{r:0,g:210,b:200},{r:160,g:80,b:255}];
+let cables=[];
+function resize(){CV.width=window.innerWidth;CV.height=window.innerHeight;}
+function rnd(a,b){return Math.random()*(b-a)+a;}
+function edgePt(e,w,h){switch(e%4){case 0:return{x:rnd(0,w),y:-10};case 1:return{x:w+10,y:rnd(0,h)};case 2:return{x:rnd(0,w),y:h+10};case 3:return{x:-10,y:rnd(0,h)};}}
+function bez(p0,c1,c2,p1,t){const u=1-t;return{x:u*u*u*p0.x+3*u*u*t*c1.x+3*u*t*t*c2.x+t*t*t*p1.x,y:u*u*u*p0.y+3*u*u*t*c1.y+3*u*t*t*c2.y+t*t*t*p1.y};}
+function makeCable(w,h){const e0=Math.floor(rnd(0,4)),e1=(e0+Math.floor(rnd(1,4)))%4,col=COLORS[Math.floor(rnd(0,COLORS.length))],pulses=[];for(let i=0;i<Math.floor(rnd(1,4));i++)pulses.push({t:rnd(0,1),spd:rnd(0.0006,0.0022)});return{p0:edgePt(e0,w,h),p1:edgePt(e1,w,h),c1:{x:rnd(w*.1,w*.9),y:rnd(h*.1,h*.9)},c2:{x:rnd(w*.1,w*.9),y:rnd(h*.1,h*.9)},col,pulses};}
+function init(){resize();const w=CV.width,h=CV.height;cables=Array.from({length:Math.max(10,Math.min(20,Math.floor(w*h/80000)))},()=>makeCable(w,h));}
+function rgba(col,a){return`rgba(${col.r},${col.g},${col.b},${a})`;}
+function draw(){
+  const w=CV.width,h=CV.height;
+  CX.fillStyle='#1A222E';CX.fillRect(0,0,w,h);
+  cables.forEach(cab=>{
+    CX.beginPath();CX.moveTo(cab.p0.x,cab.p0.y);CX.bezierCurveTo(cab.c1.x,cab.c1.y,cab.c2.x,cab.c2.y,cab.p1.x,cab.p1.y);
+    CX.strokeStyle=rgba(cab.col,0.18);CX.lineWidth=1.2;CX.stroke();
+    cab.pulses.forEach(pls=>{
+      const pos=bez(cab.p0,cab.c1,cab.c2,cab.p1,pls.t);
+      const grd=CX.createRadialGradient(pos.x,pos.y,0,pos.x,pos.y,8);
+      grd.addColorStop(0,rgba(cab.col,0.55));grd.addColorStop(1,rgba(cab.col,0));
+      CX.beginPath();CX.arc(pos.x,pos.y,8,0,Math.PI*2);CX.fillStyle=grd;CX.fill();
+      CX.beginPath();CX.arc(pos.x,pos.y,2.2,0,Math.PI*2);CX.fillStyle=rgba(cab.col,0.95);
+      CX.shadowBlur=8;CX.shadowColor=rgba(cab.col,1);CX.fill();CX.shadowBlur=0;
+      for(let i=1;i<=5;i++){const tt=Math.max(0,pls.t-i*0.009);const tp=bez(cab.p0,cab.c1,cab.c2,cab.p1,tt);CX.beginPath();CX.arc(tp.x,tp.y,Math.max(0.3,1.8-i*0.28),0,Math.PI*2);CX.fillStyle=rgba(cab.col,0.45-i*0.08);CX.fill();}
+      pls.t+=pls.spd;if(pls.t>1)pls.t=0;
+    });
+  });
+  requestAnimationFrame(draw);
+}
+init();window.addEventListener('resize',init);draw();
+
+// ── Auth ─────────────────────────────────────────────────────
+const tok=localStorage.getItem('netops_token');
+if(tok){fetch('/api/auth/me',{headers:{Authorization:'Bearer '+tok}}).then(r=>r.json()).then(d=>{if(d.ok)window.location.href='/';}).catch(()=>{});}
+async function doLogin(e){
+  e.preventDefault();
+  const btn=document.getElementById('btn'),err=document.getElementById('err');
+  btn.disabled=true;btn.textContent='Entrando...';err.textContent='';
+  try{
+    const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:document.getElementById('u').value,password:document.getElementById('p').value})});
+    const data=await r.json();
+    if(data.ok){localStorage.setItem('netops_token',data.token);localStorage.setItem('netops_user',JSON.stringify(data.user));window.location.href='/';}
+    else{err.textContent=data.error||'Credenciais inválidas';btn.disabled=false;btn.textContent='Entrar';}
+  }catch(_){err.textContent='Erro de conexão';btn.disabled=false;btn.textContent='Entrar';}
+}
+</script>
+</body>
+</html>

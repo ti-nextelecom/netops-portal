@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Documentação — NetOps NexTelecom</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;visibility:hidden}
+.navbar{background:#161b22;border-bottom:1px solid #30363d;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.navbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#c9d1d9;font-weight:700;font-size:15px}
+.navbar-brand span{color:#3fb950}
+.nav-back{color:#8b949e;text-decoration:none;font-size:13px}
+.nav-back:hover{color:#c9d1d9}
+.page-header{background:linear-gradient(135deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid #30363d;padding:32px 24px 24px}
+.page-header h1{font-size:22px;font-weight:700;color:#e6edf3;margin-bottom:6px}
+.page-header p{color:#8b949e;font-size:13px}
+.badge-adm{display:inline-block;background:#2d1f00;color:#e3b341;border:1px solid #9e6a03;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;margin-left:8px;vertical-align:middle}
+.content{max-width:1050px;margin:0 auto;padding:24px}
+.section{margin-bottom:32px}
+.section-title{font-size:13px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #30363d}
+.data-table{width:100%;border-collapse:collapse;background:#161b22;border:1px solid #30363d;border-radius:8px;overflow:hidden}
+.data-table th{background:#1c2128;color:#8b949e;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:10px 14px;text-align:left;border-bottom:1px solid #30363d}
+.data-table td{padding:9px 14px;border-bottom:1px solid #21262d;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#1c2128}
+.tag{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700}
+.tag-green{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+.tag-blue{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd}
+.tag-yellow{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+.tag-gray{background:#21262d;color:#8b949e;border:1px solid #30363d}
+.tag-purple{background:#1a1442;color:#bc8cff;border:1px solid #8957e5}
+.ip{font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:#79c0ff;background:#0d1b2e;padding:2px 6px;border-radius:4px}
+code{font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;color:#79c0ff;background:#0d1b2e;padding:2px 6px;border-radius:4px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kv-row{display:flex;align-items:flex-start;gap:12px;padding:7px 0;border-bottom:1px solid #21262d}
+.kv-row:last-child{border-bottom:none}
+.kv-key{color:#8b949e;font-size:12px;min-width:140px;padding-top:1px}
+.kv-val{color:#e6edf3;font-size:13px}
+.cl-entry{border-left:3px solid #30363d;padding:10px 16px;margin-bottom:10px;background:#0d1117;border-radius:0 6px 6px 0}
+.cl-meta{display:flex;gap:8px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.cl-date{font-size:11px;color:#8b949e;font-family:monospace}
+.cl-type{font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px}
+.cl-type.fix{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+.cl-type.feature{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd}
+.cl-type.deploy{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+.cl-type.melhoria{background:#1a1442;color:#bc8cff;border:1px solid #8957e5}
+.cl-type.infra{background:#1a1a1a;color:#f0883e;border:1px solid #bd561d}
+.cl-title{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:3px}
+.cl-desc{font-size:12px;color:#8b949e;line-height:1.5}
+.footnote{font-size:11px;color:#6e7681;margin-top:8px}
+a.tool-link{color:#58a6ff;text-decoration:none;font-size:12px}
+a.tool-link:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>Nex</span>Telecom NetOps</a>
+  <a href="/" class="nav-back">← Início</a>
+</nav>
+
+<div class="page-header">
+  <h1>📄 Documentação da Plataforma
+    <span class="badge-adm">ADM/MASTER</span>
+  </h1>
+  <p>Visão técnica completa do Portal NetOps — infraestrutura, ferramentas, changelog e referências. Atualizado em 17/09/2026.</p>
+</div>
+
+<div class="content">
+
+  <!-- 1. INFRAESTRUTURA -->
+  <div class="section">
+    <div class="section-title">Infraestrutura</div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#8b949e;margin-bottom:12px">VM — nexwebservices</div>
+        <div class="kv-row"><span class="kv-key">IP</span><span class="kv-val"><code>10.20.50.30</code></span></div>
+        <div class="kv-row"><span class="kv-key">Acesso SSH</span><span class="kv-val"><code>root / N3xtelecom2026</code></span></div>
+        <div class="kv-row"><span class="kv-key">SO</span><span class="kv-val">Debian GNU/Linux 13</span></div>
+        <div class="kv-row"><span class="kv-key">Diretório base</span><span class="kv-val"><code>/opt/netops/</code></span></div>
+        <div class="kv-row"><span class="kv-key">URL pública</span><span class="kv-val"><code>netops.nextelecom.com.br</code></span></div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#8b949e;margin-bottom:12px">Containers Docker</div>
+        <div class="kv-row"><span class="kv-key">netops-nginx</span><span class="kv-val">Reverse proxy + SSL (porta 80/443)</span></div>
+        <div class="kv-row"><span class="kv-key">netops-api</span><span class="kv-val">REST API + JWT (porta 3001)</span></div>
+        <div class="kv-row"><span class="kv-key">netops-mcp</span><span class="kv-val">MCP Server JSON-RPC 2.0 (porta 3002)</span></div>
+        <div class="kv-row"><span class="kv-key">netops-postgres</span><span class="kv-val">PostgreSQL 15 (porta 5432)</span></div>
+        <div class="kv-row"><span class="kv-key">Rede Docker</span><span class="kv-val"><code>netops_netops</code> · Volume: <code>netops_pgdata</code></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. AUTENTICAÇÃO -->
+  <div class="section">
+    <div class="section-title">Autenticação</div>
+    <div class="card">
+      <div class="kv-row"><span class="kv-key">Método browser</span><span class="kv-val">JWT — POST <code>/api/auth/login</code> → token 12h em <code>localStorage.netops_token</code></span></div>
+      <div class="kv-row"><span class="kv-key">Método agentes</span><span class="kv-val">API Key — header <code>X-Api-Key: &lt;chave&gt;</code></span></div>
+      <div class="kv-row"><span class="kv-key">Roles</span><span class="kv-val"><span class="tag tag-yellow">master (3)</span> &nbsp; <span class="tag tag-blue">administrador (2)</span> &nbsp; <span class="tag tag-gray">operador (1)</span></span></div>
+      <div class="kv-row"><span class="kv-key">API Key master</span><span class="kv-val"><code>nex-master-cgr-2026-netops-platform</code></span></div>
+      <div class="kv-row"><span class="kv-key">API Key admin</span><span class="kv-val"><code>nex-adm-netops-2026-portal</code></span></div>
+    </div>
+  </div>
+
+  <!-- 3. NÍVEIS DE PERMISSÃO -->
+  <div class="section">
+    <div class="section-title">Níveis de Permissão</div>
+    <table class="data-table">
+      <thead><tr><th>Nível</th><th>Role (JWT)</th><th>Acesso Ferramentas</th><th>Topologias / Docs</th><th>Gestão de Usuários</th><th>Backlogs / API Keys</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-yellow">adm-master</span></td>
+          <td><code>master</code> (3)</td>
+          <td>Todas</td>
+          <td><span class="tag tag-green">Sim</span></td>
+          <td><span class="tag tag-green">Sim</span> — criar, editar, remover</td>
+          <td><span class="tag tag-green">Visível</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">adm</span></td>
+          <td><code>administrador</code> (2)</td>
+          <td>Todas</td>
+          <td><span class="tag tag-green">Sim</span></td>
+          <td><span class="tag tag-gray">Não</span></td>
+          <td><span class="tag tag-green">Visível</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-gray">usuario</span></td>
+          <td><code>operador</code> (1)</td>
+          <td>Operacionais básicas</td>
+          <td><span class="tag tag-gray">Não</span></td>
+          <td><span class="tag tag-gray">Não</span></td>
+          <td><span class="tag tag-gray">Oculto</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#e3b341;margin-bottom:10px">adm-master</div>
+        <div style="font-size:12px;color:#8b949e;line-height:1.7">
+          Acesso irrestrito à plataforma.<br>
+          Gerencia usuários e roles.<br>
+          Visualiza documentação técnica, API Keys e credenciais.<br>
+          Pode ver/editar backlogs de todas as ferramentas.<br>
+          Usado por: Guto, Anderson.
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#58a6ff;margin-bottom:10px">adm / administrador</div>
+        <div style="font-size:12px;color:#8b949e;line-height:1.7">
+          Acesso a todas as ferramentas operacionais.<br>
+          Acessa topologias e documentação da plataforma.<br>
+          Visualiza backlogs das ferramentas.<br>
+          <em>Sem</em> gestão de usuários.<br>
+          Usado por: equipe técnica TI/NOC.
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:700;color:#8b949e;margin-bottom:10px">usuario / operador</div>
+        <div style="font-size:12px;color:#8b949e;line-height:1.7">
+          Acessa ferramentas operacionais básicas:<br>
+          CGNAT Diagnóstico, Links Dedicados,<br>
+          Semi-Dedicados, Inadimplência, IPCalc, Planta.<br>
+          Sem acesso a topologias, docs, backlogs.<br>
+          Usado por: suporte, atendimento.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. FERRAMENTAS -->
+  <div class="section">
+    <div class="section-title">Ferramentas</div>
+    <table class="data-table">
+      <thead><tr><th>Ferramenta</th><th>Descrição</th><th>Acesso</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/cgnat-diagnostico/">/ferramentas/cgnat-diagnostico/</a></td>
+          <td>Diagnóstico CGNAT por IP: sessão A10, IP NAT público, BNG PPPoE, traceroute TR-069 via ONT</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/link-dedicado/">/ferramentas/link-dedicado/</a></td>
+          <td>Gestão de links dedicados — cadastro de circuitos, cliente, velocidade e status</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/link-semi-dedicado/">/ferramentas/link-semi-dedicado/</a></td>
+          <td>Dashboard de clientes semi-dedicados (ONUs VIP) com velocidade em tempo real via RADIUS/BNG</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/inadimplencia/">/ferramentas/inadimplencia/</a></td>
+          <td>Controle de inadimplência — clientes com plano suspenso ou bloqueado</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/ipcalc/">/ferramentas/ipcalc/</a></td>
+          <td>Calculadora de sub-redes IPv4</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/ipcalc6/">/ferramentas/ipcalc6/</a></td>
+          <td>Calculadora de sub-redes IPv6</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/simulador/">/ferramentas/simulador/</a></td>
+          <td>Simulador de planos e velocidade</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/ferramentas/synapse/">/ferramentas/synapse/</a></td>
+          <td>Synapse IoT Builder — automação de processos via flows</td>
+          <td><span class="tag tag-blue">admin+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/topologias/cgnat/">/topologias/cgnat/</a></td>
+          <td>Mapa CGNAT — arquitetura ativo/ativo, VRIDs, pools, interfaces subscriber</td>
+          <td><span class="tag tag-blue">admin+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/topologias/bgp-upstream/">/topologias/bgp-upstream/</a></td>
+          <td>Topologia BGP — upstreams, peers, prefixos anunciados</td>
+          <td><span class="tag tag-blue">admin+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+        <tr>
+          <td><a class="tool-link" href="/rede/escritorio-pqs-1andar/">/rede/escritorio-pqs-1andar/</a></td>
+          <td>Planta do escritório PQS — 1º andar, pontos de rede</td>
+          <td><span class="tag tag-gray">operador+</span></td>
+          <td><span class="tag tag-green">Ativo</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5. CHANGELOG GLOBAL -->
+  <div class="section">
+    <div class="section-title">Changelog Global</div>
+
+    <div class="cl-entry" style="border-left-color:#e3b341">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type fix">Fix</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — A10 API paginação corrigida</div>
+      <div class="cl-desc">Query alterada para <code>?inside-addr=IP</code>. Resolve clientes além das 2.275 entradas paginadas retornadas pela API. Todos os clientes agora exibem IP NAT, portas e sessões.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#bc8cff">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type melhoria">Melhoria</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Traceroute: coluna Device + labels internos</div>
+      <div class="cl-desc">Hops da rede interna identificados automaticamente com badges: BNG, A10-01, A10-02, SW-CORE, eBGP. Mapeamento de 12 IPs internos derivado do Mapa CGNAT.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#bc8cff">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type melhoria">Melhoria</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Traceroute: timeout 45s → 60s + resultado parcial</div>
+      <div class="cl-desc">Polling aumentado para 12×5s. Resultado parcial exibido com aviso se timeout atingido. maxhops reduzido de 20 → 15.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#e3b341">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type fix">Fix</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Traceroute: campos Huawei ONT normalizados</div>
+      <div class="cl-desc">ONTs Huawei (HG8145V5-V2) retornam HopHost/HopRTTimes/HopHostAddress. Frontend normaliza ambos os formatos (TP-Link e Huawei).</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#bc8cff">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type melhoria">Melhoria</span></div>
+      <div class="cl-title">Mapa CGNAT — Ranges Inside adicionados + Badge LIVE removido</div>
+      <div class="cl-desc">Nova seção com 100.65.128.0/18 → A10-01/LID1 e 100.65.192.0/18 → A10-02/LID2. Badge "LIVE" removido (página estática).</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#bc8cff">
+      <div class="cl-meta"><span class="cl-date">17/09/2026</span><span class="cl-type melhoria">Melhoria</span></div>
+      <div class="cl-title">Backlog modal adicionado — CGNAT Diagnóstico e Mapa CGNAT</div>
+      <div class="cl-desc">Botão "📋 Backlog" nas duas páginas. Visível apenas para admin/master (decodifica role do JWT). Modal com histórico de deploys e fixes por ferramenta.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#58a6ff">
+      <div class="cl-meta"><span class="cl-date">set/2026</span><span class="cl-type feature">Feature</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Traceroute TR-069 via OLT-CLOUD em 2 etapas</div>
+      <div class="cl-desc">Integração com OLT-CLOUD API (JWT, TTL 150min). Lookup de ONT por login PPPoE ou MAC. Traceroute real pela ONT do assinante em segunda etapa com destino configurável. Suporte a TP-Link e Huawei.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#e3b341">
+      <div class="cl-meta"><span class="cl-date">set/2026</span><span class="cl-type fix">Fix</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Mensagem A10 diferenciada: NAT dinâmico vs sem sessão</div>
+      <div class="cl-desc">Quando cliente tem sessão BNG ativa mas não tem PBA no A10 (NAT dinâmico), exibe aviso âmbar explicativo. Antes exibia "Sem sessão CGNAT ativa" confundindo operadores.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#3fb950">
+      <div class="cl-meta"><span class="cl-date">set/2026</span><span class="cl-type deploy">Deploy</span></div>
+      <div class="cl-title">CGNAT Diagnóstico — Lançamento</div>
+      <div class="cl-desc">Ferramenta lançada com consulta A10 aXAPI (IP NAT, portas, sessões, saturação), identificação de A10-01/A10-02 e integração BNG NE40-E via SSH (sessão PPPoE, plano, velocidade RADIUS).</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#3fb950">
+      <div class="cl-meta"><span class="cl-date">08/09/2026</span><span class="cl-type deploy">Deploy</span></div>
+      <div class="cl-title">Mapa CGNAT — Arquitetura ativo/ativo documentada</div>
+      <div class="cl-desc">VRRP-A ativo/ativo: VRID default (A10-01/LID1) e VRID1 (A10-02/LID2). Interfaces subscriber, links HA, pools detalhados e config de referência ACOS incluídos.</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#f0883e">
+      <div class="cl-meta"><span class="cl-date">01/09/2026</span><span class="cl-type infra">Evento</span></div>
+      <div class="cl-title">A10 CGNAT — Tentativa de migração ativo/ativo e rollback</div>
+      <div class="cl-desc">Migração tentada em madrugada (YouISP). Bloqueio: NAT Pools sem VRID não podem ser alterados dinamicamente. Rollback executado antes do horário comercial. Migração bem-sucedida em janela posterior (08/09).</div>
+    </div>
+    <div class="cl-entry" style="border-left-color:#3fb950">
+      <div class="cl-meta"><span class="cl-date">ago/2026</span><span class="cl-type deploy">Deploy</span></div>
+      <div class="cl-title">Plataforma NetOps — Deploy inicial</div>
+      <div class="cl-desc">Stack Docker (nginx + api + mcp + postgres) provisionado na VM nexwebservices (10.20.50.30). Autenticação JWT + API Key, MCP Server JSON-RPC 2.0 para agentes Atlas.</div>
+    </div>
+  </div>
+
+  <!-- 6. API REFERENCE -->
+  <div class="section">
+    <div class="section-title">API Reference — Endpoints Principais</div>
+    <table class="data-table">
+      <thead><tr><th>Método</th><th>Endpoint</th><th>Auth</th><th>Descrição</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-blue">POST</span></td><td><code>/api/auth/login</code></td><td>—</td><td>Login — retorna JWT 12h</td></tr>
+        <tr><td><span class="tag tag-green">GET</span></td><td><code>/api/auth/me</code></td><td>JWT</td><td>Dados do usuário autenticado</td></tr>
+        <tr><td><span class="tag tag-blue">POST</span></td><td><code>/api/cgnat/diagnostico</code></td><td>JWT/Key</td><td>Diagnóstico CGNAT por IP (A10 + BNG + OLT-CLOUD)</td></tr>
+        <tr><td><span class="tag tag-blue">POST</span></td><td><code>/api/cgnat/traceroute-ont</code></td><td>JWT/Key</td><td>Traceroute TR-069 via ONT (timeout 60s)</td></tr>
+        <tr><td><span class="tag tag-green">GET</span></td><td><code>/api/circuitos</code></td><td>JWT/Key</td><td>Lista de circuitos/links dedicados</td></tr>
+        <tr><td><span class="tag tag-blue">POST</span></td><td><code>/api/circuitos</code></td><td>JWT/Key</td><td>Cadastrar circuito</td></tr>
+        <tr><td><span class="tag tag-green">GET</span></td><td><code>/api/usuarios/vip</code></td><td>JWT/Key</td><td>Lista de clientes semi-dedicados com tráfego atual</td></tr>
+        <tr><td><span class="tag tag-green">GET</span></td><td><code>/api/users</code></td><td>JWT (master)</td><td>Lista de usuários da plataforma</td></tr>
+        <tr><td><span class="tag tag-blue">POST</span></td><td><code>/api/users</code></td><td>JWT (master)</td><td>Criar usuário</td></tr>
+      </tbody>
+    </table>
+    <p class="footnote">Base URL: https://netops.nextelecom.com.br · Todos os endpoints retornam JSON · Content-Type: application/json</p>
+  </div>
+
+  <div style="text-align:center;padding:20px 0;color:#6e7681;font-size:11px">
+    Documentação gerada por Atlas CGR · NexTelecom NetOps · 17/09/2026
+  </div>
+
+</div>
+
+<script>
+(function() {
+  const token = localStorage.getItem('netops_token');
+  if (!token) { window.location.href = '/login'; return; }
+  fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+    .then(r => { if (!r.ok) throw new Error('unauth'); return r.json(); })
+    .then(data => {
+      const role = data.user && data.user.role;
+      if (role !== 'administrador' && role !== 'master') {
+        document.body.style.visibility = 'visible';
+        document.body.innerHTML = `
+          <div style="min-height:100vh;background:#0d1117;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:system-ui">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p style="color:#f85149;font-size:18px;font-weight:700">Acesso Restrito</p>
+            <p style="color:#8b949e;font-size:13px">Esta página requer perfil de Administrador ou superior.</p>
+            <a href="/" style="color:#58a6ff;font-size:13px">← Voltar ao início</a>
+          </div>`;
+        return;
+      }
+      document.body.style.visibility = 'visible';
+    })
+    .catch(() => { window.location.href = '/login'; });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEX NetOps Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#1A222E;color:#fff;min-height:100vh}
+
+/* ── Navbar ── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;
+  height:60px;z-index:200;
+  background:rgba(15,20,28,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,102,0,0.15);
+  display:flex;align-items:center;
+  padding:0 1.5rem;gap:0;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:2rem}
+.nav-logo{width:34px;height:34px;filter:drop-shadow(0 0 8px rgba(255,102,0,0.4))}
+.nav-title{font-size:15px;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+.nav-title span{color:#FF6600}
+
+.nav-links{display:flex;align-items:center;gap:2px;flex:1}
+.nav-item{position:relative}
+.nav-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:8px;
+  font-size:13px;font-weight:500;color:#929EB0;
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;transition:color .15s,background .15s;
+  white-space:nowrap;
+}
+.nav-btn:hover,.nav-btn.active{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-btn svg{transition:transform .2s}
+.nav-btn.open svg{transform:rotate(180deg)}
+
+.nav-dropdown{
+  display:none;
+  position:absolute;top:calc(100% + 10px);left:0;
+  background:#1E2A3A;
+  border:1px solid rgba(255,102,0,0.18);
+  border-radius:12px;
+  min-width:240px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5);
+  overflow:hidden;z-index:300;
+}
+.nav-dropdown.open{display:block}
+.nav-dd-header{font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
+.nav-dd-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;text-decoration:none;
+  color:#CBD5E0;font-size:13px;font-weight:500;
+  transition:background .12s,color .12s;
+}
+.nav-dd-item:hover{background:rgba(255,102,0,0.08);color:#fff}
+.nav-dd-item.disabled{opacity:.45;cursor:default;pointer-events:none}
+.nav-dd-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:4px 0}
+.dd-icon{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.dd-icon.orange{background:rgba(255,102,0,0.15)}
+.dd-icon.blue{background:rgba(41,120,255,0.15)}
+.dd-icon.purple{background:rgba(112,64,192,0.15)}
+.dd-badge{
+  margin-left:auto;font-size:10px;font-weight:600;
+  padding:2px 7px;border-radius:4px;
+}
+.dd-badge.green{background:rgba(34,197,94,0.15);color:#4ade80}
+.dd-badge.amber{background:rgba(245,158,11,0.12);color:#fbbf24}
+
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.user-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:5px 12px 5px 8px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:8px;cursor:pointer;
+  font-family:inherit;color:#CBD5E0;font-size:13px;font-weight:500;
+  transition:border-color .15s,background .15s;
+}
+.user-btn:hover{border-color:rgba(255,102,0,0.4);background:rgba(255,102,0,0.06);color:#fff}
+.user-avatar{
+  width:26px;height:26px;border-radius:6px;
+  background:linear-gradient(135deg,#FF6600,#FF3500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+}
+
+/* User dropdown */
+.user-dropdown{
+  display:none;
+  position:absolute;top:calc(100% + 10px);right:0;
+  background:#1E2A3A;
+  border:1px solid rgba(255,102,0,0.18);
+  border-radius:12px;min-width:280px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.5);
+  padding:1rem;z-index:300;
+}
+.user-dropdown.open{display:block}
+.ud-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.ud-role{font-size:11px;color:#929EB0;margin-bottom:1rem}
+.ud-label{font-size:11px;font-weight:500;color:#929EB0;margin-bottom:5px}
+.ud-key-wrap{display:flex;gap:6px;align-items:center}
+.ud-key{
+  font-size:11px;font-family:monospace;
+  background:rgba(26,34,46,0.8);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:5px 8px;
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#CBD5E0;
+}
+.btn-copy{
+  font-size:11px;padding:5px 10px;
+  background:#FF6600;color:#fff;border:none;
+  border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;
+  transition:background .15s;
+}
+.btn-copy:hover{background:#e55a00}
+.btn-copy.ok{background:#1a7a4a}
+.ud-sep{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:1rem 0}
+.ud-actions{display:flex;flex-direction:column;gap:4px;margin-bottom:1rem}
+.btn-ud-action{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:8px;
+  background:none;border:none;cursor:pointer;
+  font-family:inherit;font-size:12px;font-weight:500;
+  color:#CBD5E0;text-align:left;
+  transition:background .12s,color .12s;width:100%;
+}
+.btn-ud-action:hover{background:rgba(255,102,0,0.08);color:#fff}
+.btn-ud-action.danger:hover{background:rgba(255,107,107,0.08);color:#ff6b6b}
+.btn-logout{
+  font-size:12px;color:#ff6b6b;background:none;border:none;
+  cursor:pointer;font-family:inherit;padding:0;
+  display:flex;align-items:center;gap:5px;
+  transition:color .15s;
+}
+.btn-logout:hover{color:#ff4444}
+
+/* ── Modals ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:1rem;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#1E2A3A;border:1px solid rgba(255,102,0,0.2);
+  border-radius:16px;width:100%;max-width:520px;
+  max-height:90vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,0.6);
+}
+.modal.modal-wide{max-width:680px}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem 1.5rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  flex-shrink:0;
+}
+.modal-header h3{font-size:15px;font-weight:700;color:#fff}
+.btn-modal-close{
+  background:none;border:none;cursor:pointer;color:#929EB0;
+  padding:4px;border-radius:6px;transition:color .15s,background .15s;
+}
+.btn-modal-close:hover{color:#fff;background:rgba(255,255,255,0.08)}
+.modal-body{padding:1.5rem;overflow-y:auto;flex:1}
+.modal-section{margin-bottom:1.5rem}
+.modal-section:last-child{margin-bottom:0}
+.modal-section-title{
+  font-size:11px;font-weight:600;color:#929EB0;
+  letter-spacing:.06em;text-transform:uppercase;
+  margin-bottom:.75rem;
+}
+.form-group{margin-bottom:1rem}
+.form-group label{
+  display:block;font-size:12px;font-weight:500;
+  color:#929EB0;margin-bottom:5px;
+}
+.form-group input,.form-group select{
+  width:100%;padding:9px 12px;
+  background:rgba(26,34,46,0.85);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;font-size:13px;
+  font-family:inherit;color:#fff;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.form-group select option{background:#1E2A3A}
+.form-group input:focus,.form-group select:focus{
+  border-color:rgba(255,102,0,0.5);
+  box-shadow:0 0 0 3px rgba(255,102,0,0.1);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.btn-primary{
+  width:100%;padding:10px;
+  background:#FF6600;color:#fff;border:none;
+  border-radius:8px;font-size:13px;font-weight:600;
+  font-family:inherit;cursor:pointer;
+  transition:background .15s;letter-spacing:.01em;
+}
+.btn-primary:hover{background:#e55a00}
+.btn-primary:disabled{background:#344051;cursor:not-allowed}
+.btn-sm{
+  font-size:11px;padding:5px 10px;border-radius:6px;
+  border:none;cursor:pointer;font-family:inherit;font-weight:500;
+  transition:background .15s,color .15s;
+}
+.btn-sm.orange{background:rgba(255,102,0,0.15);color:#FF6600}
+.btn-sm.orange:hover{background:rgba(255,102,0,0.28)}
+.btn-sm.red{background:rgba(255,107,107,0.12);color:#ff6b6b}
+.btn-sm.red:hover{background:rgba(255,107,107,0.24)}
+.btn-sm.green{background:rgba(74,222,128,0.12);color:#4ade80}
+.btn-sm.green:hover{background:rgba(74,222,128,0.24)}
+.form-msg{font-size:12px;margin-top:.5rem;min-height:16px}
+.form-msg.err{color:#ff6b6b}
+.form-msg.ok{color:#4ade80}
+
+/* User table */
+.user-table{width:100%;border-collapse:collapse}
+.user-table th{
+  font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.06em;
+  text-transform:uppercase;padding:6px 8px;text-align:left;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.user-table td{
+  padding:10px 8px;font-size:13px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  vertical-align:middle;
+}
+.user-table tr:last-child td{border-bottom:none}
+.user-table tr:hover td{background:rgba(255,255,255,0.02)}
+.u-avatar-sm{
+  width:28px;height:28px;border-radius:6px;
+  background:linear-gradient(135deg,#FF6600,#FF3500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.u-name{font-weight:600;color:#fff;font-size:13px}
+.u-email{font-size:11px;color:#929EB0;margin-top:2px}
+.role-tag{
+  font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;
+  letter-spacing:.03em;
+}
+.role-tag.master{background:rgba(255,102,0,0.15);color:#FF6600}
+.role-tag.administrador{background:rgba(41,120,255,0.15);color:#60a5fa}
+.role-tag.operador{background:rgba(112,64,192,0.15);color:#a78bfa}
+.status-dot{
+  display:inline-block;width:7px;height:7px;
+  border-radius:50%;margin-right:5px;
+}
+.status-dot.on{background:#4ade80}
+.status-dot.off{background:#344051}
+.u-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Invite section */
+.invite-box{
+  background:rgba(26,34,46,0.6);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:1rem;margin-bottom:1.5rem;
+}
+.invite-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;
+}
+.invite-toggle span{font-size:13px;font-weight:600;color:#fff}
+.invite-form{margin-top:1rem;display:none}
+.invite-form.open{display:block}
+
+/* Inline pw form */
+.inline-pw{display:none;margin-top:8px;padding:10px;background:rgba(26,34,46,0.8);border-radius:8px;border:1px solid rgba(255,255,255,0.07)}
+.inline-pw.open{display:block}
+
+/* ── Main layout ── */
+.main{padding:80px 1.5rem 3rem;max-width:1100px;margin:0 auto}
+
+.hero{
+  margin-bottom:2.5rem;
+  padding:2rem 2.25rem;
+  background:rgba(38,49,64,0.5);
+  border:1px solid rgba(255,102,0,0.12);
+  border-radius:16px;
+  display:flex;align-items:center;gap:1.5rem;
+}
+.hero-icon{
+  width:52px;height:52px;border-radius:13px;
+  background:rgba(255,102,0,0.12);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hero-text h2{font-size:18px;font-weight:700;margin-bottom:4px;letter-spacing:-.02em}
+.hero-text p{font-size:13px;color:#929EB0;line-height:1.5}
+.hero-as{
+  margin-left:auto;
+  font-size:11px;font-weight:600;color:#FF6600;
+  background:rgba(255,102,0,0.1);
+  border:1px solid rgba(255,102,0,0.2);
+  padding:4px 10px;border-radius:6px;white-space:nowrap;
+}
+
+.section{margin-bottom:2.5rem}
+.section-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:14px;
+}
+.section-header h2{font-size:11px;font-weight:700;color:#929EB0;letter-spacing:.08em;text-transform:uppercase}
+.section-line{flex:1;height:1px;background:rgba(255,255,255,0.06)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+
+.card{
+  background:rgba(38,49,64,0.7);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:13px;padding:1.25rem;
+  text-decoration:none;color:inherit;display:block;
+  transition:border-color .18s,background .18s,transform .15s;
+}
+.card:hover:not(.disabled){
+  border-color:rgba(255,102,0,0.35);
+  background:rgba(38,49,64,0.95);
+  transform:translateY(-2px);
+}
+.card.disabled{cursor:default;opacity:.55}
+.card-icon{
+  width:38px;height:38px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+}
+.card-icon.orange{background:rgba(255,102,0,0.15)}
+.card-icon.blue{background:rgba(41,120,255,0.15)}
+.card-icon.purple{background:rgba(112,64,192,0.15)}
+.card-icon.teal{background:rgba(0,210,200,0.12)}
+.card-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;letter-spacing:-.01em}
+.card-sub{font-size:12px;color:#929EB0;line-height:1.45}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;margin-top:10px}
+.badge-green{background:rgba(34,197,94,0.12);color:#4ade80}
+.badge-amber{background:rgba(245,158,11,0.1);color:#fbbf24}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center}
+.footer span{font-size:11px;color:#344051}
+@media(max-width:768px){
+  body{overflow-x:hidden}
+  .nav-links{display:none}
+  .nav-brand{margin-right:auto}
+  .main{padding:72px 1rem 2rem}
+  .hero{flex-direction:column;gap:.75rem;text-align:center}
+  .hero-as{margin-left:0}
+  .form-row{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .modal{max-width:calc(100vw - 32px)}
+  .modal-wide{max-width:calc(100vw - 32px)}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a class="nav-brand" href="/">
+    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="og" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="#FF3500"/><stop offset="100%" stop-color="#FF7A00"/></linearGradient>
+        <linearGradient id="bl" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0%" stop-color="#0A44B0"/><stop offset="100%" stop-color="#2978FF"/></linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="#0B1221"/>
+      <path fill="url(#bl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
+      <path fill="url(#og)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
+      <path fill="url(#og)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
+      <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
+      <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
+      <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
+    </svg>
+    <span class="nav-title">NEX <span>NetOps</span></span>
+  </a>
+
+  <div class="nav-links">
+    <div class="nav-item">
+      <button class="nav-btn" id="btnFerramentas" onclick="toggleNav('ferramentasDD','btnFerramentas')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ferramentas
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="ferramentasDD">
+        <div class="nav-dd-header">Gerador de Scripts</div>
+        <a href="/ferramentas/link-dedicado/" class="nav-dd-item">
+          <div class="dd-icon orange"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+          Link Dedicado<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/link-semi-dedicado/" class="nav-dd-item">
+          <div class="dd-icon purple"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+          Link Semi-Dedicado<span class="dd-badge green">Disponível</span>
+        </a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Consultas</div>
+        <a href="/ferramentas/circuitos/" class="nav-dd-item">
+          <div class="dd-icon orange"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+          Circuitos Provisionados<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/ipcalc/" class="nav-dd-item">
+          <div class="dd-icon" style="background:rgba(74,222,128,0.12)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>
+          Calculadora IPv4<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/ipcalc6/" class="nav-dd-item">
+          <div class="dd-icon" style="background:rgba(129,140,248,0.12)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>
+          Calculadora IPv6<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/gpon-diagnostico/" class="nav-dd-item">
+          <div class="dd-icon teal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>
+          GPON Diagnóstico<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/cgnat-diagnostico/" class="nav-dd-item">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+          CGNAT Diagnóstico<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/synapse/" class="nav-dd-item">
+          <div class="dd-icon purple"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></div>
+          Synapse IoT Builder<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/inadimplencia/" class="nav-dd-item">
+          <div class="dd-icon red"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          Inadimplência<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/ferramentas/bgp-looking-glass/" class="nav-dd-item disabled">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+          BGP Looking Glass<span class="dd-badge amber">Em breve</span>
+        </a>
+        <a href="/ferramentas/clientes/" class="nav-dd-item disabled">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          Consulta de Clientes<span class="dd-badge amber">Em breve</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="nav-item">
+      <button class="nav-btn" id="btnTopologias" onclick="toggleNav('topologiasDD','btnTopologias')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><path d="M5 9v4h14V9"/><line x1="12" y1="13" x2="12" y2="15"/></svg>
+        Topologias de Rede
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="topologiasDD">
+        <div class="nav-dd-header">Escritório PQS</div>
+        <a href="/rede/escritorio-pqs-1andar/" class="nav-dd-item">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          1º Andar — Rack Central<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/rede/escritorio-pqs-2andar/" class="nav-dd-item disabled">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+          2º Andar<span class="dd-badge amber">Em breve</span>
+        </a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Backbone</div>
+        <a href="/topologias/bgp-upstream/" class="nav-dd-item">
+          <div class="dd-icon orange"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          Topologia BGP — AS265019<span class="dd-badge green">Disponível</span>
+        </a>
+        <a href="/topologias/cgnat/" class="nav-dd-item">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>
+          Mapa CGNAT<span class="dd-badge green">Disponível</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+    <div class="nav-item">
+      <button class="nav-btn" id="btnDocumentacao" onclick="toggleNav('documentacaoDD','btnDocumentacao')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Documentação
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="documentacaoDD">
+        <div class="nav-dd-header">Inventário</div>
+        <a href="/documentacao/" class="nav-dd-item">
+          <div class="dd-icon orange"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>
+          Dispositivos por POP<span class="dd-badge green">Disponível</span>
+        </a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Endereçamento</div>
+        <a href="/documentacao/?tab=prefixos" class="nav-dd-item">
+          <div class="dd-icon blue"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          Prefixos IP / IPAM<span class="dd-badge green">Disponível</span>
+        </a>
+      </div>
+    </div>
+  <!-- User menu -->
+  <div class="nav-right">
+    <div class="nav-item" style="position:relative">
+      <button class="user-btn" id="userBtn" onclick="toggleNav('userDD','userBtn')">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userLabel">...</span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="user-dropdown" id="userDD">
+        <div class="ud-name" id="udName">—</div>
+        <div class="ud-role" id="udRole">—</div>
+        <div class="ud-label">API Key</div>
+        <div class="ud-key-wrap">
+          <div class="ud-key" id="udKey">—</div>
+          <button class="btn-copy" id="copyBtn" onclick="copyKey()">Copiar</button>
+        </div>
+        <hr class="ud-sep">
+        <div class="ud-actions">
+          <button class="btn-ud-action" onclick="openModal('modal-perfil');closeDropdown()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Meu Perfil
+          </button>
+          <button class="btn-ud-action" id="btnAuditoria" style="display:none" onclick="openModalAuditoria();closeDropdown()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Auditoria</button>
+          <button class="btn-ud-action" id="btnGerenciarUsuarios" style="display:none" onclick="openModalUsuarios();closeDropdown()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Gerenciar Usuários
+          </button>
+          <button class="btn-ud-action danger" onclick="doLogout()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Modal: Meu Perfil ── -->
+<div class="modal-overlay" id="modal-perfil" onclick="overlayClose(event,'modal-perfil')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Meu Perfil</h3>
+      <button class="btn-modal-close" onclick="closeModal('modal-perfil')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Alterar Nome -->
+      <div class="modal-section">
+        <div class="modal-section-title">Alterar Nome</div>
+        <div class="form-group">
+          <label>Nome de exibição</label>
+          <input type="text" id="perfil-name" placeholder="Seu nome">
+        </div>
+        <button class="btn-primary" id="perfil-name-btn" onclick="doChangeName()">Salvar nome</button>
+        <div class="form-msg" id="perfil-name-msg"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:1.25rem 0">
+      <!-- Alterar Email -->
+      <div class="modal-section">
+        <div class="modal-section-title">Alterar Email</div>
+        <div class="form-group">
+          <label>Novo email</label>
+          <input type="email" id="perfil-email" placeholder="novo@email.com">
+        </div>
+        <button class="btn-primary" id="perfil-email-btn" onclick="doChangeEmail()">Salvar email</button>
+        <div class="form-msg" id="perfil-email-msg"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.07);margin:1.25rem 0">
+      <!-- Alterar Senha -->
+      <div class="modal-section">
+        <div class="modal-section-title">Alterar Senha</div>
+        <div class="form-group">
+          <label>Nova senha</label>
+          <input type="password" id="perfil-pw1" placeholder="••••••••" minlength="8">
+        </div>
+        <div class="form-group">
+          <label>Confirmar nova senha</label>
+          <input type="password" id="perfil-pw2" placeholder="••••••••" minlength="8">
+        </div>
+        <button class="btn-primary" id="perfil-pw-btn" onclick="doChangePw()">Salvar senha</button>
+        <div class="form-msg" id="perfil-pw-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Auditoria ── -->
+<div class="modal-overlay" id="modal-auditoria" onclick="if(event.target===this)closeModal('modal-auditoria')">
+  <div class="modal" style="max-width:860px;width:95%">
+    <div class="modal-header">
+      <div class="modal-title">Auditoria de Uso</div>
+      <button class="modal-close" onclick="closeModal('modal-auditoria')">✕</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <input id="audit-filter-user" type="text" placeholder="Filtrar por usuário…" style="flex:1;padding:7px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:#e2e8f0;font-size:13px;font-family:inherit" oninput="loadAudit(0)">
+      <button onclick="loadAudit(0)" style="padding:7px 14px;border-radius:6px;background:#FF6600;color:#fff;border:none;cursor:pointer;font-size:13px;font-family:inherit">Atualizar</button>
+    </div>
+    <div id="audit-table-wrap" style="overflow-x:auto;max-height:420px;overflow-y:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead style="position:sticky;top:0;background:#1a2234;z-index:1">
+          <tr>
+            <th style="padding:8px 10px;text-align:left;color:#929EB0;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08)">Horário</th>
+            <th style="padding:8px 10px;text-align:left;color:#929EB0;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08)">Usuário</th>
+            <th style="padding:8px 10px;text-align:left;color:#929EB0;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08)">Ação</th>
+            <th style="padding:8px 10px;text-align:left;color:#929EB0;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08)">IP</th>
+          </tr>
+        </thead>
+        <tbody id="audit-tbody"><tr><td colspan="4" style="padding:20px;text-align:center;color:#929EB0">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+    <div id="audit-pagination" style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:#929EB0"></div>
+  </div>
+</div>
+
+<!-- ── Modal: Gerenciar Usuários ── -->
+<div class="modal-overlay" id="modal-usuarios" onclick="overlayClose(event,'modal-usuarios')">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h3>Gerenciar Usuários</h3>
+      <button class="btn-modal-close" onclick="closeModal('modal-usuarios')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Convidar novo usuário -->
+      <div class="invite-box">
+        <div class="invite-toggle" onclick="toggleInviteForm()">
+          <span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Convidar Novo Usuário
+          </span>
+          <svg id="invite-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#929EB0" stroke-width="2" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="invite-form" id="invite-form">
+          <div class="form-row" style="margin-top:.75rem">
+            <div class="form-group" style="margin-bottom:0">
+              <label>Nome</label>
+              <input type="text" id="inv-name" placeholder="Nome completo">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label>Email</label>
+              <input type="email" id="inv-email" placeholder="email@nextelecom.net.br">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:.75rem">
+            <label>Perfil de Acesso</label>
+            <select id="inv-role">
+              <option value="operador">Operador</option>
+              <option value="administrador">Administrador</option>
+              <option value="master">Master</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="inv-btn" onclick="doInvite()" style="margin-top:.25rem">Enviar Convite por Email</button>
+          <div class="form-msg" id="inv-msg"></div>
+        </div>
+      </div>
+
+      <!-- Lista de usuários -->
+      <div class="modal-section-title">Usuários Cadastrados</div>
+      <div id="users-loading" style="color:#929EB0;font-size:13px;padding:.5rem 0">Carregando...</div>
+      <table class="user-table" id="users-table" style="display:none">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Nome / Email</th>
+            <th>Perfil</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<main class="main">
+  <div class="hero">
+    <div class="hero-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div class="hero-text">
+      <h2>NetOps Portal</h2>
+      <p>Ferramentas de provisionamento, gerador de scripts e documentação de infraestrutura NexTelecom.</p>
+    </div>
+    <div class="hero-as">AS265019</div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Ferramentas</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid">
+      <a href="/ferramentas/link-dedicado/" class="card">
+        <div class="card-icon orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="card-title">Gerador — Link Dedicado</div>
+        <div class="card-sub">Configurações NE40-BGP, SW-Core, SW-Entrega e EDD para clientes com link dedicado.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/link-semi-dedicado/" class="card">
+        <div class="card-icon purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <div class="card-title">Gerador — Link Semi-Dedicado</div>
+        <div class="card-sub">NE40, SW-Core e OLT MA5800 para entrega via FTTH (tagged ou untagged).</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/circuitos/" class="card">
+        <div class="card-icon orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="card-title">Circuitos Provisionados</div>
+        <div class="card-sub">Consulte e copie as configs de todos os circuitos: NE40, SW-Core, SW-Entrega e EDD.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/ipcalc/" class="card">
+        <div class="card-icon" style="background:rgba(74,222,128,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="15" cy="15" r="3.5"/><line x1="17.5" y1="17.5" x2="19" y2="19"/></svg>
+        </div>
+        <div class="card-title">Calculadora IPv4</div>
+        <div class="card-sub">Rede, broadcast, hosts, wildcard, binário e divisão em sub-redes.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/ipcalc6/" class="card">
+        <div class="card-icon" style="background:rgba(129,140,248,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="15" cy="15" r="3.5"/><line x1="17.5" y1="17.5" x2="19" y2="19"/></svg>
+        </div>
+        <div class="card-title">Calculadora IPv6</div>
+        <div class="card-sub">Rede, primeiro host, último host, expansão/compressão e divisão em sub-redes.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/gpon-diagnostico/" class="card">
+        <div class="card-icon teal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        </div>
+        <div class="card-title">GPON Diagnóstico</div>
+        <div class="card-sub">Diagnóstico de ONT via TR-069, ping, WiFi e sessão PPPoE no BNG.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/cgnat-diagnostico/" class="card">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+        </div>
+        <div class="card-title">CGNAT Diagnóstico</div>
+        <div class="card-sub">Identifica NAT, pool, sessão PPPoE e rastreia rota da ONT via A10 e BNG.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/synapse/" class="card">
+        <div class="card-icon purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        </div>
+        <div class="card-title">Synapse IoT Builder</div>
+        <div class="card-sub">Montagem e exportação de projetos IoT: endereços, VLANs, topologia de dispositivos.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/inadimplencia/" class="card">
+        <div class="card-icon" style="background:rgba(248,113,113,0.12)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="card-title">Inadimplência</div>
+        <div class="card-sub">Análise de clientes inadimplentes: importação de planilha, filtros e exportação de relatórios.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/ferramentas/bgp-looking-glass/" class="card disabled">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div class="card-title">BGP Looking Glass</div>
+        <div class="card-sub">Consulta de rotas e prefixos anunciados pelo AS265019.</div>
+        <span class="badge badge-amber">Em breve</span>
+      </a>
+      <a href="/ferramentas/clientes/" class="card disabled">
+        <div class="card-icon teal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="card-title">Consulta de Clientes</div>
+        <div class="card-sub">Busca de clientes, contratos e status de serviços.</div>
+        <span class="badge badge-amber">Em breve</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Topologias de Rede</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid">
+      <a href="/rede/escritorio-pqs-1andar/" class="card">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div class="card-title">Escritório PQS — 1º Andar</div>
+        <div class="card-sub">Rack central, switches, patch panels e pontos de rede do primeiro andar.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/rede/escritorio-pqs-2andar/" class="card disabled">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div class="card-title">Escritório PQS — 2º Andar</div>
+        <div class="card-sub">Documentação de rede do segundo andar.</div>
+        <span class="badge badge-amber">Em breve</span>
+      </a>
+      <a href="/topologias/bgp-upstream/" class="card">
+        <div class="card-icon orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="card-title">Topologia BGP — AS265019</div>
+        <div class="card-sub">Grafo interativo: upstreams, propagação de rotas e conectividade tier-2.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/topologias/cgnat/" class="card">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+        </div>
+        <div class="card-title">Mapa CGNAT</div>
+        <div class="card-sub">Topologia do CGNAT: pools A10 ativo/ativo, sessões ativas e alocação de IPs.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+    </div>
+  </div>
+  <div class="section" id="sec-documentacao">
+    <div class="section-header">
+      <h2>Documentação de Rede</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="grid">
+      <a href="/documentacao/" class="card">
+        <div class="card-icon orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="card-title">Dispositivos por POP</div>
+        <div class="card-sub">Inventário completo — 142 devices em 11 sites. Busca por hostname, IP e tipo.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+      <a href="/documentacao/?tab=prefixos" class="card">
+        <div class="card-icon blue">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div class="card-title">Prefixos IP / IPAM</div>
+        <div class="card-sub">203 prefixos IPv4/IPv6 mapeados. Filtro por família, site e VRF.</div>
+        <span class="badge badge-green">Disponível</span>
+      </a>
+    </div>
+  </div>
+
+
+  <div class="footer">
+    <span>NEX Telecom · AS265019</span>
+    <span>netops.nextelecom.com.br</span>
+  </div>
+</main>
+
+<script>
+// ── Estado global ──
+let _currentUser = null;
+const _tok = () => localStorage.getItem('netops_token');
+
+// ── Auth inicial ──
+const token = _tok();
+if (!token) { window.location.href = '/login'; }
+else {
+  fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) { localStorage.clear(); window.location.href = '/login'; return; }
+      _currentUser = d.user;
+      const u = d.user;
+      document.getElementById('userLabel').textContent = u.name || u.username;
+      document.getElementById('userAvatar').textContent = (u.name || u.username).charAt(0).toUpperCase();
+      document.getElementById('udName').textContent = u.name || u.username;
+      document.getElementById('udRole').textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1) + (u.email ? ' · ' + u.email : '');
+      document.getElementById('udKey').textContent = u.api_key || '(sem chave vinculada)';
+      document.getElementById('perfil-name').value = u.name || '';
+      document.getElementById('perfil-email').value = u.email || '';
+      if (u.role === 'master') {
+        document.getElementById('btnGerenciarUsuarios').style.display = 'flex';
+        document.getElementById('btnAuditoria').style.display = 'flex';
+      }
+    })
+    .catch(() => { localStorage.clear(); window.location.href = '/login'; });
+}
+
+// ── Nav dropdowns ──
+const openDD = { id: null, btn: null };
+function toggleNav(ddId, btnId) {
+  const dd = document.getElementById(ddId);
+  const btn = document.getElementById(btnId);
+  if (openDD.id && openDD.id !== ddId) {
+    document.getElementById(openDD.id).classList.remove('open');
+    if (document.getElementById(openDD.btn)) document.getElementById(openDD.btn).classList.remove('open');
+  }
+  const isOpen = dd.classList.toggle('open');
+  if (btn) btn.classList.toggle('open', isOpen);
+  openDD.id = isOpen ? ddId : null;
+  openDD.btn = isOpen ? btnId : null;
+}
+function closeDropdown() {
+  if (openDD.id) {
+    document.getElementById(openDD.id).classList.remove('open');
+    if (openDD.btn && document.getElementById(openDD.btn)) document.getElementById(openDD.btn).classList.remove('open');
+    openDD.id = null; openDD.btn = null;
+  }
+}
+document.addEventListener('click', e => {
+  if (!openDD.id) return;
+  const dd = document.getElementById(openDD.id);
+  const btn = openDD.btn ? document.getElementById(openDD.btn) : null;
+  if (!dd.contains(e.target) && (!btn || !btn.contains(e.target))) {
+    dd.classList.remove('open');
+    if (btn) btn.classList.remove('open');
+    openDD.id = null; openDD.btn = null;
+  }
+});
+
+// ── Modals ──
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function overlayClose(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+// ── User actions ──
+function copyKey() {
+  const key = document.getElementById('udKey').textContent;
+  navigator.clipboard.writeText(key).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copiado!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('ok'); }, 2000);
+  });
+}
+function doLogout() {
+  localStorage.removeItem('netops_token');
+  localStorage.removeItem('netops_user');
+  window.location.href = '/login';
+}
+
+// ── Meu Perfil ──
+async function doChangeName() {
+  const btn = document.getElementById('perfil-name-btn');
+  const msg = document.getElementById('perfil-name-msg');
+  const name = document.getElementById('perfil-name').value.trim();
+  if (!name) { msg.className='form-msg err'; msg.textContent='Informe o nome'; return; }
+  btn.disabled = true; btn.textContent = 'Salvando...'; msg.textContent = '';
+  try {
+    const r = await fetch(`/api/users/${_currentUser.id}/name`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ name })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.className='form-msg ok'; msg.textContent='Nome atualizado!';
+      _currentUser.name = name;
+      document.getElementById('userLabel').textContent = name;
+      document.getElementById('udName').textContent = name;
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    } else { msg.className='form-msg err'; msg.textContent = d.error || 'Erro ao salvar'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+  btn.disabled = false; btn.textContent = 'Salvar nome';
+}
+
+async function doChangeEmail() {
+  const btn = document.getElementById('perfil-email-btn');
+  const msg = document.getElementById('perfil-email-msg');
+  const email = document.getElementById('perfil-email').value.trim();
+  if (!email) { msg.className='form-msg err'; msg.textContent='Informe o email'; return; }
+  btn.disabled = true; btn.textContent = 'Salvando...'; msg.textContent = '';
+  try {
+    const r = await fetch(`/api/users/${_currentUser.id}/email`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json();
+    if (d.ok) { msg.className='form-msg ok'; msg.textContent='Email atualizado!'; _currentUser.email = email; }
+    else { msg.className='form-msg err'; msg.textContent = d.error || 'Erro ao salvar'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+  btn.disabled = false; btn.textContent = 'Salvar email';
+}
+
+async function doChangePw() {
+  const btn = document.getElementById('perfil-pw-btn');
+  const msg = document.getElementById('perfil-pw-msg');
+  const p1 = document.getElementById('perfil-pw1').value;
+  const p2 = document.getElementById('perfil-pw2').value;
+  if (!p1) { msg.className='form-msg err'; msg.textContent='Informe a nova senha'; return; }
+  if (p1 !== p2) { msg.className='form-msg err'; msg.textContent='As senhas não coincidem'; return; }
+  btn.disabled = true; btn.textContent = 'Salvando...'; msg.textContent = '';
+  try {
+    const r = await fetch(`/api/users/${_currentUser.id}/password`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ password: p1 })
+    });
+    const d = await r.json();
+    if (d.ok) { msg.className='form-msg ok'; msg.textContent='Senha alterada com sucesso!'; document.getElementById('perfil-pw1').value=''; document.getElementById('perfil-pw2').value=''; }
+    else { msg.className='form-msg err'; msg.textContent = d.error || 'Erro ao salvar'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+  btn.disabled = false; btn.textContent = 'Salvar senha';
+}
+
+// ── Gerenciar Usuários ──
+let _usersCache = [];
+
+function openModalUsuarios() {
+  openModal('modal-usuarios');
+  loadUsers();
+}
+
+// ── Auditoria ──
+let _auditOffset = 0;
+const _auditPageSize = 100;
+
+function openModalAuditoria() {
+  openModal('modal-auditoria');
+  loadAudit(0);
+}
+
+async function loadAudit(offset) {
+  _auditOffset = offset;
+  const user = document.getElementById('audit-filter-user').value.trim();
+  const tbody = document.getElementById('audit-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:#929EB0">Carregando…</td></tr>';
+  try {
+    let url = `/api/audit?limit=${_auditPageSize}&offset=${offset}`;
+    if (user) url += `&user=${encodeURIComponent(user)}`;
+    const r = await fetch(url, { headers: { Authorization: 'Bearer ' + _tok() } });
+    const d = await r.json();
+    if (!d.ok) { tbody.innerHTML = `<tr><td colspan="4" style="padding:20px;text-align:center;color:#f87171">${d.error}</td></tr>`; return; }
+    if (!d.logs.length) { tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:#929EB0">Nenhum registro</td></tr>'; return; }
+    tbody.innerHTML = d.logs.map(l => {
+      const dt = new Date(l.created_at);
+      const ts = dt.toLocaleString('pt-BR', { timeZone: 'America/Fortaleza', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const actionColor = l.action === 'login' ? '#4ade80' : l.method === 'POST' ? '#FF6600' : l.method === 'DELETE' || l.method === 'PATCH' ? '#f87171' : '#CBD5E0';
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+        <td style="padding:7px 10px;color:#929EB0;white-space:nowrap">${ts}</td>
+        <td style="padding:7px 10px;color:#e2e8f0;font-weight:500">${l.username || '—'}</td>
+        <td style="padding:7px 10px;color:${actionColor};font-family:monospace">${l.action}</td>
+        <td style="padding:7px 10px;color:#929EB0;font-family:monospace">${l.ip || '—'}</td>
+      </tr>`;
+    }).join('');
+    const total = d.total;
+    const pag = document.getElementById('audit-pagination');
+    pag.innerHTML = `<span>${total} registros</span><div style="display:flex;gap:6px">
+      ${offset > 0 ? `<button onclick="loadAudit(${offset - _auditPageSize})" style="padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.07);color:#CBD5E0;border:none;cursor:pointer;font-size:12px">← Anterior</button>` : ''}
+      ${offset + _auditPageSize < total ? `<button onclick="loadAudit(${offset + _auditPageSize})" style="padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.07);color:#CBD5E0;border:none;cursor:pointer;font-size:12px">Próximo →</button>` : ''}
+    </div>`;
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="4" style="padding:20px;text-align:center;color:#f87171">Erro ao carregar logs</td></tr>`;
+  }
+}
+
+function toggleInviteForm() {
+  const form = document.getElementById('invite-form');
+  const chevron = document.getElementById('invite-chevron');
+  form.classList.toggle('open');
+  chevron.style.transform = form.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+async function loadUsers() {
+  document.getElementById('users-loading').style.display = 'block';
+  document.getElementById('users-table').style.display = 'none';
+  try {
+    const r = await fetch('/api/users', { headers: { Authorization: 'Bearer ' + _tok() } });
+    const d = await r.json();
+    if (!d.ok) { document.getElementById('users-loading').textContent = 'Erro: ' + (d.error || 'Acesso negado'); return; }
+    _usersCache = d.users;
+    renderUsers(d.users);
+  } catch(_) { document.getElementById('users-loading').textContent = 'Erro de conexão'; }
+}
+
+function renderUsers(users) {
+  document.getElementById('users-loading').style.display = 'none';
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+  users.forEach(u => {
+    const tr = document.createElement('tr');
+    tr.id = 'urow-' + u.id;
+    tr.innerHTML = `
+      <td><div class="u-avatar-sm">${(u.name||u.username).charAt(0).toUpperCase()}</div></td>
+      <td>
+        <div class="u-name">${esc(u.name||u.username)}</div>
+        <div class="u-email">${esc(u.email||'—')}</div>
+      </td>
+      <td><span class="role-tag ${u.role}">${u.role}</span></td>
+      <td>
+        <span class="status-dot ${u.active?'on':'off'}"></span>
+        ${u.active?'Ativo':'Inativo'}
+      </td>
+      <td>
+        <div class="u-actions">
+          <button class="btn-sm orange" onclick="toggleInlineNm(${u.id})">Nome</button>
+          <button class="btn-sm orange" onclick="toggleInlinePw(${u.id})">Senha</button>
+          ${_currentUser && u.id !== _currentUser.id ? `
+            <button class="btn-sm ${u.active?'red':'green'}" onclick="toggleActive(${u.id},${!u.active})">
+              ${u.active?'Desativar':'Ativar'}
+            </button>` : ''}
+        </div>
+        <div class="inline-pw" id="inm-${u.id}">
+          <div class="form-group" style="margin-bottom:.5rem">
+            <label>Nome de exibição</label>
+            <input type="text" id="inm-v-${u.id}" placeholder="Nome completo" value="${esc(u.name||u.username)}" style="margin-bottom:0">
+          </div>
+          <button class="btn-sm orange" onclick="saveUserName(${u.id})">Salvar</button>
+          <span class="form-msg" id="inm-msg-${u.id}" style="display:inline;margin-left:.5rem"></span>
+        </div>
+        <div class="inline-pw" id="ipw-${u.id}">
+          <div class="form-group" style="margin-bottom:.5rem">
+            <label>Nova senha</label>
+            <input type="password" id="ipw-v-${u.id}" placeholder="••••••••" minlength="8" style="margin-bottom:0">
+          </div>
+          <button class="btn-sm orange" onclick="saveUserPw(${u.id})">Salvar</button>
+          <span class="form-msg" id="ipw-msg-${u.id}" style="display:inline;margin-left:.5rem"></span>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('users-table').style.display = 'table';
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleInlineNm(uid) {
+  document.getElementById('inm-' + uid).classList.toggle('open');
+}
+function toggleInlinePw(uid) {
+  const el = document.getElementById('ipw-' + uid);
+  el.classList.toggle('open');
+}
+
+async function saveUserName(uid) {
+  const name = document.getElementById('inm-v-' + uid).value.trim();
+  const msg = document.getElementById('inm-msg-' + uid);
+  if (!name) { msg.className='form-msg err'; msg.textContent='Informe o nome'; return; }
+  msg.textContent = 'Salvando...'; msg.className = 'form-msg';
+  try {
+    const r = await fetch(`/api/users/${uid}/name`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ name })
+    });
+    const d = await r.json();
+    if (d.ok) { msg.className='form-msg ok'; msg.textContent='Salvo!'; loadUsers(); }
+    else { msg.className='form-msg err'; msg.textContent = d.error||'Erro'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+}
+
+async function saveUserPw(uid) {
+  const pw = document.getElementById('ipw-v-' + uid).value;
+  const msg = document.getElementById('ipw-msg-' + uid);
+  if (!pw) { msg.className='form-msg err'; msg.textContent='Informe a senha'; return; }
+  msg.textContent = 'Salvando...'; msg.className = 'form-msg';
+  try {
+    const r = await fetch(`/api/users/${uid}/password`, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ password: pw })
+    });
+    const d = await r.json();
+    if (d.ok) { msg.className='form-msg ok'; msg.textContent='Salvo!'; document.getElementById('ipw-v-'+uid).value=''; }
+    else { msg.className='form-msg err'; msg.textContent = d.error||'Erro'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+}
+
+async function toggleActive(uid, newActive) {
+  try {
+    const r = await fetch(`/api/users/${uid}/active`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ active: newActive })
+    });
+    const d = await r.json();
+    if (d.ok) { loadUsers(); }
+    else { alert(d.error || 'Erro ao alterar status'); }
+  } catch(_) { alert('Erro de conexão'); }
+}
+
+async function doInvite() {
+  const btn = document.getElementById('inv-btn');
+  const msg = document.getElementById('inv-msg');
+  const name = document.getElementById('inv-name').value.trim();
+  const email = document.getElementById('inv-email').value.trim();
+  const role = document.getElementById('inv-role').value;
+  if (!name || !email) { msg.className='form-msg err'; msg.textContent='Nome e email são obrigatórios'; return; }
+  btn.disabled = true; btn.textContent = 'Enviando...'; msg.textContent = '';
+  try {
+    const r = await fetch('/api/users', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + _tok() },
+      body: JSON.stringify({ name, email, role })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.className='form-msg ok'; msg.textContent = `Convite enviado para ${email}`;
+      document.getElementById('inv-name').value = '';
+      document.getElementById('inv-email').value = '';
+      loadUsers();
+    } else { msg.className='form-msg err'; msg.textContent = d.error || 'Erro ao enviar convite'; }
+  } catch(_) { msg.className='form-msg err'; msg.textContent='Erro de conexão'; }
+  btn.disabled = false; btn.textContent = 'Enviar Convite por Email';
+}
+</script>
+</body>
+</html>

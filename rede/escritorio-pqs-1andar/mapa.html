@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Rede — 1º Andar | NEX NetOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#1a1a1a;color:#fff;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.topbar{background:#111;border-bottom:0.5px solid #333;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100}
+.topbar h1{font-size:14px;font-weight:600;color:#fff}
+.topbar p{font-size:11px;color:#888}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn{font-size:11px;font-weight:500;padding:5px 12px;border-radius:5px;border:0.5px solid #333;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:transparent;color:#888}
+.btn:hover{color:#fff;border-color:#666}
+.btn-red{color:#f08080;border-color:#6b2b2b}
+.btn-red:hover{background:#2d1414;border-color:#f08080}
+.filters{background:#111;border-bottom:0.5px solid #222;padding:6px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.filter-label{font-size:11px;color:#555;margin-right:4px}
+.filter-btn{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;border:0.5px solid #333;background:transparent;color:#666;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s}
+.filter-btn.active{color:#fff}
+.f-all.active{background:#333;border-color:#555}
+.f-rede.active{background:#1a3a5c;border-color:#2e75b6;color:#b5d4f4}
+.f-cam.active{background:#1a2e4a;border-color:#2980b9;color:#aed6f1}
+.f-ap.active{background:#1a3a1a;border-color:#27ae60;color:#a9dfbf}
+.f-esp.active{background:#4a3000;border-color:#d4ac0d;color:#fdebd0}
+.dot-mini{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.stats{margin-left:auto;display:flex;gap:12px}
+.stat{font-size:11px;color:#555;display:flex;align-items:center;gap:5px}
+.stat span{color:#888;font-weight:500}
+.map-container{flex:1;overflow:hidden;position:relative;cursor:grab}
+.map-container.grabbing{cursor:grabbing}
+.map-inner{position:absolute;transform-origin:0 0}
+.map-img{display:block;user-select:none;pointer-events:none}
+.point{position:absolute;transform:translate(-50%,-50%);cursor:pointer;transition:transform 0.1s;z-index:10}
+.point:hover{transform:translate(-50%,-50%) scale(1.4);z-index:50}
+.point-dot{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.6);transition:box-shadow 0.1s}
+.point:hover .point-dot{box-shadow:0 0 0 3px rgba(255,255,255,0.3),0 2px 8px rgba(0,0,0,0.6)}
+.point.rede .point-dot{background:#c0392b}
+.point.cam  .point-dot{background:#2980b9}
+.point.ap   .point-dot{background:#27ae60}
+.point.esp  .point-dot{background:#d4ac0d}
+.point.hidden{display:none}
+.tooltip{display:none;position:fixed;background:#111;border:0.5px solid #3a3a3a;border-radius:10px;padding:12px 14px;font-size:12px;z-index:200;pointer-events:none;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.8)}
+.tooltip.visible{display:block}
+.tt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.tt-label{font-weight:600;font-size:13px;color:#fff}
+.tt-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+.badge-rede{background:#1a3a5c;color:#b5d4f4}
+.badge-cam{background:#1a2e4a;color:#aed6f1}
+.badge-ap{background:#1a3a1a;color:#a9dfbf}
+.badge-esp{background:#4a3000;color:#fdebd0}
+.tt-divider{height:0.5px;background:#2a2a2a;margin-bottom:8px}
+.tt-row{display:flex;justify-content:space-between;gap:16px;margin-bottom:4px}
+.tt-row:last-child{margin-bottom:0}
+.tt-key{color:#555;font-size:11px}
+.tt-val{color:#bbb;font-size:11px;font-weight:500;text-align:right}
+.tt-etiq{color:#666;font-size:10px;font-family:monospace;text-align:right;word-break:break-all}
+.zoom-controls{position:absolute;bottom:16px;right:16px;display:flex;flex-direction:column;gap:4px;z-index:100}
+.zoom-btn{width:30px;height:30px;background:#1a1a1a;border:0.5px solid #333;border-radius:6px;color:#aaa;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.zoom-btn:hover{background:#222;color:#fff}
+.zoom-level{background:#1a1a1a;border:0.5px solid #333;border-radius:6px;color:#666;font-size:10px;text-align:center;padding:4px 0;font-weight:500}
+.info-bar{position:absolute;bottom:16px;left:16px;background:rgba(17,17,17,0.85);border:0.5px solid #2a2a2a;border-radius:8px;padding:6px 12px;font-size:10px;color:#555;z-index:100;backdrop-filter:blur(4px)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>Mapa de Rede — Escritório PQS · 1º Andar</h1>
+    <p>NEX Telecom · UBNT-SW-03 (48p) · UBNT-SW-04 (24p)</p>
+  </div>
+  <div class="topbar-right">
+    <a href="/" class="btn">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Portal
+    </a>
+    <a href="/rede/escritorio-pqs-1andar/" class="btn">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Dashboard
+    </a>
+    <a href="/logout" class="btn btn-red" onclick="return doLogout()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sair
+    </a>
+  </div>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Filtrar:</span>
+  <button class="filter-btn f-all active" onclick="setFilter('all')"><span class="dot-mini" style="background:#666"></span>Todos</button>
+  <button class="filter-btn f-rede" onclick="setFilter('rede')"><span class="dot-mini" style="background:#c0392b"></span>Pontos de rede</button>
+  <button class="filter-btn f-cam" onclick="setFilter('cam')"><span class="dot-mini" style="background:#2980b9"></span>Câmeras IP</button>
+  <button class="filter-btn f-ap" onclick="setFilter('ap')"><span class="dot-mini" style="background:#27ae60"></span>Access points</button>
+  <button class="filter-btn f-esp" onclick="setFilter('esp')"><span class="dot-mini" style="background:#d4ac0d"></span>Especiais</button>
+  <div class="stats">
+    <span class="stat"><span id="cnt-rede">0</span> rede</span>
+    <span class="stat"><span id="cnt-cam">0</span> câmeras</span>
+    <span class="stat"><span id="cnt-ap">0</span> APs</span>
+    <span class="stat"><span id="cnt-esp">0</span> especiais</span>
+  </div>
+</div>
+
+<div class="map-container" id="mapContainer">
+  <div class="map-inner" id="mapInner">
+    <img src="mapa_rede_1andar.png" class="map-img" id="mapImg" draggable="false">
+    <div id="pointsLayer"></div>
+  </div>
+</div>
+
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="zoom(0.2)">+</button>
+  <div class="zoom-level" id="zoomLevel">100%</div>
+  <button class="zoom-btn" onclick="zoom(-0.2)">−</button>
+  <button class="zoom-btn" onclick="resetView()" title="Resetar">⌂</button>
+</div>
+
+<div class="info-bar">Scroll = zoom · Arrastar = mover · Hover = detalhes</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+var IMG_W = 5480, IMG_H = 3141;
+
+// Dados calibrados
+var PONTOS = [
+  ["PT01-PP01-COORDENAÇÃO",74.599,31.073,"rede","PP-01","01","UBNT-SW-03","Gi0/1","Coordenação"],
+  ["PT02-PP01-COORDENAÇÃO",65.693,16.683,"rede","PP-01","02","UBNT-SW-03","Gi0/2","Coordenação"],
+  ["PT03-PP01-COMERCIAL",59.58,16.555,"rede","PP-01","03","UBNT-SW-03","Gi0/3","Comercial"],
+  ["PT04-PP01-COMERCIAL",51.314,19.102,"rede","PP-01","04","UBNT-SW-03","Gi0/4","Comercial"],
+  ["PT05-PP01-COMERCIAL",47.245,19.039,"rede","PP-01","05","UBNT-SW-03","Gi0/5","Comercial"],
+  ["PT06-PP01-COMERCIAL",43.066,19.007,"rede","PP-01","06","UBNT-SW-03","Gi0/6","Comercial"],
+  ["PT07-PP01-COMERCIAL",52.336,29.799,"rede","PP-01","07","UBNT-SW-03","Gi0/7","Comercial"],
+  ["PT08-PP01-COMERCIAL",47.865,29.863,"rede","PP-01","08","UBNT-SW-03","Gi0/8","Comercial"],
+  ["PT09-PP01-COMERCIAL",43.029,29.799,"rede","PP-01","09","UBNT-SW-03","Gi0/9","Comercial"],
+  ["PT10-PP01-COMERCIAL",55.931,41.834,"rede","PP-01","10","UBNT-SW-03","Gi0/10","Comercial"],
+  ["PT11-PP01-COMERCIAL",51.35,41.802,"rede","PP-01","11","UBNT-SW-03","Gi0/11","Comercial"],
+  ["PT12-PP01-COMERCIAL",47.08,41.738,"rede","PP-01","12","UBNT-SW-03","Gi0/12","Comercial"],
+  ["PT13-PP01-COMERCIAL",42.901,41.611,"rede","PP-01","13","UBNT-SW-03","Gi0/13","Comercial"],
+  ["PT14-PP01-COMERCIAL",55.967,52.436,"rede","PP-01","14","UBNT-SW-03","Gi0/14","Comercial"],
+  ["PT15-PP01-COMERCIAL",51.551,52.34,"rede","PP-01","15","UBNT-SW-03","Gi0/15","Comercial"],
+  ["PT16-PP01-COMERCIAL",47.099,52.499,"rede","PP-01","16","UBNT-SW-03","Gi0/16","Comercial"],
+  ["PT17-PP01-COMERCIAL",42.901,52.499,"rede","PP-01","17","UBNT-SW-03","Gi0/17","Comercial"],
+  ["PT18-PP01-COMERCIAL",41.04,23.814,"rede","PP-01","18","UBNT-SW-03","Gi0/18","Comercial"],
+  ["PT19-PP01-COMERCIAL",41.423,46.864,"rede","PP-01","19","UBNT-SW-03","Gi0/19","Comercial"],
+  ["PT20-PP01-AUDITORIO",22.573,40.528,"rede","PP-01","20","UBNT-SW-03","Gi0/20","Auditório"],
+  ["PT21-PP01-RH",14.434,56.001,"rede","PP-01","21","UBNT-SW-03","Gi0/21","RH+Seg."],
+  ["PT22-PP01-RH",9.635,56.16,"rede","PP-01","22","UBNT-SW-03","Gi0/22","RH+Seg."],
+  ["PT23-PP01-RH",6.442,57.307,"rede","PP-01","23","UBNT-SW-03","Gi0/23","RH+Seg."],
+  ["PT24-PP01-RH",6.77,51.894,"rede","PP-01","24","UBNT-SW-03","Gi0/24","RH+Seg."],
+  ["PT01-PP02-RH",7.555,44.19,"rede","PP-02","01","UBNT-SW-03","Gi0/25","RH+Seg."],
+  ["PT02-PP02-RH",12.956,38.077,"rede","PP-02","02","UBNT-SW-03","Gi0/26","RH+Seg."],
+  ["PT03-PP02-PROJETOS",6.405,65.521,"rede","PP-02","03","UBNT-SW-03","Gi0/27","CEO+Projetos"],
+  ["PT04-PP02-PROJETOS",6.186,72.875,"rede","PP-02","04","UBNT-SW-03","Gi0/28","CEO+Projetos"],
+  ["PT05-PP02-PROJETOS",5.456,79.975,"rede","PP-02","05","UBNT-SW-03","Gi0/29","CEO+Projetos"],
+  ["PT06-PP02-PROJETOS",5.474,89.685,"rede","PP-02","06","UBNT-SW-03","Gi0/30","CEO+Projetos"],
+  ["PT07-PP02-PROJETOS",10.949,89.462,"rede","PP-02","07","UBNT-SW-03","Gi0/31","CEO+Projetos"],
+  ["PT08-PP02-PROJETOS",15.73,89.43,"rede","PP-02","08","UBNT-SW-03","Gi0/32","CEO+Projetos"],
+  ["PT09-PP02-PROJETOS",16.387,75.263,"rede","PP-02","09","UBNT-SW-03","Gi0/33","CEO+Projetos"],
+  ["PT10-PP02-MARKETING",34.945,81.344,"rede","PP-02","10","UBNT-SW-03","Gi0/34","Marketing"],
+  ["PT11-PP02-MARKETING",30.128,81.152,"rede","PP-02","11","UBNT-SW-03","Gi0/35","Marketing"],
+  ["PT12-PP02-MARKETING",26.624,81.471,"rede","PP-02","12","UBNT-SW-03","Gi0/36","Marketing"],
+  ["PT13-PP02-MARKETING",23.248,81.407,"rede","PP-02","13","UBNT-SW-03","Gi0/37","Marketing"],
+  ["PT14-PP02-MARKETING",24.635,70.519,"rede","PP-02","14","UBNT-SW-03","Gi0/38","Marketing"],
+  ["PT16-PP02-REUNIAO",63.595,47.851,"rede","PP-02","16","UBNT-SW-03","Gi0/40","Reunião"],
+  ["PT17-PP02-RH",17.19,26.106,"rede","PP-02","17","UBNT-SW-03","Gi0/41","RH+Seg."],
+  ["PT18-PP02-RECEPCAO",39.015,83.572,"esp","PP-02","18","UBNT-SW-03","Gi0/42","Fechadura Facial"],
+  ["PT15-PP02-RECEPCAO",67.956,76.345,"esp","PP-02","15","UBNT-SW-03","Gi0/39","Relógio de Ponto"],
+  ["AP1-PP02-COMERCIAL",60.201,55.269,"ap","PP-02","19","UBNT-SW-03","Gi0/43","Access Point 1"],
+  ["AP2-PP02-CORREDOR",24.653,63.069,"ap","PP-02","20","UBNT-SW-03","Gi0/44","Access Point 2"],
+  ["CA01-PP03-COORDENAÇÃO",71.971,20.439,"cam","PP-03","01","UBNT-SW-04","Gi0/1","Câmera 01"],
+  ["CA02-PP03-COMERCIAL",53.723,12.767,"cam","PP-03","02","UBNT-SW-04","Gi0/2","Câmera 02"],
+  ["CA03-PP03-COMERCIAL",60.164,46.896,"cam","PP-03","03","UBNT-SW-04","Gi0/3","Câmera 03"],
+  ["CA04-PP03-AUDITORIO",38.485,55.333,"cam","PP-03","04","UBNT-SW-04","Gi0/4","Câmera 04"],
+  ["CA05-PP03-AUDITORIO",24.398,27.125,"cam","PP-03","05","UBNT-SW-04","Gi0/5","Câmera 05"],
+  ["CA06-PP03-RH",19.982,28.653,"cam","PP-03","06","UBNT-SW-04","Gi0/6","Câmera 06"],
+  ["CA07-PP03-RH",19.854,45.4,"cam","PP-03","07","UBNT-SW-04","Gi0/7","Câmera 07"],
+  ["CA08-PP03-PROJETOS",9.252,62.114,"cam","PP-03","08","UBNT-SW-04","Gi0/8","Câmera 08"],
+  ["CA09-PP03-PROJETOS",7.555,86.087,"cam","PP-03","09","UBNT-SW-04","Gi0/9","Câmera 09"],
+  ["CA10-PP03-MARKETING",22.609,75.135,"cam","PP-03","10","UBNT-SW-04","Gi0/10","Câmera 10"],
+  ["CA11-PP03-MARKETING",36.04,69.277,"cam","PP-03","11","UBNT-SW-04","Gi0/11","Câmera 11"],
+  ["CA12-PP03-RECEPÇÃO",46.46,79.975,"cam","PP-03","12","UBNT-SW-04","Gi0/12","Câmera 12"],
+  ["CA13-PP03-RECEPÇÃO",64.964,70.455,"cam","PP-03","13","UBNT-SW-04","Gi0/13","Câmera 13"],
+  ["CA14-PP03-DESCANSO",72.482,63.419,"cam","PP-03","14","UBNT-SW-04","Gi0/14","Câmera 14"],
+  ["CA15-PP03-DESCANSO",83.522,64.343,"cam","PP-03","15","UBNT-SW-04","Gi0/15","Câmera 15"],
+  ["CA16-PP03-REUNIAO",64.288,55.301,"cam","PP-03","16","UBNT-SW-04","Gi0/16","Câmera 16"],
+  ["CA17-PP03-REUNIAO",65.748,39.255,"cam","PP-03","17","UBNT-SW-04","Gi0/17","Câmera 17"],
+  ["CA18-PP03-ENTRADA",39.544,89.717,"cam","PP-03","18","UBNT-SW-04","Gi0/18","Câmera 18"],
+  ["PT15-PP03-AUDITORIO",22.609,57.338,"rede","PP-03","15","UBNT-SW-04","Gi0/15","Auditório"],
+];
+
+var TIPO_LABEL = {rede:"Ponto de rede",cam:"Câmera IP",ap:"Access Point",esp:"Dispositivo especial"};
+var TIPO_BADGE = {rede:"badge-rede",cam:"badge-cam",ap:"badge-ap",esp:"badge-esp"};
+
+// Render
+var layer = document.getElementById('pointsLayer');
+var tooltip = document.getElementById('tooltip');
+
+function renderPoints() {
+  layer.innerHTML = '';
+  var cnts = {rede:0,cam:0,ap:0,esp:0};
+  PONTOS.forEach(function(p) {
+    var label=p[0],xpct=p[1],ypct=p[2],tipo=p[3];
+    cnts[tipo] = (cnts[tipo]||0)+1;
+    var div = document.createElement('div');
+    div.className = 'point ' + tipo;
+    div.style.left = (xpct/100*IMG_W)+'px';
+    div.style.top  = (ypct/100*IMG_H)+'px';
+    div.dataset.tipo = tipo;
+    var dot = document.createElement('div');
+    dot.className = 'point-dot';
+    var short = label.match(/\d+/);
+    dot.textContent = short ? short[0] : label.slice(0,3);
+    div.appendChild(dot);
+    div.addEventListener('mouseenter', function(e){showTip(e,p)});
+    div.addEventListener('mouseleave', function(){tooltip.classList.remove('visible')});
+    div.addEventListener('mousemove', moveTip);
+    layer.appendChild(div);
+  });
+  document.getElementById('cnt-rede').textContent = cnts.rede||0;
+  document.getElementById('cnt-cam').textContent  = cnts.cam||0;
+  document.getElementById('cnt-ap').textContent   = cnts.ap||0;
+  document.getElementById('cnt-esp').textContent  = cnts.esp||0;
+}
+
+function showTip(e,p) {
+  var label=p[0],xp=p[1],yp=p[2],tipo=p[3],pp=p[4],porta=p[5],sw=p[6],swp=p[7],sala=p[8];
+  var ppn = pp.replace('PP-','');
+  var swn = sw.replace('UBNT-SW-0','');
+  var swpn = swp.replace('Gi0/','');
+  var etiq = 'PP'+ppn.padStart(2,'0')+'-P'+porta.padStart(2,'0')+'-SW0'+swn+'-P'+swpn.padStart(2,'0');
+  tooltip.innerHTML =
+    '<div class="tt-header">' +
+      '<span class="tt-label">'+label+'</span>' +
+      '<span class="tt-badge '+TIPO_BADGE[tipo]+'">'+TIPO_LABEL[tipo]+'</span>' +
+    '</div>' +
+    '<div class="tt-divider"></div>' +
+    '<div class="tt-row"><span class="tt-key">Sala</span><span class="tt-val">'+sala+'</span></div>' +
+    '<div class="tt-row"><span class="tt-key">Patch Panel</span><span class="tt-val">'+pp+' · Porta '+porta.padStart(2,'0')+'</span></div>' +
+    '<div class="tt-row"><span class="tt-key">Switch</span><span class="tt-val">'+sw+'</span></div>' +
+    '<div class="tt-row"><span class="tt-key">Porta SW</span><span class="tt-val">'+swp+'</span></div>' +
+    '<div class="tt-row"><span class="tt-key">Etiqueta</span><span class="tt-etiq">'+etiq+'</span></div>';
+  tooltip.classList.add('visible');
+  moveTip(e);
+}
+function moveTip(e) {
+  var x=e.clientX+16, y=e.clientY-10;
+  if(x+220>window.innerWidth) x=e.clientX-236;
+  if(y+160>window.innerHeight) y=e.clientY-160;
+  tooltip.style.left=x+'px'; tooltip.style.top=y+'px';
+}
+
+// Filtro
+function setFilter(f) {
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelector('.f-'+f).classList.add('active');
+  document.querySelectorAll('.point').forEach(function(pt){
+    pt.classList.toggle('hidden', f!=='all' && pt.dataset.tipo!==f);
+  });
+}
+
+// Pan + Zoom
+var container=document.getElementById('mapContainer');
+var inner=document.getElementById('mapInner');
+var scale=1,tx=0,ty=0,dragging=false,startX,startY,startTx,startTy;
+
+function applyT(){
+  inner.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';
+  document.getElementById('zoomLevel').textContent=Math.round(scale*100)+'%';
+}
+function zoom(d,cx,cy){
+  var rect=container.getBoundingClientRect();
+  var mx=(cx!==undefined?cx:rect.left+rect.width/2)-rect.left;
+  var my=(cy!==undefined?cy:rect.top+rect.height/2)-rect.top;
+  var ns=Math.max(0.1,Math.min(5,scale+d));
+  var r=ns/scale;
+  tx=mx-r*(mx-tx); ty=my-r*(my-ty); scale=ns;
+  applyT();
+}
+function resetView(){
+  var rect=container.getBoundingClientRect();
+  scale=Math.min(rect.width/IMG_W,rect.height/IMG_H)*0.97;
+  tx=(rect.width-IMG_W*scale)/2;
+  ty=(rect.height-IMG_H*scale)/2;
+  applyT();
+}
+container.addEventListener('wheel',function(e){e.preventDefault();zoom(e.deltaY>0?-0.12:0.12,e.clientX,e.clientY)},{passive:false});
+container.addEventListener('mousedown',function(e){dragging=true;startX=e.clientX;startY=e.clientY;startTx=tx;startTy=ty;container.classList.add('grabbing')});
+document.addEventListener('mousemove',function(e){if(!dragging)return;tx=startTx+(e.clientX-startX);ty=startTy+(e.clientY-startY);applyT()});
+document.addEventListener('mouseup',function(){dragging=false;container.classList.remove('grabbing')});
+
+document.getElementById('mapImg').onload=function(){renderPoints();resetView()};
+if(document.getElementById('mapImg').complete){renderPoints();resetView()}
+
+function doLogout(){
+  fetch('/logout',{headers:{'Authorization':'Basic '+btoa('logout:logout')}}).finally(function(){window.location.href='/logout'});
+  return false;
+}
+</script>
+</body>
+</html>

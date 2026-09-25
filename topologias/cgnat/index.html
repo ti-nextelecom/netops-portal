@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa CGNAT — NexTelecom</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; }
+
+  /* NAVBAR */
+  .navbar { background: #161b22; border-bottom: 1px solid #30363d; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .navbar-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #c9d1d9; font-weight: 700; font-size: 15px; }
+  .navbar-brand span { color: #3fb950; }
+  .nav-back { color: #8b949e; text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .nav-back:hover { color: #c9d1d9; }
+
+  /* HEADER */
+  .page-header { background: linear-gradient(135deg, #161b22 0%, #0d1117 100%); border-bottom: 1px solid #30363d; padding: 32px 24px 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; color: #e6edf3; margin-bottom: 6px; }
+  .page-header p { color: #8b949e; font-size: 13px; }
+  .badge-live { display: inline-block; background: #0d2f17; color: #3fb950; border: 1px solid #2ea043; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; margin-left: 10px; vertical-align: middle; }
+  .badge-aa  { display: inline-block; background: #0d2b4a; color: #58a6ff; border: 1px solid #388bfd; border-radius: 12px; padding: 2px 10px; font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+
+  /* CONTENT */
+  .content { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 14px; font-weight: 700; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #30363d; }
+
+  /* TOPOLOGY SVG CARD */
+  .topo-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 24px; overflow-x: auto; }
+
+  /* TABLES */
+  .data-table { width: 100%; border-collapse: collapse; background: #161b22; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; }
+  .data-table th { background: #1c2128; color: #8b949e; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid #30363d; }
+  .data-table td { padding: 9px 14px; border-bottom: 1px solid #21262d; vertical-align: middle; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #1c2128; }
+
+  /* TAGS */
+  .tag { display: inline-block; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; }
+  .tag-a01 { background: #0d2b4a; color: #58a6ff; border: 1px solid #388bfd; }
+  .tag-a02 { background: #2d1f00; color: #e3b341; border: 1px solid #9e6a03; }
+  .tag-active { background: #0d2f17; color: #3fb950; border: 1px solid #2ea043; }
+  .tag-standby { background: #1a1e24; color: #8b949e; border: 1px solid #30363d; }
+  .tag-vrid0 { background: #1a1e24; color: #79c0ff; border: 1px solid #388bfd; }
+  .tag-vrid1 { background: #1a1e24; color: #e3b341; border: 1px solid #9e6a03; }
+
+  /* IP CHIPS */
+  .ip { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; color: #79c0ff; background: #0d1b2e; padding: 2px 6px; border-radius: 4px; }
+  .ip-pub { color: #3fb950; background: #0d2f17; }
+  .ip-priv { color: #e3b341; background: #2d1f00; }
+
+  /* GRID 2 COLS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  /* QUOTA BOXES */
+  .quota-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+  .quota-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 14px; text-align: center; }
+  .quota-box .val { font-size: 22px; font-weight: 700; color: #e6edf3; margin-bottom: 2px; }
+  .quota-box .lbl { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* LEGEND */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8b949e; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* CODE */
+  code { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; background: #1c2128; padding: 2px 6px; border-radius: 4px; color: #79c0ff; }
+  .code-block { background: #1c2128; border: 1px solid #30363d; border-radius: 8px; padding: 16px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px; color: #c9d1d9; line-height: 1.6; white-space: pre; overflow-x: auto; }
+  .code-block .kw { color: #ff7b72; }
+  .code-block .val { color: #79c0ff; }
+  .code-block .cmt { color: #6e7681; font-style: italic; }
+
+  /* FOOTNOTE */
+  .footnote { font-size: 11px; color: #6e7681; margin-top: 8px; }
+
+    /* VLANs section */
+    .vlan-section { margin: 2.5rem 0; }
+    .vlan-section h2 { color: #58a6ff; font-size: 1.15rem; margin-bottom: 0.3rem; }
+    .vlan-section .sec-desc { color: #8b949e; font-size: 0.83rem; margin-bottom: 1.8rem; }
+    .vlan-sub { margin: 1.6rem 0; }
+    .vlan-sub h3 { color: #e6edf3; font-size: 0.95rem; margin-bottom: 0.7rem; padding-bottom: 0.35rem; border-bottom: 1px solid #30363d; }
+    .vlan-table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+    .vlan-table th { background: #161b22; color: #8b949e; padding: 7px 11px; text-align: left; font-weight: 600; border-bottom: 2px solid #30363d; white-space: nowrap; }
+    .vlan-table td { padding: 6px 11px; border-bottom: 1px solid #21262d; color: #c9d1d9; vertical-align: top; }
+    .vlan-table tr:hover td { background: #161b22; }
+    .vlan-table code { background: #0d1117; padding: 1px 5px; border-radius: 3px; font-size: 0.78rem; color: #79c0ff; font-family: monospace; }
+    .vlan-table small { color: #8b949e; display: block; margin-top: 3px; line-height: 1.4; }
+    .vtag { display: inline-block; background: #21262d; border: 1px solid #30363d; border-radius: 4px; padding: 1px 7px; font-family: monospace; font-size: 0.78rem; font-weight: 700; color: #e6edf3; }
+    .vtag-ha { background: #1a3148; border-color: #1f6feb; color: #79c0ff; }
+    .vtag-bgp { background: #1a2f1a; border-color: #2ea043; color: #56d364; }
+    .vtag-sub { background: #2a1f10; border-color: #d4823a; color: #ffa657; }
+    .row-ha td { background: rgba(31,111,235,0.04); }
+    .row-bgp td { background: rgba(46,160,67,0.04); }
+    .row-sub td { background: rgba(212,130,58,0.04); }
+    .vlan-note { background: #1c2128; border: 1px solid #30363d; border-left: 3px solid #58a6ff; border-radius: 4px; padding: 9px 13px; margin-top: 1rem; font-size: 0.81rem; color: #8b949e; }
+    .vlan-note strong { color: #58a6ff; }
+    .badge-only01 { display: inline-block; background: #2d1b0e; border: 1px solid #f0883e; border-radius: 3px; padding: 1px 5px; font-size: 0.72rem; color: #f0883e; font-weight: 600; }
+    .na-cell { color: #484f58; font-style: italic; }
+
+        .row-depr td { background: rgba(139,148,158,0.04); opacity: 0.65; }
+    .badge-depr { display: inline-block; background: #21262d; border: 1px solid #6e7681; border-radius: 3px; padding: 1px 5px; font-size: 0.72rem; color: #8b949e; font-weight: 600; }
+    
+    /* Transport section */
+    .path-diagram { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; margin: 1.2rem 0; }
+    .path-step { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .path-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px 14px; font-size: 0.81rem; color: #c9d1d9; text-align: center; min-width: 160px; }
+    .path-box small { color: #8b949e; font-size: 0.72rem; display: block; margin-top: 4px; line-height: 1.4; font-family: monospace; }
+    .path-a10  { border-color: #d4823a; background: rgba(212,130,58,0.06); }
+    .path-sw   { border-color: #58a6ff; background: rgba(88,166,255,0.06); }
+    .path-ne40 { border-color: #2ea043; background: rgba(46,160,67,0.06); }
+    .path-isp  { border-color: #6e7681; background: #1c2128; color: #8b949e; }
+    .path-arrow { color: #6e7681; font-size: 0.78rem; letter-spacing: 0.02em; }
+    
+    /* ── Topology Flow responsive ── */
+    .tf-wrap { width: 100%; }
+    .tf-row  { display: flex; justify-content: center; }
+    .tf-node { border-radius: 8px; padding: 11px 18px; text-align: center; width: 100%; max-width: 520px; box-sizing: border-box; }
+    .tf-node-title  { font-size: 0.93rem; font-weight: 700; color: #e6edf3; }
+    .tf-node-sub    { font-size: 0.79rem; color: #8b949e; margin-top: 2px; }
+    .tf-node-detail { font-size: 0.72rem; color: #6e7681; font-family: monospace; margin-top: 5px; line-height: 1.4; }
+    .tf-node-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; margin-top: 6px; }
+    .tf-bdg { border-radius: 3px; padding: 2px 8px; font-size: 0.71rem; font-weight: 600; border: 1px solid; }
+    .tf-bdg-blue   { background: #0d1117; border-color: #388bfd; color: #79c0ff; }
+    .tf-bdg-green  { background: #0d2f17; border-color: #2ea043; color: #3fb950; }
+    .tf-bdg-yellow { background: #1a1200; border-color: #9e6a03; color: #e3b341; }
+    .tf-bdg-gray   { background: #1c2128; border-color: #6e7681; color: #8b949e; }
+    .tf-internet { background: #1c2128; border: 1px solid #30363d; }
+    .tf-ne40     { background: #0d1b2e; border: 1.5px solid #388bfd; }
+    .tf-swcore   { background: #1c2128; border: 1.5px solid #58a6ff; }
+    .tf-a1001    { background: #0d1b2e; border: 2px solid #388bfd; }
+    .tf-a1002    { background: #1a1200; border: 2px solid #9e6a03; }
+    .tf-bng      { background: #161b22; border: 1px solid #30363d; }
+    .tf-subs     { background: #1c2128; border: 1px solid #21262d; padding: 7px 14px; }
+    /* Connectors */
+    .tf-conn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0; }
+    .tf-cline { width: 2px; height: 16px; }
+    .tf-cline-gray   { background: #444c56; }
+    .tf-cline-blue   { background: #388bfd; }
+    .tf-cline-orange { background: #d4823a; }
+    .tf-cline-yellow { background: #9e6a03; }
+    .tf-clabel { font-size: 0.70rem; padding: 2px 8px; border-radius: 3px; border: 1px solid; white-space: nowrap; }
+    .tf-clabel-gray   { color: #6e7681; background: #1c2128; border-color: #30363d; }
+    .tf-clabel-blue   { color: #79c0ff; background: #0d1b2e; border-color: #388bfd; }
+    .tf-clabel-orange { color: #ffa657; background: #2a1f10; border-color: #d4823a; }
+    /* Three branches */
+    .tf-branches { display: flex; gap: 1.2rem; justify-content: center; width: 100%; align-items: flex-start; }
+    .tf-branch   { display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; max-width: 270px; }
+    /* VRRP sync bar */
+    .tf-sync { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 10px; padding: 5px 14px; background: #1c2128; border: 1px dashed #30363d; border-radius: 4px; font-size: 0.72rem; color: #6e7681; width: 100%; max-width: 600px; box-sizing: border-box; text-align: center; }
+    /* Responsive: stack on mobile */
+    @media (max-width: 640px) {
+      .tf-branches { flex-direction: column; align-items: center; }
+      .tf-branch   { max-width: 100%; width: 100%; }
+      .tf-clabel   { white-space: normal; text-align: center; }
+    }
+    .btn-backlog{background:transparent;border:1px solid #30363d;color:#8b949e;padding:5px 13px;font-size:13px;border-radius:6px;cursor:pointer}
+    .btn-backlog:hover{background:#21262d;color:#c9d1d9;border-color:#8b949e}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:#161b22;border:1px solid #30363d;border-radius:12px;width:100%;max-width:700px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;margin:16px}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #30363d}
+    .modal-header h2{font-size:16px;font-weight:700;color:#e6edf3}
+    .modal-close{background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+    .modal-close:hover{color:#e6edf3;background:#21262d}
+    .modal-body{overflow-y:auto;padding:16px 24px}
+    .bl-entry{border-left:3px solid #30363d;padding:10px 16px;margin-bottom:12px;background:#0d1117;border-radius:0 6px 6px 0}
+    .bl-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+    .bl-date{font-size:11px;color:#8b949e;font-family:monospace}
+    .bl-type{font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px}
+    .bl-type.fix{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+    .bl-type.feature{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd}
+    .bl-type.deploy{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+    .bl-type.melhoria{background:#1a1442;color:#bc8cff;border:1px solid #8957e5}
+    .bl-type.evento{background:#1a0d1a;color:#f0883e;border:1px solid #bd561d}
+    .bl-title{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:3px}
+    .bl-desc{font-size:12px;color:#8b949e;line-height:1.5}
+    </style>
+</head>
+<body style="visibility:hidden">
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="2"/><path d="M12 6v6l4 2" stroke="#3fb950" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Nex</span>Telecom NetOps
+  </a>
+  <a href="/" class="nav-back">← Início</a>
+  <button class="btn-backlog" onclick="document.getElementById('modalBacklogMapa').classList.add('open')">📋 Backlog</button>
+</nav>
+
+<!-- Modal Backlog -->
+<div class="modal-overlay" id="modalBacklogMapa" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📋 Backlog — Mapa CGNAT</h2>
+      <button class="modal-close" onclick="document.getElementById('modalBacklogMapa').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Ranges Inside (IP privado CGNAT) adicionados</div>
+        <div class="bl-desc">Nova seção documentando: 100.65.128.0/18 → A10-01/LID1/VRID default | 100.65.192.0/18 → A10-02/LID2/VRID1. Ranges RFC 6598 alocados pelo BRAS NE40-E via RADIUS.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">Badge "LIVE" removido — dados estáticos</div>
+        <div class="bl-desc">O badge "● LIVE" sugeria atualização em tempo real, mas a página é estática. Removido para evitar confusão. Data atualizada para 17/09/2026.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#3fb950">
+        <div class="bl-meta"><span class="bl-date">08/09/2026</span><span class="bl-type deploy">Deploy</span></div>
+        <div class="bl-title">Mapa atualizado para arquitetura ativo/ativo</div>
+        <div class="bl-desc">Documentação do VRRP-A ativo/ativo: VRID default (A10-01 master, LID1) e VRID 1 (A10-02 master, LID2). Interfaces subscriber, links HA, pools e config de referência ACOS adicionados.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#f0883e">
+        <div class="bl-meta"><span class="bl-date">01/09/2026</span><span class="bl-type evento">Evento</span></div>
+        <div class="bl-title">Migração ativo/ativo — tentativa e rollback</div>
+        <div class="bl-desc">Migração tentada em madrugada (YouISP). Bloqueio técnico: NAT Pools sem VRID não podem ser alterados dinamicamente — recriação exige limpeza de sessões. Rollback executado antes do horário comercial. Ambiente estabilizado em ativo/standby.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#3fb950">
+        <div class="bl-meta"><span class="bl-date">ago/2026</span><span class="bl-type deploy">Deploy</span></div>
+        <div class="bl-title">Criação do Mapa CGNAT</div>
+        <div class="bl-desc">Primeira versão do mapa com topologia ativo/standby, tabela de pools e configuração de referência A10 ACOS.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="page-header">
+  <h1>🗺️ Mapa CGNAT
+    <span class="badge-aa">Ativo/Ativo</span>
+  </h1>
+  <p>Arquitetura completa do CGNAT NexTelecom — A10 Thunder em VRRP ativo/ativo. Atualizado em 17/09/2026.</p>
+</div>
+
+<div class="content">
+
+  <!-- ── 1. TOPOLOGIA ─────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Topologia de Rede</div>
+        <div class="topo-card" style="overflow:visible">
+      <div class="tf-wrap">
+
+        <div class="tf-row">
+          <div class="tf-node tf-internet">
+            <div class="tf-node-title">☁️ Internet / BGP Peers</div>
+            <div class="tf-node-sub">Cirion AS52873 · IX.br · CDNs</div>
+            <div class="tf-node-badges">
+              <span class="tf-bdg tf-bdg-green">45.183.80.0/24</span>
+              <span class="tf-bdg tf-bdg-green">170.84.36.0/22</span>
+              <span class="tf-bdg tf-bdg-gray">BGP anunciado</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tf-conn">
+          <div class="tf-cline tf-cline-gray"></div>
+          <div class="tf-clabel tf-clabel-gray">eBGP · AS265019</div>
+          <div class="tf-cline tf-cline-gray"></div>
+        </div>
+
+        <div class="tf-row">
+          <div class="tf-node tf-ne40">
+            <div class="tf-node-title">NE40-BGP</div>
+            <div class="tf-node-sub">Roteador de Borda · AS265019</div>
+          </div>
+        </div>
+
+        <div class="tf-conn">
+          <div class="tf-cline tf-cline-blue"></div>
+          <div class="tf-clabel tf-clabel-blue">OSPF External · VLAN 600 · 10.10.1.162/30</div>
+          <div class="tf-cline tf-cline-blue"></div>
+        </div>
+
+        <div class="tf-row">
+          <div class="tf-node tf-swcore">
+            <div class="tf-node-title">Switch-Core S6750</div>
+            <div class="tf-node-sub">10.99.99.1 · Gateway L3 BGP/OSPF</div>
+            <div class="tf-node-detail">Vlanif200: 100.127.195.25/29 &nbsp;·&nbsp; Vlanif215: 100.127.195.41/29</div>
+          </div>
+        </div>
+
+        <div class="tf-conn" style="padding-bottom:0">
+          <div class="tf-cline tf-cline-gray"></div>
+        </div>
+
+        <div class="tf-branches">
+          <!-- A10-01 -->
+          <div class="tf-branch">
+            <div class="tf-conn">
+              <div class="tf-cline tf-cline-blue"></div>
+              <div class="tf-clabel tf-clabel-orange">VLANs 130/135/199/200/215</div>
+              <div class="tf-cline tf-cline-blue"></div>
+            </div>
+            <div class="tf-node tf-a1001">
+              <div class="tf-node-title">A10-01 — CGN-01</div>
+              <div class="tf-node-sub">172.31.31.31</div>
+              <div class="tf-node-badges">
+                <span class="tf-bdg tf-bdg-blue">VRID 0 · Active</span>
+                <span class="tf-bdg tf-bdg-green">LID 1</span>
+              </div>
+              <div class="tf-node-detail">45.183.80.0/24<br>170.84.36.160/27 · 170.84.37.128–191</div>
+            </div>
+          </div>
+
+          <!-- BNG (centro) -->
+          <div class="tf-branch">
+            <div class="tf-conn">
+              <div class="tf-cline tf-cline-gray"></div>
+              <div class="tf-clabel tf-clabel-gray">OSPF · sem VLAN subs</div>
+              <div class="tf-cline tf-cline-gray"></div>
+            </div>
+            <div class="tf-node tf-bng">
+              <div class="tf-node-title">BNG NE40-E</div>
+              <div class="tf-node-sub">10.99.99.21 · PPPoE</div>
+            </div>
+            <div class="tf-conn">
+              <div class="tf-cline tf-cline-gray"></div>
+            </div>
+            <div class="tf-node tf-subs">
+              <div class="tf-node-sub">Assinantes PPPoE<br>100.64.0.0/10 (CGNAT)</div>
+            </div>
+          </div>
+
+          <!-- A10-02 -->
+          <div class="tf-branch">
+            <div class="tf-conn">
+              <div class="tf-cline tf-cline-yellow"></div>
+              <div class="tf-clabel tf-clabel-orange">VLANs 130/135/199/200/215</div>
+              <div class="tf-cline tf-cline-yellow"></div>
+            </div>
+            <div class="tf-node tf-a1002">
+              <div class="tf-node-title">A10-02 — CGN-02</div>
+              <div class="tf-node-sub">172.31.31.32</div>
+              <div class="tf-node-badges">
+                <span class="tf-bdg tf-bdg-yellow">VRID 1 · Active</span>
+                <span class="tf-bdg tf-bdg-green">LID 2</span>
+              </div>
+              <div class="tf-node-detail">170.84.38.0/24<br>8 pools /27 · 240 IPs públicos</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tf-row">
+          <div class="tf-sync">⟷&nbsp; VLAN 199 · VRRP-A Session Sync · 100.127.195.1 ↔ 100.127.195.2</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. VRRP-A STATUS ─────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Estado VRRP-A</div>
+    <table class="data-table">
+      <thead><tr>
+        <th>VRID</th><th>A10-01 (CGN-01)</th><th>A10-02 (CGN-02)</th><th>Equipamento Master</th><th>LID Ativo</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-vrid0">VRID default (0)</span></td>
+          <td><span class="tag tag-active">Active · Prio 250</span></td>
+          <td><span class="tag tag-standby">Standby · Prio 240</span></td>
+          <td><span class="tag tag-a01">A10-01 — 172.31.31.31</span></td>
+          <td><span class="tag tag-active">LID 1</span></td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-vrid1">VRID 1</span></td>
+          <td><span class="tag tag-standby">Standby · Prio 240</span></td>
+          <td><span class="tag tag-active">Active · Prio 250</span></td>
+          <td><span class="tag tag-a02">A10-02 — 172.31.31.32</span></td>
+          <td><span class="tag tag-active">LID 2</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">Sincronização: VRRP-A Session Sync habilitado · Peer IP <code>100.127.195.2</code> · Porta 9</p>
+  </div>
+
+  <!-- ── 3. LIDS / POOL GROUPS ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">LIDs e Pool Groups</div>
+    <table class="data-table">
+      <thead><tr>
+        <th>LSN-LID</th><th>Nome</th><th>A10 Ativo</th><th>VRID</th><th>Pool Group</th><th>Qtd Pools</th><th>IPs Públicos</th><th>Sessões máx.</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>LID 1</strong></td>
+          <td><code>NAT44-LSN-LID1</code></td>
+          <td><span class="tag tag-a01">A10-01</span></td>
+          <td><span class="tag tag-vrid0">default</span></td>
+          <td><code>LSN-LID1</code></td>
+          <td style="text-align:center">11</td>
+          <td>
+            <span class="ip ip-pub">45.183.80.0/24</span><br>
+            <span class="ip ip-pub" style="margin-top:3px;display:inline-block">170.84.36.160/27</span><br>
+            <span class="ip ip-pub" style="margin-top:3px;display:inline-block">170.84.37.128/27 · /160/27</span>
+          </td>
+          <td>15.000</td>
+        </tr>
+        <tr>
+          <td><strong>LID 2</strong></td>
+          <td><code>NAT44-LSN-LID2</code></td>
+          <td><span class="tag tag-a02">A10-02</span></td>
+          <td><span class="tag tag-vrid1">1</span></td>
+          <td><code>LSN-LID2</code></td>
+          <td style="text-align:center">8</td>
+          <td><span class="ip ip-pub">170.84.38.0/24</span></td>
+          <td>15.000</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">port-batch-v2-size 512 · simultaneous-batch-allocation · respond-to-user-mac · lsn-rule-list destination DESTRULES</p>
+  </div>
+
+  <!-- ── 3b. RANGES INSIDE (IP PRIVADO CGNAT) ──────────────── -->
+  <div class="section">
+    <div class="section-title">Ranges Inside (IP Privado CGNAT)</div>
+    <table class="data-table">
+      <thead><tr>
+        <th>Range Inside</th><th>Tamanho</th><th>A10 / LID</th><th>VRID</th><th>Descrição</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="ip ip-priv">100.65.128.0/18</span></td>
+          <td>16.384 IPs</td>
+          <td><span class="tag tag-a01">A10-01 — LID 1</span></td>
+          <td><span class="tag tag-vrid0">VRID default</span></td>
+          <td>Assinantes PPPoE — pool principal A10-01</td>
+        </tr>
+        <tr>
+          <td><span class="ip ip-priv">100.65.192.0/18</span></td>
+          <td>16.384 IPs</td>
+          <td><span class="tag tag-a02">A10-02 — LID 2</span></td>
+          <td><span class="tag tag-vrid1">VRID 1</span></td>
+          <td>Assinantes PPPoE — pool principal A10-02</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">Ranges RFC 6598 (100.64.0.0/10 — Shared Address Space). Alocados pelo BRAS NE40-E via RADIUS.</p>
+  </div>
+
+  <!-- ── 4. POOLS DETALHADOS ────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Pools NAT — Detalhamento</div>
+    <div class="grid-2">
+      <!-- LID1 -->
+      <div>
+        <p style="color:#58a6ff;font-weight:700;margin-bottom:8px;font-size:12px">LID 1 — A10-01 (VRID default)</p>
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Pool</th><th>Início</th><th>Fim</th><th>VRID</th></tr></thead>
+          <tbody>
+            <tr><td><code>LSN1-LID1</code></td><td class="ip ip-pub">45.183.80.0</td><td class="ip ip-pub">45.183.80.31</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID2</code></td><td class="ip ip-pub">45.183.80.32</td><td class="ip ip-pub">45.183.80.63</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID3</code></td><td class="ip ip-pub">45.183.80.64</td><td class="ip ip-pub">45.183.80.95</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID4</code></td><td class="ip ip-pub">45.183.80.96</td><td class="ip ip-pub">45.183.80.127</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID5</code></td><td class="ip ip-pub">45.183.80.128</td><td class="ip ip-pub">45.183.80.159</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID6</code></td><td class="ip ip-pub">45.183.80.160</td><td class="ip ip-pub">45.183.80.191</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID7</code></td><td class="ip ip-pub">45.183.80.192</td><td class="ip ip-pub">45.183.80.223</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID8</code></td><td class="ip ip-pub">45.183.80.224</td><td class="ip ip-pub">45.183.80.255</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID9</code></td><td class="ip ip-pub">170.84.36.160</td><td class="ip ip-pub">170.84.36.191</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID10</code></td><td class="ip ip-pub">170.84.37.128</td><td class="ip ip-pub">170.84.37.159</td><td>default</td></tr>
+            <tr><td><code>LSN1-LID11</code></td><td class="ip ip-pub">170.84.37.160</td><td class="ip ip-pub">170.84.37.191</td><td>default</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- LID2 -->
+      <div>
+        <p style="color:#e3b341;font-weight:700;margin-bottom:8px;font-size:12px">LID 2 — A10-02 (VRID 1)</p>
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Pool</th><th>Início</th><th>Fim</th><th>VRID</th></tr></thead>
+          <tbody>
+            <tr><td><code>LSN2-LID1</code></td><td class="ip ip-pub">170.84.38.0</td><td class="ip ip-pub">170.84.38.31</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID2</code></td><td class="ip ip-pub">170.84.38.32</td><td class="ip ip-pub">170.84.38.63</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID3</code></td><td class="ip ip-pub">170.84.38.64</td><td class="ip ip-pub">170.84.38.95</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID4</code></td><td class="ip ip-pub">170.84.38.96</td><td class="ip ip-pub">170.84.38.127</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID5</code></td><td class="ip ip-pub">170.84.38.128</td><td class="ip ip-pub">170.84.38.159</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID6</code></td><td class="ip ip-pub">170.84.38.160</td><td class="ip ip-pub">170.84.38.191</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID7</code></td><td class="ip ip-pub">170.84.38.192</td><td class="ip ip-pub">170.84.38.223</td><td>1</td></tr>
+            <tr><td><code>LSN2-LID8</code></td><td class="ip ip-pub">170.84.38.224</td><td class="ip ip-pub">170.84.38.255</td><td>1</td></tr>
+          </tbody>
+        </table>
+        <p class="footnote" style="margin-top:8px">Total LID2: 8 × /27 = 240 IPs públicos disponíveis</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. SUBSCRIBER RANGES ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Ranges de Assinantes (IPs Privados CGNAT)</div>
+    <table class="data-table">
+      <thead><tr><th>Faixa</th><th>Tamanho</th><th>Tipo</th><th>Distribuição nos LIDs</th><th>Observação</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="ip ip-priv">100.64.0.0/10</span></td>
+          <td>4.194.304 endereços</td>
+          <td>RFC 6598 CGNAT</td>
+          <td>Round-robin → LID 1 + LID 2</td>
+          <td>Bloco pai que engloba todos os ranges abaixo</td>
+        </tr>
+        <tr>
+          <td><span class="ip ip-priv">100.65.128.0/18</span></td>
+          <td>16.384 endereços</td>
+          <td>RFC 6598 (novo)</td>
+          <td>Herdado do /10 → round-robin</td>
+          <td>Novo range alocado nesta janela</td>
+        </tr>
+        <tr>
+          <td><span class="ip ip-priv">100.65.192.0/18</span></td>
+          <td>16.384 endereços</td>
+          <td>RFC 6598 (novo)</td>
+          <td>Herdado do /10 → round-robin</td>
+          <td>Novo range alocado nesta janela</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">Binding via running-config: <code>100.64.0.0/10 lsn-lid 1</code> e <code>100.64.0.0/10 lsn-lid 2</code> — distribuição automática em round-robin entre LID 1 e LID 2.</p>
+  </div>
+
+  <!-- ── 6. BGP ──────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Prefixos Anunciados via BGP (AS265019)</div>
+    <table class="data-table">
+      <thead><tr><th>Prefixo</th><th>IPs cobertos</th><th>Pools cobertos</th><th>Anunciado para</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="ip ip-pub">45.183.80.0/24</span></td>
+          <td>256 IPs (45.183.80.0 – .255)</td>
+          <td>LSN1-LID1 a LID8</td>
+          <td>Cirion, IX.br, CDNs</td>
+        </tr>
+        <tr>
+          <td><span class="ip ip-pub">170.84.36.0/22</span></td>
+          <td>1.024 IPs (170.84.36.0 – 170.84.39.255)</td>
+          <td>LSN1-LID9/10/11 + todos os LSN2-LIDx</td>
+          <td>Cirion (via supernet), IX.br</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="footnote">O /22 <code>170.84.36.0/22</code> é o supernet que cobre os pools fragmentados do LID1 (170.84.36-37.x) e todo o bloco LID2 (170.84.38.x). Verificado como anunciado para Cirion (AS52873).</p>
+  </div>
+
+  <!-- ── 7. QUOTAS ──────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Quotas por Usuário (user-quota) — LID 1 e LID 2</div>
+    <div class="quota-grid">
+      <div class="quota-box">
+        <div class="val" style="color:#3fb950">15.000</div>
+        <div class="lbl">Sessões simultâneas</div>
+      </div>
+      <div class="quota-box">
+        <div class="val" style="color:#58a6ff">4.096</div>
+        <div class="lbl">Portas TCP</div>
+      </div>
+      <div class="quota-box">
+        <div class="val" style="color:#58a6ff">4.096</div>
+        <div class="lbl">Portas UDP</div>
+      </div>
+      <div class="quota-box">
+        <div class="val" style="color:#e3b341">100</div>
+        <div class="lbl">Portas ICMP</div>
+      </div>
+      <div class="quota-box">
+        <div class="val" style="color:#c9d1d9">512</div>
+        <div class="lbl">Port-batch size</div>
+      </div>
+    </div>
+    <p class="footnote" style="margin-top:12px">Configuração idêntica nos dois LIDs (A10-01 e A10-02). simultaneous-batch-allocation habilitado.</p>
+  </div>
+
+  <!-- ── 8. CONFIG REFERÊNCIA ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Configuração de Referência (A10 ACOS)</div>
+    <div class="code-block"><span class="cmt">! LSN-LID 1 (A10-01 / VRID default)</span>
+<span class="kw">cgnv6 lsn-lid</span> <span class="val">1</span>
+  name <span class="val">NAT44-LSN-LID1</span>
+  respond-to-user-mac
+  lsn-rule-list destination <span class="val">DESTRULES</span>
+  source-nat-pool <span class="val">LSN-LID1</span>
+  user-quota icmp <span class="val">100</span>
+  user-quota udp <span class="val">4096</span> reserve 0
+  user-quota tcp <span class="val">4096</span> reserve 0
+  user-quota session <span class="val">15000</span>
+
+<span class="cmt">! LSN-LID 2 (A10-02 / VRID 1)</span>
+<span class="kw">cgnv6 lsn-lid</span> <span class="val">2</span>
+  name <span class="val">NAT44-LSN-LID2</span>
+  respond-to-user-mac
+  lsn-rule-list destination <span class="val">DESTRULES</span>
+  source-nat-pool <span class="val">LSN-LID2</span>
+  user-quota icmp <span class="val">100</span>
+  user-quota udp <span class="val">4096</span> reserve 0
+  user-quota tcp <span class="val">4096</span> reserve 0
+  user-quota session <span class="val">15000</span>
+
+<span class="cmt">! Subscriber binding (running-config)</span>
+  <span class="val">100.64.0.0/10</span> lsn-lid <span class="val">1</span>
+  <span class="val">100.64.0.0/10</span> lsn-lid <span class="val">2</span>
+
+<span class="cmt">! Pool group LID2 (exemplo de pool)</span>
+<span class="kw">cgnv6 nat pool</span> <span class="val">LSN2-LID1</span> <span class="val">170.84.38.0</span> netmask /27 vrid <span class="val">1</span> port-batch-v2-size <span class="val">512</span> simultaneous-batch-allocation</div>
+  </div>
+
+  
+  <!-- Seção VLANs e Endereçamento -->
+  <div class="vlan-section" id="vlans">
+    <h2>Endereçamento e VLANs</h2>
+    <p class="sec-desc">
+      Interfaces lógicas (VE) e VLANs configuradas nos A10 Thunder (CGN-01 e CGN-02).
+      Trunk tagged nas portas 9–12 de cada A10 → SW-Core S6750 (10.99.99.1).
+    </p>
+
+    <!-- Subscriber VLANs -->
+    <div class="vlan-sub">
+      <h3>Interfaces de Subscriber — BNG → A10</h3>
+      <div style="overflow-x:auto">
+        <table class="vlan-table">
+          <thead>
+            <tr>
+              <th>VLAN</th>
+              <th>Nome</th>
+              <th>A10-01 (ve / IP)</th>
+              <th>A10-02 (ve / IP)</th>
+              <th>Função</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-depr">
+              <td><span class="vtag" style="opacity:0.5">118</span></td>
+              <td>A10-X-Bras_PPPoE_Lauro-de-Freitas <span class="badge-depr">em desuso</span></td>
+              <td><code>ve118</code> · <code>100.127.192.61/30</code></td>
+              <td class="na-cell">—</td>
+              <td style="color:#8b949e">PPPoE Lauro de Freitas — <em>a remover</em></td>
+            </tr>
+            <tr class="row-depr">
+              <td><span class="vtag" style="opacity:0.5">122</span></td>
+              <td>A10-X-Bras_PPPoE_Itinga <span class="badge-depr">em desuso</span></td>
+              <td><code>ve122</code> · <code>100.127.192.69/30</code></td>
+              <td class="na-cell">—</td>
+              <td style="color:#8b949e">PPPoE Itinga — <em>a remover</em></td>
+            </tr>
+            <tr class="row-depr">
+              <td><span class="vtag" style="opacity:0.5">128</span></td>
+              <td>A10-X-Bras_Ne20-FTTH <span class="badge-depr">em desuso</span></td>
+              <td><code>ve128</code> · <code>100.127.192.101/30</code></td>
+              <td class="na-cell">—</td>
+              <td style="color:#8b949e">NE20 FTTH — <em>a remover</em></td>
+            </tr>
+            <tr class="row-sub">
+              <td><span class="vtag vtag-sub">130</span></td>
+              <td>A10-X-Bras_Ne40-FTTH</td>
+              <td><code>ve130</code> · <code>100.127.192.106/29</code></td>
+              <td><code>ve130</code> · <code>100.127.192.107/29</code></td>
+              <td>Subscriber FTTH — BNG NE40 (range 1)</td>
+            </tr>
+            <tr class="row-sub">
+              <td><span class="vtag vtag-sub">135</span></td>
+              <td>A10-X-Bras_Ne40-FTTH</td>
+              <td><code>ve135</code> · <code>100.127.192.82/29</code></td>
+              <td><code>ve135</code> · <code>100.127.192.83/29</code></td>
+              <td>Subscriber FTTH — BNG NE40 (range 2)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="vlan-note">
+        <strong>Nota:</strong> VLANs 118, 122 e 128 (PPPoE Lauro/Itinga e NE20-FTTH) existem apenas no CGN-01.
+        Em caso de falha do CGN-01, o tráfego dessas VLANs não é automaticamente assumido pelo CGN-02 — revisar se é intencional.
+      </div>
+    </div>
+
+    <!-- HA + BGP VLANs -->
+    <div class="vlan-sub">
+      <h3>Links HA e BGP — Inter-A10 / A10 ↔ NE40-BGP</h3>
+      <div style="overflow-x:auto">
+        <table class="vlan-table">
+          <thead>
+            <tr>
+              <th>VLAN</th>
+              <th>Nome</th>
+              <th>Subnet</th>
+              <th>A10-01 (ve / IP)</th>
+              <th>A10-02 (ve / IP)</th>
+              <th>Função</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-ha">
+              <td><span class="vtag vtag-ha">199</span></td>
+              <td>WAN-SYNC</td>
+              <td><code>100.127.195.0/30</code></td>
+              <td><code>ve199</code> · <code>100.127.195.1</code></td>
+              <td><code>ve199</code> · <code>100.127.195.2</code></td>
+              <td>
+                <strong>VRRP-A Session Sync</strong>
+                <small>HA heartbeat + sync de sessões entre CGN-01 e CGN-02<br>
+                Config: <code>vrrp-a preferred-session-sync-port trunk 1 vlan 199</code></small>
+              </td>
+            </tr>
+            <tr class="row-bgp">
+              <td><span class="vtag vtag-bgp">200</span></td>
+              <td>A10-X-BGP / WAN</td>
+              <td><code>100.127.195.24/29</code></td>
+              <td><code>ve200</code> · <code>100.127.195.26</code></td>
+              <td><code>ve200</code> · <code>100.127.195.27</code></td>
+              <td>
+                <strong>BGP WAN — uplink primário</strong>
+                <small>Ambos os A10s na mesma subnet L2 → NE40-BGP</small>
+              </td>
+            </tr>
+            <tr class="row-bgp">
+              <td><span class="vtag vtag-bgp">215</span></td>
+              <td>A10-X-BGP</td>
+              <td><code>100.127.195.40/29</code></td>
+              <td><code>ve215</code> · <code>100.127.195.42</code></td>
+              <td><code>ve215</code> · <code>100.127.195.43</code></td>
+              <td>
+                <strong>BGP WAN — uplink secundário</strong>
+                <small>Ambos os A10s na mesma subnet L2 → NE40-BGP</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="vlan-note">
+        <strong>Arquitetura BGP:</strong> CGN-01 e CGN-02 compartilham o mesmo segmento L2 nas VLANs 200 e 215.
+        O anúncio do supernet <code>170.84.36.0/22</code> parte do NE40-BGP cobrindo os pools NAT de ambas as unidades.
+      </div>
+    </div>
+
+    <!-- Gerência OOB -->
+    <div class="vlan-sub">
+      <h3>Gerência Out-of-Band</h3>
+      <div style="overflow-x:auto">
+        <table class="vlan-table">
+          <thead>
+            <tr><th>Dispositivo</th><th>Hostname</th><th>IP Mgmt</th><th>Rede</th><th>MAC</th><th>Acesso</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A10-01</strong></td>
+              <td><code>CGN-TH3030S-NEX-TELECOM-CGN-01</code></td>
+              <td><code>172.31.31.31</code></td>
+              <td><code>172.31.31.0/24</code></td>
+              <td><code>001f.a011.7cfa</code></td>
+              <td>via CCR 170.84.36.33 : 55000</td>
+            </tr>
+            <tr>
+              <td><strong>A10-02</strong></td>
+              <td><code>CGN-TH3030S-NEX-TELECOM-CGN-02</code></td>
+              <td><code>172.31.31.32</code></td>
+              <td><code>172.31.31.0/24</code></td>
+              <td><code>001f.a014.9c46</code></td>
+              <td>via CCR 170.84.36.33 (porta a confirmar)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Seção Transporte e Roteamento -->
+  <div class="vlan-section" id="transporte">
+    <h2>Transporte e Roteamento — SW-Core</h2>
+    <p class="sec-desc">
+      Mapeamento dos trunks no SW-Core S6750 (10.99.99.1) e arquitetura de roteamento OSPF
+      entre os A10 Thunder e o NE40-BGP. Dados coletados diretamente dos equipamentos em 08/09/2026.
+    </p>
+
+    <!-- Eth-Trunk mapping -->
+    <div class="vlan-sub">
+      <h3>Eth-Trunks no SW-Core — Mapeamento de VLANs</h3>
+      <div style="overflow-x:auto">
+        <table class="vlan-table">
+          <thead>
+            <tr>
+              <th>Trunk</th>
+              <th>Dispositivo</th>
+              <th>Link L3 / OSPF</th>
+              <th>VLANs tagged</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="row-sub">
+              <td><code>Eth-Trunk0</code></td>
+              <td><strong>A10-02</strong> (CGN-02)</td>
+              <td>—</td>
+              <td>
+                <span class="vtag vtag-sub">130</span>
+                <span class="vtag vtag-sub">135</span>
+                <span class="vtag vtag-ha">199</span>
+                <span class="vtag vtag-bgp">200</span>
+                <span class="vtag vtag-bgp">215</span>
+              </td>
+            </tr>
+            <tr class="row-sub">
+              <td><code>Eth-Trunk1</code></td>
+              <td><strong>A10-01</strong> (CGN-01)</td>
+              <td>—</td>
+              <td>
+                <span class="vtag vtag-sub">130</span>
+                <span class="vtag vtag-sub">135</span>
+                <span class="vtag vtag-ha">199</span>
+                <span class="vtag vtag-bgp">200</span>
+                <span class="vtag vtag-bgp">215</span>
+              </td>
+            </tr>
+            <tr>
+              <td><code>Eth-Trunk2</code></td>
+              <td><strong>BNG</strong> NE40-E (10.99.99.21)</td>
+              <td><code>Trunk2.129</code> · <code>10.10.1.221/30</code></td>
+              <td><span class="na-cell">sem VLANs de subscriber</span></td>
+            </tr>
+            <tr class="row-bgp">
+              <td><code>Eth-Trunk4</code></td>
+              <td><strong>NE40-BGP</strong></td>
+              <td><code>Trunk4.600</code> · <code>10.10.1.162/30</code> (OSPF)</td>
+              <td><span class="vtag vtag-bgp">600</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="vlan-note">
+        <strong>Ponto-chave:</strong> VLANs de subscriber (130/135) e HA/BGP (199/200/215) existem
+        <em>apenas</em> nos trunks dos A10s (Trunk0 e Trunk1). BNG e NE40-BGP não têm acesso L2
+        direto a essas VLANs — toda a conectividade com o restante da rede passa por roteamento OSPF.
+      </div>
+    </div>
+
+    <!-- BGP WAN path -->
+    <div class="vlan-sub">
+      <h3>Caminho BGP WAN — A10 → NE40-BGP via OSPF</h3>
+      <div class="path-diagram">
+        <div class="path-step">
+          <div class="path-box path-a10">
+            A10-01 (CGN-01)
+            <small>ve200: 100.127.195.26<br>ve215: 100.127.195.42</small>
+          </div>
+          <div class="path-box path-a10">
+            A10-02 (CGN-02)
+            <small>ve200: 100.127.195.27<br>ve215: 100.127.195.43</small>
+          </div>
+        </div>
+        <div class="path-arrow">↓ VLAN 200 / VLAN 215 tagged (Eth-Trunk0 / Trunk1)</div>
+        <div class="path-step">
+          <div class="path-box path-sw">
+            SW-Core S6750
+            <small>Vlanif200: 100.127.195.25/29 (gateway)<br>Vlanif215: 100.127.195.41/29 (gateway)<br>→ redistribui subnets no OSPF</small>
+          </div>
+        </div>
+        <div class="path-arrow">↓ OSPF External (O_ASE) via Eth-Trunk4.600 / VLAN 600</div>
+        <div class="path-step">
+          <div class="path-box path-ne40">
+            NE40-BGP
+            <small>aprende 100.127.195.24/29 e .40/29<br>como rota O_ASE via 10.10.1.162</small>
+          </div>
+        </div>
+        <div class="path-arrow">↓ eBGP (AS265019)</div>
+        <div class="path-step">
+          <div class="path-box path-isp">Cirion / IX.br / Upstreams</div>
+        </div>
+      </div>
+      <div class="vlan-note">
+        <strong>Papel do SW-Core:</strong> O SW-Core é o gateway L3 das VLANs BGP WAN (200/215).
+        Os A10s fazem peering BGP com o NE40 usando IPs nessas subnets. O SW-Core redistribui as
+        subnets para OSPF, permitindo que o NE40-BGP alcance os A10s sem acesso L2 direto às VLANs.
+      </div>
+    </div>
+
+    <!-- BNG → A10 -->
+    <div class="vlan-sub">
+      <h3>Conectividade BNG → A10 (Subscriber)</h3>
+      <div class="vlan-note" style="border-left-color:#3fb950">
+        <strong>Arquitetura:</strong> O BNG (10.99.99.21) <em>não possui</em> as VLANs 130/135 no
+        seu trunk do SW-Core. A conectividade com as interfaces de subscriber dos A10s ocorre via
+        <strong>roteamento OSPF</strong>: o BNG anuncia as subnets
+        <code>100.127.192.104/29</code> e <code>100.127.192.80/29</code>
+        (subnets das VEs 130/135) diretamente no OSPF, e o tráfego de subscriber flui roteado
+        pelo backbone do SW-Core — sem VLAN de subscriber no trunk BNG.
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px 0;color:#6e7681;font-size:11px;">
+    Mapa gerado por Atlas CGR · NexTelecom NetOps · 17/09/2026
+  </div>
+</div>
+
+
+<script>
+(function() {
+  const token = localStorage.getItem('netops_token');
+  if (!token) { window.location.href = '/login'; return; }
+
+  fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + token } })
+    .then(r => { if (!r.ok) throw new Error('unauth'); return r.json(); })
+    .then(data => {
+      const role = data.user && data.user.role;
+      const allowed = ['administrador', 'master'];
+      if (!role || !allowed.includes(role)) {
+        document.body.style.visibility = 'visible';
+        document.body.innerHTML = `
+          <div style="min-height:100vh;background:#0d1117;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;font-family:system-ui">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p style="color:#f85149;font-size:18px;font-weight:700">Acesso Restrito</p>
+            <p style="color:#8b949e;font-size:13px">Esta página requer perfil de Administrador ou superior.</p>
+            <a href="/" style="color:#58a6ff;font-size:13px;text-decoration:none">← Voltar ao início</a>
+          </div>`;
+        return;
+      }
+      document.body.style.visibility = 'visible';
+    })
+    .catch(() => { window.location.href = '/login'; });
+})();
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.getElementById('modalBacklogMapa').classList.remove('open'); });
+</script>
+</body>
+</html>

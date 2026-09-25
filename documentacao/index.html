@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Documentação de Rede — NetOps NexTelecom</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+
+/* ── Navbar ── */
+.navbar{position:sticky;top:0;left:0;right:0;height:60px;z-index:200;background:rgba(15,20,28,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,102,0,0.15);display:flex;align-items:center;padding:0 1.25rem;gap:0}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:1rem;flex-shrink:0}
+.nav-logo{width:30px;height:30px;filter:drop-shadow(0 0 6px rgba(255,102,0,.35))}
+.nav-title-text{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+.nav-title-text span{color:#FF6600}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1}
+.nav-item{position:relative}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.open{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-btn.active-section{color:#FF6600}
+.nav-btn svg{transition:transform .2s}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 10px);left:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:240px;box-shadow:0 16px 48px rgba(0,0,0,.5);overflow:hidden;z-index:300}
+.nav-dropdown.open{display:block}
+.nav-dd-header{font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
+.nav-dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;text-decoration:none;color:#CBD5E0;font-size:13px;font-weight:500;transition:background .12s,color .12s}
+.nav-dd-item:hover{background:rgba(255,102,0,0.08);color:#fff}
+.nav-dd-item.disabled{opacity:.45;cursor:default;pointer-events:none}
+.nav-dd-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:4px 0}
+.dd-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dd-icon.orange{background:rgba(255,102,0,0.15)}
+.dd-icon.blue{background:rgba(41,120,255,0.15)}
+.dd-icon.purple{background:rgba(112,64,192,0.15)}
+.dd-icon.teal{background:rgba(0,210,200,0.12)}
+.dd-icon.green{background:rgba(74,222,128,0.12)}
+.dd-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+.dd-badge.green{background:rgba(34,197,94,0.15);color:#4ade80}
+.dd-badge.amber{background:rgba(245,158,11,0.12);color:#fbbf24}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.user-btn{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-family:inherit;color:#CBD5E0;font-size:13px;font-weight:500;transition:border-color .15s,background .15s}
+.user-btn:hover{border-color:rgba(255,102,0,0.4);color:#fff}
+.user-avatar{width:24px;height:24px;border-radius:5px;background:linear-gradient(135deg,#FF6600,#FF3500);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.user-dropdown{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:200px;box-shadow:0 16px 48px rgba(0,0,0,.5);padding:1rem;z-index:300}
+.user-dropdown.open{display:block}
+.ud-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.ud-role{font-size:11px;color:#929EB0;margin-bottom:1rem}
+.ud-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:0.75rem 0}
+.btn-ud-logout{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.15);border-radius:7px;color:#ff6b6b;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-ud-logout:hover{background:rgba(255,80,80,0.15)}
+
+/* ── Page Header ── */
+.page-header{padding:28px 28px 0;display:flex;flex-direction:column;gap:6px}
+.page-title{font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
+.page-subtitle{font-size:13px;color:#929EB0}
+.stats-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.stat-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;font-size:12px;color:#929EB0;font-weight:500}
+.stat-chip strong{color:#e6edf3}
+.stat-chip.loading{opacity:.5}
+
+/* ── Controls ── */
+.controls{padding:20px 28px 0;display:flex;flex-direction:column;gap:12px}
+.search-row{display:flex;gap:10px;align-items:center}
+.search-wrap{position:relative;flex:1;max-width:480px}
+.search-wrap input{width:100%;background:rgba(26,34,46,0.8);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 12px 9px 36px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;transition:border-color .18s}
+.search-wrap input:focus{border-color:rgba(255,102,0,0.5)}
+.search-wrap input::placeholder{color:#4a5568}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#4a5568;pointer-events:none}
+.btn-refresh{display:flex;align-items:center;gap:5px;padding:8px 14px;background:rgba(255,102,0,0.1);border:1px solid rgba(255,102,0,0.25);border-radius:9px;color:#FF6600;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+.btn-refresh:hover{background:rgba(255,102,0,0.2)}
+.btn-refresh:disabled{opacity:.4;cursor:not-allowed}
+.site-pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#929EB0;transition:.15s;white-space:nowrap}
+.pill:hover{border-color:rgba(255,102,0,0.3);color:#ccc}
+.pill.active{background:rgba(255,102,0,0.15);border-color:rgba(255,102,0,0.4);color:#FF6600}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;padding:16px 28px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin:0}
+.tab-btn{padding:8px 18px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;display:flex;align-items:center;gap:7px}
+.tab-btn:hover{color:#e6edf3}
+.tab-btn.active{color:#FF6600;border-bottom-color:#FF6600}
+.tab-count{font-size:11px;padding:1px 6px;border-radius:10px;background:rgba(255,255,255,0.08);color:#929EB0}
+.tab-btn.active .tab-count{background:rgba(255,102,0,0.15);color:#FF6600}
+
+/* ── Content ── */
+.content{padding:20px 28px 40px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Loading / Error states */
+.state-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;color:#4a5568;text-align:center}
+.state-msg svg{opacity:.3;width:40px;height:40px}
+.state-msg p{font-size:14px}
+.state-msg.error{color:#fc8181}
+.state-msg.error svg{opacity:.5}
+
+/* ── Device Grid ── */
+.device-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:4px}
+.device-card{background:rgba(26,34,46,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;cursor:default;transition:border-color .15s,background .15s}
+.device-card:hover{border-color:rgba(255,102,0,0.25);background:rgba(26,34,46,0.95)}
+.dc-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.dc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc-name{font-size:13px;font-weight:600;color:#e6edf3;word-break:break-word;line-height:1.35}
+.dc-role{font-size:11px;color:#929EB0;margin-top:2px}
+.dc-fields{display:flex;flex-direction:column;gap:5px}
+.dc-field{display:flex;align-items:center;gap:6px;font-size:12px}
+.dc-label{color:#4a5568;width:44px;flex-shrink:0;font-weight:500}
+.dc-value{color:#a0aec0;word-break:break-all}
+.dc-value.ip{font-family:monospace;font-size:11px;color:#68d391}
+.dc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-dot.active{background:#4ade80;box-shadow:0 0 4px rgba(74,222,128,.5)}
+.status-dot.offline{background:#fc8181;box-shadow:0 0 4px rgba(252,129,129,.4)}
+.status-dot.planned{background:#60a5fa}
+.status-dot.staged{background:#fbbf24}
+.status-dot.decommissioning{background:#9ca3af}
+.status-text{font-size:11px;color:#929EB0;display:flex;align-items:center;gap:5px}
+.device-type-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+
+/* Site section headers */
+.site-section{margin-bottom:28px}
+.site-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.site-name{font-size:14px;font-weight:600;color:#e6edf3}
+.site-count{font-size:11px;color:#929EB0;padding:2px 8px;background:rgba(255,255,255,0.06);border-radius:10px}
+
+/* ── Prefix Table ── */
+.prefix-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:rgba(26,34,46,0.8)}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:#929EB0;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.07);white-space:nowrap}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:#e6edf3}
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .1s}
+tbody tr:hover{background:rgba(255,102,0,0.04)}
+tbody tr:last-child{border-bottom:none}
+td{padding:10px 14px;color:#a0aec0;vertical-align:middle}
+td.prefix-val{font-family:monospace;font-size:12px;color:#68d391;font-weight:600}
+.family-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em}
+.family-badge.v4{background:rgba(41,120,255,0.15);color:#60a5fa}
+.family-badge.v6{background:rgba(112,64,192,0.15);color:#c084fc}
+.prefix-status{display:inline-flex;align-items:center;gap:5px;font-size:11px}
+.prefix-status .dot{width:6px;height:6px;border-radius:50%}
+.dot-active{background:#4ade80}
+.dot-reserved{background:#fbbf24}
+.dot-deprecated{background:#9ca3af}
+.dot-container{background:#60a5fa}
+td.empty-cell{color:#4a5568;font-style:italic}
+
+/* ── Loading spinner ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,102,0,0.2);border-top-color:#FF6600;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+
+/* Results count */
+.results-info{font-size:12px;color:#4a5568;margin:8px 0 12px;display:flex;align-items:center;gap:8px}
+.results-info strong{color:#929EB0}
+
+/* Empty site state */
+.no-results{padding:32px;text-align:center;color:#4a5568;font-size:13px;background:rgba(255,255,255,0.02);border-radius:10px}
+
+/* prefix filter row */
+.prefix-controls{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.family-filter button{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#929EB0;font-family:inherit;transition:.15s}
+.family-filter button:hover{border-color:rgba(255,102,0,0.3);color:#ccc}
+.family-filter button.active{background:rgba(255,102,0,0.15);border-color:rgba(255,102,0,0.4);color:#FF6600}
+
+@media(max-width:640px){
+  .page-header,.controls,.content,.tabs{padding-left:16px;padding-right:16px}
+  .device-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navbar ── -->
+<nav class="navbar">
+  <a class="nav-brand" href="/">
+    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="nbog" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#FF3500"/><stop offset="100%" stop-color="#FF7A00"/></linearGradient>
+        <linearGradient id="nbbl" x1="1" y1="0" x2=".2" y2="1"><stop offset="0%" stop-color="#0A44B0"/><stop offset="100%" stop-color="#2978FF"/></linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="#0B1221"/>
+      <path fill="url(#nbbl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
+      <path fill="url(#nbog)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
+      <path fill="url(#nbog)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
+      <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
+      <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
+      <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
+    </svg>
+    <span class="nav-title-text">NEX <span>NetOps</span></span>
+  </a>
+  <div class="nav-links">
+    <div class="nav-item">
+      <button class="nav-btn" id="btnFerramentas" onclick="toggleNavDD('ferramentasDD','btnFerramentas')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ferramentas
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="ferramentasDD">
+        <div class="nav-dd-header">Gerador de Scripts</div>
+        <a href="/ferramentas/link-dedicado/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Dedicado<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/link-semi-dedicado/" class="nav-dd-item"><div class="dd-icon purple"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Semi-Dedicado<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Consultas</div>
+        <a href="/ferramentas/circuitos/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>Circuitos Provisionados<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/inadimplencia/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(255,80,80,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>Inadimplência<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc/" class="nav-dd-item"><div class="dd-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv4<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc6/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(129,140,248,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv6<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/gpon-diagnostico/" class="nav-dd-item"><div class="dd-icon teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>GPON Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/cgnat-diagnostico/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>CGNAT Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/synapse/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(0,200,255,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></svg></div>Synapse IoT Builder<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <button class="nav-btn" id="btnTopologias" onclick="toggleNavDD('topologiasDD','btnTopologias')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><path d="M5 9v4h14V9"/><line x1="12" y1="13" x2="12" y2="15"/></svg>
+        Topologias de Rede
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="topologiasDD">
+        <div class="nav-dd-header">Escritório PQS</div>
+        <a href="/rede/escritorio-pqs-1andar/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>1º Andar — Rack Central<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Backbone</div>
+        <a href="/topologias/bgp-upstream/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Topologia BGP — AS265019<span class="dd-badge green">Disponível</span></a>
+        <a href="/topologias/cgnat/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>Mapa CGNAT<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <button class="nav-btn active-section" id="btnDocumentacao" onclick="toggleNavDD('documentacaoDD','btnDocumentacao')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Documentação
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="documentacaoDD">
+        <div class="nav-dd-header">Inventário</div>
+        <a href="/documentacao/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>Dispositivos por POP<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Endereçamento</div>
+        <a href="/documentacao/?tab=prefixos" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Prefixos IP / IPAM<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-item" style="position:relative">
+      <button class="user-btn" id="userBtn" onclick="toggleNavDD('userDD','userBtn')">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userLabel">...</span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="user-dropdown" id="userDD">
+        <div class="ud-name" id="udName">—</div>
+        <div class="ud-role" id="udRole">—</div>
+        <hr class="ud-sep">
+        <button class="btn-ud-logout" onclick="localStorage.removeItem('netops_token');window.location.href='/login'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="page-title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    Documentação de Rede
+  </div>
+  <div class="page-subtitle">Inventário de dispositivos e endereçamento IP — NexTelecom AS265019</div>
+  <div class="stats-row">
+    <div class="stat-chip loading" id="chip-devices"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Dispositivos</div>
+    <div class="stat-chip loading" id="chip-sites"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Sites</div>
+    <div class="stat-chip loading" id="chip-prefixes"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Prefixos</div>
+    <div class="stat-chip" id="chip-updated" style="display:none"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> <span id="updated-ts">—</span></div>
+  </div>
+</div>
+
+<!-- ── Controls ── -->
+<div class="controls">
+  <div class="search-row">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Buscar dispositivo, IP, descrição..." oninput="onSearch()">
+    </div>
+    <button class="btn-refresh" id="btnRefresh" onclick="loadAll(true)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Atualizar
+    </button>
+  </div>
+  <div class="site-pills" id="sitePills">
+    <span class="pill active" data-site="" onclick="filterBySite(this,'')">Todos</span>
+  </div>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs">
+  <button class="tab-btn active" id="tab-dispositivos" onclick="switchTab('dispositivos')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg>
+    Dispositivos
+    <span class="tab-count" id="count-dispositivos">—</span>
+  </button>
+  <button class="tab-btn" id="tab-prefixos" onclick="switchTab('prefixos')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    Prefixos IP
+    <span class="tab-count" id="count-prefixos">—</span>
+  </button>
+</div>
+
+<!-- ── Content ── -->
+<div class="content">
+
+  <!-- Dispositivos tab -->
+  <div class="tab-panel active" id="panel-dispositivos">
+    <div id="devices-container">
+      <div class="state-msg">
+        <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+        <p>Carregando dispositivos...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prefixos tab -->
+  <div class="tab-panel" id="panel-prefixos">
+    <div class="prefix-controls">
+      <div class="family-filter" style="display:flex;gap:6px">
+        <button class="active" data-family="" onclick="filterFamily(this,'')">Todos</button>
+        <button data-family="4" onclick="filterFamily(this,'4')">IPv4</button>
+        <button data-family="6" onclick="filterFamily(this,'6')">IPv6</button>
+      </div>
+      <div id="prefix-results-info" class="results-info"></div>
+    </div>
+    <div id="prefixes-container">
+      <div class="state-msg">
+        <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+        <p>Carregando prefixos...</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Auth ───────────────────────────────────────────────────────────────
+const tok = localStorage.getItem('netops_token');
+if (!tok) { window.location.href = '/login'; }
+
+async function apiFetch(url) {
+  const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
+  if (r.status === 401) { localStorage.removeItem('netops_token'); window.location.href = '/login'; }
+  return r.json();
+}
+
+// Load user info
+(async () => {
+  try {
+    const d = await apiFetch('/api/auth/me');
+    if (!d.ok) { localStorage.removeItem('netops_token'); window.location.href = '/login'; return; }
+    const initials = d.user.username.slice(0,2).toUpperCase();
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userLabel').textContent = d.user.username;
+    document.getElementById('udName').textContent = d.user.username;
+    document.getElementById('udRole').textContent = d.user.role;
+  } catch(_) {}
+})();
+
+// ── Nav dropdown ──────────────────────────────────────────────────────
+function toggleNavDD(id, btnId) {
+  const dd = document.getElementById(id);
+  const btn = document.getElementById(btnId);
+  const isOpen = dd.classList.contains('open');
+  document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.nav-btn.open').forEach(el => el.classList.remove('open'));
+  if (!isOpen) { dd.classList.add('open'); btn.classList.add('open'); }
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-item')) {
+    document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.nav-btn.open').forEach(el => el.classList.remove('open'));
+  }
+});
+
+// ── State ─────────────────────────────────────────────────────────────
+let allDevices = [];
+let allPrefixes = [];
+let allSites = [];
+let activeSiteId = '';
+let activeFamily = '';
+let searchQ = '';
+let searchTimer = null;
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// Check URL param for tab
+const urlTab = new URLSearchParams(location.search).get('tab');
+if (urlTab === 'prefixos') switchTab('prefixos');
+
+// ── Load all data ─────────────────────────────────────────────────────
+async function loadAll(force) {
+  const btn = document.getElementById('btnRefresh');
+  btn.disabled = true;
+  try { await Promise.all([loadSites(), loadDevices(), loadPrefixes()]); }
+  finally { btn.disabled = false; }
+}
+
+async function loadSites() {
+  try {
+    const d = await apiFetch('/api/netbox/sites');
+    if (!d.ok) return;
+    allSites = d.results || [];
+    renderSitePills();
+    document.getElementById('chip-sites').innerHTML = '<strong>' + allSites.length + '</strong> Sites';
+    document.getElementById('chip-sites').classList.remove('loading');
+  } catch(e) { console.error('sites:', e); }
+}
+
+async function loadDevices() {
+  document.getElementById('devices-container').innerHTML = '<div class="state-msg"><div class="spinner" style="width:32px;height:32px;border-width:3px"></div><p>Carregando dispositivos...</p></div>';
+  try {
+    const d = await apiFetch('/api/netbox/devices?limit=500');
+    if (!d.ok) { showDeviceError('Erro ao carregar dispositivos: ' + d.error); return; }
+    allDevices = d.results || [];
+    document.getElementById('chip-devices').innerHTML = '<strong>' + allDevices.length + '</strong> Dispositivos';
+    document.getElementById('chip-devices').classList.remove('loading');
+    document.getElementById('count-dispositivos').textContent = allDevices.length;
+    updateTimestamp();
+    renderDevices();
+  } catch(e) { showDeviceError(e.message); }
+}
+
+async function loadPrefixes() {
+  document.getElementById('prefixes-container').innerHTML = '<div class="state-msg"><div class="spinner" style="width:32px;height:32px;border-width:3px"></div><p>Carregando prefixos...</p></div>';
+  try {
+    const d = await apiFetch('/api/netbox/prefixes?limit=500');
+    if (!d.ok) { showPrefixError('Erro ao carregar prefixos: ' + d.error); return; }
+    allPrefixes = d.results || [];
+    document.getElementById('chip-prefixes').innerHTML = '<strong>' + allPrefixes.length + '</strong> Prefixos';
+    document.getElementById('chip-prefixes').classList.remove('loading');
+    document.getElementById('count-prefixos').textContent = allPrefixes.length;
+    renderPrefixes();
+  } catch(e) { showPrefixError(e.message); }
+}
+
+function updateTimestamp() {
+  const now = new Date();
+  const brt = new Date(now.getTime() - 3 * 3600000);
+  const h = String(brt.getUTCHours()).padStart(2,'0');
+  const m = String(brt.getUTCMinutes()).padStart(2,'0');
+  document.getElementById('updated-ts').textContent = 'Atualizado ' + h + ':' + m;
+  document.getElementById('chip-updated').style.display = 'flex';
+}
+
+// ── Site Pills ────────────────────────────────────────────────────────
+function renderSitePills() {
+  const container = document.getElementById('sitePills');
+  container.innerHTML = '<span class="pill active" data-site="" onclick="filterBySite(this,\'\')">Todos</span>';
+  allSites.forEach(s => {
+    const sp = document.createElement('span');
+    sp.className = 'pill';
+    sp.dataset.site = s.id;
+    sp.textContent = s.name;
+    sp.onclick = () => filterBySite(sp, String(s.id));
+    container.appendChild(sp);
+  });
+}
+
+function filterBySite(el, siteId) {
+  document.querySelectorAll('#sitePills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  activeSiteId = siteId;
+  renderDevices();
+}
+
+// ── Search ────────────────────────────────────────────────────────────
+function onSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
+    renderDevices();
+    renderPrefixes();
+  }, 220);
+}
+
+// ── Render Devices ────────────────────────────────────────────────────
+function filterDevices() {
+  return allDevices.filter(d => {
+    if (activeSiteId && String(d.site?.id) !== activeSiteId) return false;
+    if (!searchQ) return true;
+    const haystack = [d.name, d.primary_ip?.address, d.device_type?.model, d.device_role?.name, d.site?.name, d.serial].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(searchQ);
+  });
+}
+
+function renderDevices() {
+  const filtered = filterDevices();
+  const container = document.getElementById('devices-container');
+  document.getElementById('count-dispositivos').textContent = filtered.length;
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="no-results">Nenhum dispositivo encontrado</div>';
+    return;
+  }
+
+  // Group by site
+  const bySite = {};
+  filtered.forEach(d => {
+    const siteName = d.site?.name || 'Sem Site';
+    if (!bySite[siteName]) bySite[siteName] = [];
+    bySite[siteName].push(d);
+  });
+
+  const siteOrder = Object.keys(bySite).sort();
+  container.innerHTML = siteOrder.map(siteName => {
+    const devs = bySite[siteName];
+    return `<div class="site-section">
+      <div class="site-header">
+        <span class="site-name">${esc(siteName)}</span>
+        <span class="site-count">${devs.length} device${devs.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="device-grid">${devs.map(deviceCard).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+function deviceCard(d) {
+  const role = d.device_role?.name || '—';
+  const roleColor = roleColorMap(role);
+  const status = d.status?.value || 'active';
+  const statusLabel = d.status?.label || status;
+  const ipRaw = d.primary_ip?.address || null;
+  const ip = ipRaw ? ipRaw.split('/')[0] : null;
+  const model = d.device_type?.model || '—';
+  const manufacturer = d.device_type?.manufacturer?.name || '';
+
+  return `<div class="device-card">
+    <div class="dc-header">
+      <div class="dc-icon" style="background:${roleColor.bg}">${roleIcon(role, roleColor.stroke)}</div>
+      <div>
+        <div class="dc-name">${esc(d.name || '—')}</div>
+        <div class="dc-role">${esc(role)}</div>
+      </div>
+    </div>
+    <div class="dc-fields">
+      ${ip ? `<div class="dc-field"><span class="dc-label">IP</span><span class="dc-value ip">${esc(ip)}</span></div>` : ''}
+      <div class="dc-field"><span class="dc-label">Modelo</span><span class="dc-value">${esc(manufacturer ? manufacturer + ' ' + model : model)}</span></div>
+    </div>
+    <div class="dc-footer">
+      <span class="status-text"><span class="status-dot ${status}"></span>${esc(statusLabel)}</span>
+      <span class="device-type-badge" style="background:${roleColor.badgeBg};color:${roleColor.badgeText}">${esc(role.toUpperCase().slice(0,8))}</span>
+    </div>
+  </div>`;
+}
+
+function roleColorMap(role) {
+  const r = role.toLowerCase();
+  if (r.includes('router') || r.includes('core') || r.includes('ne40') || r.includes('bng') || r.includes('bras')) return { bg:'rgba(255,102,0,0.1)', stroke:'#FF6600', badgeBg:'rgba(255,102,0,0.15)', badgeText:'#FF6600' };
+  if (r.includes('switch') || r.includes('sw') || r.includes('acesso')) return { bg:'rgba(41,120,255,0.1)', stroke:'#2978FF', badgeBg:'rgba(41,120,255,0.15)', badgeText:'#60a5fa' };
+  if (r.includes('olt') || r.includes('gpon') || r.includes('optical')) return { bg:'rgba(0,210,200,0.1)', stroke:'#00d2c8', badgeBg:'rgba(0,210,200,0.12)', badgeText:'#2dd4bf' };
+  if (r.includes('server') || r.includes('servidor')) return { bg:'rgba(112,64,192,0.1)', stroke:'#9b59b6', badgeBg:'rgba(112,64,192,0.15)', badgeText:'#c084fc' };
+  if (r.includes('firewall') || r.includes('fw') || r.includes('security')) return { bg:'rgba(252,129,129,0.1)', stroke:'#fc8181', badgeBg:'rgba(252,129,129,0.12)', badgeText:'#fc8181' };
+  if (r.includes('ap') || r.includes('wireless') || r.includes('wifi')) return { bg:'rgba(74,222,128,0.1)', stroke:'#4ade80', badgeBg:'rgba(74,222,128,0.12)', badgeText:'#4ade80' };
+  if (r.includes('cgnat') || r.includes('a10')) return { bg:'rgba(96,165,250,0.1)', stroke:'#60a5fa', badgeBg:'rgba(96,165,250,0.12)', badgeText:'#60a5fa' };
+  return { bg:'rgba(255,255,255,0.05)', stroke:'#929EB0', badgeBg:'rgba(255,255,255,0.08)', badgeText:'#929EB0' };
+}
+
+function roleIcon(role, color) {
+  const r = role.toLowerCase();
+  if (r.includes('router') || r.includes('core') || r.includes('bng') || r.includes('bras'))
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+  if (r.includes('switch') || r.includes('sw'))
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
+  if (r.includes('olt') || r.includes('gpon'))
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>`;
+  if (r.includes('server') || r.includes('servidor'))
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
+  if (r.includes('firewall'))
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
+  return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
+}
+
+function showDeviceError(msg) {
+  document.getElementById('devices-container').innerHTML = `<div class="state-msg error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${esc(msg)}</p></div>`;
+}
+
+// ── Render Prefixes ───────────────────────────────────────────────────
+function filterPrefixes() {
+  return allPrefixes.filter(p => {
+    if (activeFamily && String(p.family?.value) !== activeFamily) return false;
+    if (!searchQ) return true;
+    const haystack = [p.prefix, p.description, p.site?.name, p.vrf?.name, p.status?.label].filter(Boolean).join(' ').toLowerCase();
+    return haystack.includes(searchQ);
+  });
+}
+
+function filterFamily(el, family) {
+  document.querySelectorAll('.family-filter button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  activeFamily = family;
+  renderPrefixes();
+}
+
+function renderPrefixes() {
+  const filtered = filterPrefixes();
+  document.getElementById('count-prefixos').textContent = filtered.length;
+  document.getElementById('prefix-results-info').innerHTML = filtered.length !== allPrefixes.length ? `<strong>${filtered.length}</strong> de ${allPrefixes.length} prefixos` : '';
+
+  const container = document.getElementById('prefixes-container');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="no-results">Nenhum prefixo encontrado</div>';
+    return;
+  }
+
+  const rows = filtered.map(p => {
+    const fam = p.family?.value;
+    const famLabel = fam === 4 ? '<span class="family-badge v4">IPv4</span>' : fam === 6 ? '<span class="family-badge v6">IPv6</span>' : '—';
+    const status = p.status?.value || 'active';
+    const dotClass = status === 'active' ? 'dot-active' : status === 'reserved' ? 'dot-reserved' : status === 'container' ? 'dot-container' : 'dot-deprecated';
+    const statusLabel = p.status?.label || status;
+    const site = p.site?.name || '<span class="empty-cell">—</span>';
+    const vrf = p.vrf?.name || '<span class="empty-cell">global</span>';
+    const desc = p.description || '<span class="empty-cell">—</span>';
+    return `<tr>
+      <td class="prefix-val">${esc(p.prefix)}</td>
+      <td>${famLabel}</td>
+      <td>${esc(site)}</td>
+      <td>${esc(vrf)}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(desc)}</td>
+      <td><span class="prefix-status"><span class="dot ${dotClass}"></span>${esc(statusLabel)}</span></td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `<div class="prefix-table-wrap"><table>
+    <thead><tr>
+      <th class="sortable" onclick="sortPrefixes('prefix')">Prefixo ↕</th>
+      <th>Família</th>
+      <th>Site</th>
+      <th>VRF</th>
+      <th>Descrição</th>
+      <th>Status</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+let sortDir = 1;
+function sortPrefixes(field) {
+  sortDir *= -1;
+  allPrefixes.sort((a, b) => {
+    const va = a.prefix || '';
+    const vb = b.prefix || '';
+    return va.localeCompare(vb) * sortDir;
+  });
+  renderPrefixes();
+}
+
+function showPrefixError(msg) {
+  document.getElementById('prefixes-container').innerHTML = `<div class="state-msg error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${esc(msg)}</p></div>`;
+}
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────
+loadAll();
+</script>
+</body>
+</html>

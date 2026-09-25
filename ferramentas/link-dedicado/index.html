@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Link Dedicado — NEX NetOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8f8f6;color:#1a1a1a;padding:2rem}
+/* ── Navbar NetOps ── */
+.navbar{position:sticky;top:0;left:0;right:0;height:60px;z-index:200;background:rgba(15,20,28,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,102,0,0.15);display:flex;align-items:center;padding:0 1.25rem;gap:0}
+.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:1rem;flex-shrink:0}
+.nav-logo{width:30px;height:30px;filter:drop-shadow(0 0 6px rgba(255,102,0,.35))}
+.nav-title-text{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap}
+.nav-title-text span{color:#FF6600}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1}
+.nav-item{position:relative}
+.nav-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.open{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-btn svg{transition:transform .2s}
+.nav-dropdown{display:none;position:absolute;top:calc(100% + 10px);left:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:240px;box-shadow:0 16px 48px rgba(0,0,0,.5);overflow:hidden;z-index:300}
+.nav-dropdown.open{display:block}
+.nav-dd-header{font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
+.nav-dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;text-decoration:none;color:#CBD5E0;font-size:13px;font-weight:500;transition:background .12s,color .12s}
+.nav-dd-item:hover{background:rgba(255,102,0,0.08);color:#fff}
+.nav-dd-item.disabled{opacity:.45;cursor:default;pointer-events:none}
+.nav-dd-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:4px 0}
+.dd-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dd-icon.orange{background:rgba(255,102,0,0.15)}
+.dd-icon.blue{background:rgba(41,120,255,0.15)}
+.dd-icon.purple{background:rgba(112,64,192,0.15)}
+.dd-icon.teal{background:rgba(0,210,200,0.12)}
+.dd-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+.dd-badge.green{background:rgba(34,197,94,0.15);color:#4ade80}
+.dd-badge.amber{background:rgba(245,158,11,0.12);color:#fbbf24}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.user-btn{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-family:inherit;color:#CBD5E0;font-size:13px;font-weight:500;transition:border-color .15s,background .15s;white-space:nowrap}
+.user-btn:hover{border-color:rgba(255,102,0,0.4);background:rgba(255,102,0,0.06);color:#fff}
+.user-avatar{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#FF6600,#FF3500);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.user-dropdown{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:200px;box-shadow:0 16px 48px rgba(0,0,0,.5);padding:.75rem;z-index:300}
+.user-dropdown.open{display:block}
+.ud-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
+.ud-role{font-size:11px;color:#929EB0;margin-bottom:.75rem}
+.ud-sep{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:.5rem 0}
+.btn-ud-logout{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:#ff8080;text-align:left;transition:background .12s}
+.btn-ud-logout:hover{background:rgba(255,100,100,0.08)}
+.header{margin-bottom:2rem;padding-bottom:1rem;border-bottom:0.5px solid #d3d1c7;display:flex;justify-content:space-between;align-items:flex-start}
+.header-left h1{font-size:20px;font-weight:600}
+.header-left p{font-size:13px;color:#888780;margin-top:4px}
+.breadcrumb{font-size:12px;color:#888780;margin-bottom:1.5rem}
+.breadcrumb a{color:#0c447c;text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+.btn-logout{font-size:12px;font-weight:500;color:#5f5e5a;background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;padding:6px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-logout:hover{border-color:#888780;color:#1a1a1a}
+
+.layout{display:grid;grid-template-columns:380px 1fr;gap:2rem;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* Formulário */
+.form-card{background:#fff;border:0.5px solid #d3d1c7;border-radius:10px;padding:1.5rem}
+.form-card h2{font-size:13px;font-weight:600;color:#5f5e5a;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1.25rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:500;color:#5f5e5a;margin-bottom:4px}
+.field .hint{font-size:11px;color:#b4b2a9;margin-bottom:4px}
+.field input,.field select{width:100%;font-size:13px;font-family:inherit;padding:7px 10px;border:0.5px solid #d3d1c7;border-radius:6px;background:#fff;color:#1a1a1a;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:#0c447c}
+.field input::placeholder{color:#b4b2a9}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.section-title{font-size:11px;font-weight:600;color:#5f5e5a;letter-spacing:.05em;text-transform:uppercase;margin:1.25rem 0 .75rem;padding-top:1rem;border-top:0.5px solid #f0ede6}
+.section-title:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.edd-fields{transition:opacity .2s}
+.edd-fields.hidden{opacity:.35;pointer-events:none}
+.btn-gerar{width:100%;padding:10px;background:#0c447c;color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;margin-top:1.25rem;transition:background .15s}
+.btn-gerar:hover{background:#0a3869}
+.btn-gerar:active{background:#082e55}
+.alert-phpipam{background:#faeeda;border:0.5px solid #e8c97a;border-radius:8px;padding:.75rem 1rem;margin-bottom:1.25rem;font-size:12px;color:#633806;display:flex;gap:.5rem;align-items:flex-start}
+.alert-phpipam svg{flex-shrink:0;margin-top:1px}
+
+/* Output */
+.output-area{display:flex;flex-direction:column;gap:1rem}
+.output-empty{background:#fff;border:0.5px solid #d3d1c7;border-radius:10px;padding:3rem 2rem;text-align:center;color:#b4b2a9;font-size:13px}
+.output-empty svg{margin-bottom:.75rem;opacity:.4}
+.block-card{background:#fff;border:0.5px solid #d3d1c7;border-radius:10px;overflow:hidden}
+.block-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;border-bottom:0.5px solid #f0ede6;background:#fafaf8}
+.block-title{font-size:12px;font-weight:600;color:#5f5e5a;letter-spacing:.05em;text-transform:uppercase}
+.badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px}
+.badge-ne40{background:#e6f1fb;color:#0c447c}
+.badge-sw{background:#eaf3de;color:#27500a}
+.badge-edd{background:#faeeda;color:#633806}
+.badge-summary{background:#f0ede6;color:#5f5e5a}
+.btn-copy{font-size:11px;font-weight:500;color:#5f5e5a;background:#fff;border:0.5px solid #d3d1c7;border-radius:5px;padding:4px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all .15s}
+.btn-copy:hover{border-color:#888780;color:#1a1a1a}
+.btn-copy.copied{background:#eaf3de;border-color:#a3c97a;color:#27500a}
+pre{font-family:'SF Mono','Fira Code','Courier New',monospace;font-size:12px;line-height:1.6;padding:1rem;white-space:pre;overflow-x:auto;color:#1a1a1a;background:#fafaf8}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .75rem;padding:1rem}
+.summary-item label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888780}
+.summary-item span{font-size:13px;font-weight:500;color:#1a1a1a;display:block;margin-top:2px;font-family:'SF Mono','Fira Code',monospace}
+.footer{margin-top:3rem;font-size:11px;color:#b4b2a9;display:flex;justify-content:space-between}
+</style>
+<link rel="icon" type="image/x-icon" href="/favicon/favicon.ico">
+</head>
+<body>
+<nav class="navbar">
+  <a class="nav-brand" href="/">
+    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="nbog" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#FF3500"/><stop offset="100%" stop-color="#FF7A00"/></linearGradient>
+        <linearGradient id="nbbl" x1="1" y1="0" x2=".2" y2="1"><stop offset="0%" stop-color="#0A44B0"/><stop offset="100%" stop-color="#2978FF"/></linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="22" fill="#0B1221"/>
+      <path fill="url(#nbbl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
+      <path fill="url(#nbog)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
+      <path fill="url(#nbog)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
+      <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
+      <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
+      <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
+    </svg>
+    <span class="nav-title-text">NEX <span>NetOps</span></span>
+  </a>
+  <div class="nav-links">
+    <div class="nav-item">
+      <button class="nav-btn" id="btnFerramentas" onclick="toggleNavDD('ferramentasDD','btnFerramentas')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Ferramentas
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="ferramentasDD">
+        <div class="nav-dd-header">Gerador de Scripts</div>
+        <a href="/ferramentas/link-dedicado/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Dedicado<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/link-semi-dedicado/" class="nav-dd-item"><div class="dd-icon purple"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Semi-Dedicado<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Consultas</div>
+        <a href="/ferramentas/circuitos/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>Circuitos Provisionados<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/inadimplencia/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(255,80,80,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>Inadimplência<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(74,222,128,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv4<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/ipcalc6/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(129,140,248,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv6<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/gpon-diagnostico/" class="nav-dd-item"><div class="dd-icon teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>GPON Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/cgnat-diagnostico/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>CGNAT Diagnóstico<span class="dd-badge green">Disponível</span></a>
+        <a href="/ferramentas/synapse/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(0,200,255,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></svg></div>Synapse IoT Builder<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <button class="nav-btn" id="btnTopologias" onclick="toggleNavDD('topologiasDD','btnTopologias')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><path d="M5 9v4h14V9"/><line x1="12" y1="13" x2="12" y2="15"/></svg>
+        Topologias de Rede
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown" id="topologiasDD">
+        <div class="nav-dd-header">Escritório PQS</div>
+        <a href="/rede/escritorio-pqs-1andar/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>1º Andar — Rack Central<span class="dd-badge green">Disponível</span></a>
+        <hr class="nav-dd-sep">
+        <div class="nav-dd-header">Backbone</div>
+        <a href="/topologias/bgp-upstream/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Topologia BGP — AS265019<span class="dd-badge green">Disponível</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-item" style="position:relative">
+      <button class="user-btn" id="userBtn" onclick="toggleNavDD('userDD','userBtn')">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userLabel">...</span>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="user-dropdown" id="userDD">
+        <div class="ud-name" id="udName">—</div>
+        <div class="ud-role" id="udRole">—</div>
+        <hr class="ud-sep">
+        <button class="btn-ud-logout" onclick="localStorage.removeItem('netops_token');window.location.href='/login'">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Gerador de Link Dedicado</h1>
+    <p>Gera configuração completa: NE40-BGP, SW-core, SW-entrega e EDD CPE</p>
+  </div>
+  <a href="/logout" class="btn-logout">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Sair
+  </a>
+</div>
+
+<div class="breadcrumb">
+  <a href="/">Portal</a> / <a href="/">Ferramentas</a> / Link Dedicado
+</div>
+
+<div class="layout">
+  <!-- FORMULÁRIO -->
+  <div class="form-card">
+    <h2>Parâmetros do Link</h2>
+
+    <div class="alert-phpipam">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span><strong>Antes de preencher:</strong> consulte e reserve a VLAN e os blocos IP no <strong>phpIPAM</strong> (phpipam.nextelecom.net.br). Documente os endereços alocados antes de gerar a configuração.</span>
+    </div>
+
+    <span class="section-title">Identificação</span>
+
+    <div class="field">
+      <label>Tipo de Entrega</label>
+      <div class="hint">Define qual equipamento é instalado no cliente</div>
+      <select id="tipo_entrega" onchange="toggleEddFields()">
+        <option value="DEDICADO-EDD">Dedicado com EDD (switch CPE gerenciável)</option>
+        <option value="DEDICADO">Dedicado sem EDD (entrega direta)</option>
+        <option value="SEMI-DEDICADO">Semi-dedicado via FTTH (ONU)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Nome do Cliente / Identificador</label>
+      <div class="hint">Maiúsculo, sem espaços, palavras separadas por hífen</div>
+      <input type="text" id="cliente" placeholder="ex: AZURE-01-CONDOMINIO" oninput="updatePreview()">
+    </div>
+
+    <div class="field">
+      <label>VLAN de Serviço</label>
+      <div class="hint">Número único para este link — verificar planilha de VLANs disponíveis</div>
+      <input type="number" id="vlan" placeholder="ex: 354" min="1" max="4094">
+    </div>
+
+    <span class="section-title">Entrega / Backbone</span>
+
+    <div class="field">
+      <label>Switch de Entrega</label>
+      <div class="hint">Switch backbone mais próximo do cliente</div>
+      <select id="pop_nome" onchange="updatePopIp()">
+        <option value="PQS">PQS (10.99.99.2)</option>
+        <option value="Webfoco">Webfoco (10.99.99.3)</option>
+        <option value="Enlacenet">Enlacenet (10.99.99.4)</option>
+        <option value="Ondina">Ondina (10.99.99.5)</option>
+        <option value="Alfa">Alfa (10.99.99.6)</option>
+        <option value="Cabula">Cabula (10.99.99.8)</option>
+        <option value="CDNs">CDNs (10.99.99.10)</option>
+        <option value="Itinga-POP1">Itinga POP1 (10.99.99.11)</option>
+        <option value="Itinga-POP2">Itinga POP2 (10.99.99.12)</option>
+        <option value="TIWS">TIWS (10.99.99.13)</option>
+        <option value="outro">Outro (informar IP manualmente)</option>
+      </select>
+    </div>
+
+    <div class="field" id="pop_ip_field" style="display:none">
+      <label>IP L2VC do Switch</label>
+      <input type="text" id="pop_ip_manual" placeholder="ex: 10.99.99.20">
+    </div>
+
+    <div class="field">
+      <label>Porta no Switch de Entrega</label>
+      <div class="hint">Porta livre que conectará ao CPE do cliente</div>
+      <select id="porta_sw_entrega">
+        <option value="">-- selecione --</option>
+      </select>
+    </div>
+
+    <span class="section-title">Endereçamento IP</span>
+
+    <div class="field">
+      <label>Subrede IPv4 /31 (do phpIPAM)</label>
+      <div class="hint">1º IP = NexTelecom (NE40) · 2º IP = Cliente (CPE)</div>
+      <input type="text" id="subrede" placeholder="ex: 45.183.81.30/31">
+    </div>
+
+    <div class="field">
+      <label>Subrede IPv6 /127 (opcional)</label>
+      <div class="hint">Deixe vazio se não aplicável</div>
+      <input type="text" id="ipv6_subrede" placeholder="ex: 2804:6200:4000:1::/127">
+    </div>
+
+    <div class="field">
+      <label>Cliente possui bloco roteado?</label>
+      <div class="hint">Bloco próprio de IPs públicos roteados via este link (gera rota estática no NE40-BGP)</div>
+      <div style="display:flex;gap:1rem;margin-top:4px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer">
+          <input type="radio" name="tem_bloco" value="nao" checked onchange="toggleBlocoRoteado()"> Não
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer">
+          <input type="radio" name="tem_bloco" value="sim" onchange="toggleBlocoRoteado()"> Sim
+        </label>
+      </div>
+    </div>
+    <div class="field" id="bloco_roteado_field" style="display:none">
+      <label>Blocos Roteados (CIDR)</label>
+      <div class="hint">IPv4 (ex: 45.183.81.64/28) ou IPv6 (ex: 2804:6200::/48). Pode adicionar vários.</div>
+      <div id="blocos_list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px"></div>
+      <button type="button" onclick="addBloco()" style="font-size:12px;font-weight:500;color:#0c447c;background:#e6f1fb;border:0.5px solid #a8c8ef;border-radius:6px;padding:5px 12px;cursor:pointer">+ Adicionar bloco</button>
+    </div>
+
+    <span class="section-title edd-section">EDD CPE</span>
+
+    <div class="edd-fields" id="edd_fields">
+      <div class="field">
+        <label>Modelo do EDD</label>
+        <select id="modelo_edd" onchange="toggleEddModel()">
+          <option value="DM-2104">Datacom DM-2104 — entrega Gigabit (até 1G)</option>
+          <option value="DM-4370">Datacom DM-4370 — entrega 10G (uplink XGE)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>IP de Gerência do EDD / prefixo</label>
+        <div class="hint">IP alocado na <strong>VLAN 999</strong> (VLAN de gerência tagged no uplink). Permite acesso remoto ao EDD após provisionamento</div>
+        <input type="text" id="ip_gerencia" placeholder="ex: 10.20.30.25/24">
+      </div>
+
+      <div class="field">
+        <label>Gateway de Gerência</label>
+        <div class="hint">Normalmente não muda</div>
+        <input type="text" id="gateway_gerencia" value="10.20.30.1" placeholder="10.20.30.1">
+      </div>
+
+      <div class="field">
+        <label>Porta Uplink EDD</label>
+        <select id="porta_uplink"></select>
+      </div>
+      <div class="field">
+        <label>Dupla Abordagem de Uplink?</label>
+        <div class="hint">Circuito redundante em duas portas uplink</div>
+        <div style="display:flex;gap:1rem;margin-top:4px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer">
+            <input type="radio" name="uplink_duplo" value="nao" checked onchange="toggleUplinkDuplo()"> Não
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:400;cursor:pointer">
+            <input type="radio" name="uplink_duplo" value="sim" onchange="toggleUplinkDuplo()"> Sim
+          </label>
+        </div>
+      </div>
+      <div class="field" id="uplink2_field" style="display:none">
+        <label>2ª Porta Uplink EDD</label>
+        <select id="porta_uplink2"></select>
+      </div>
+      <div class="field">
+        <label>Portas Cliente EDD (downstream)</label>
+        <div class="hint">Pode adicionar múltiplas portas para entrega em mais de um equipamento</div>
+        <div id="portas_cliente_list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:6px"></div>
+        <button type="button" id="btn_add_porta_cliente" onclick="addPortaCliente()" style="font-size:12px;font-weight:500;color:#0c447c;background:#e6f1fb;border:0.5px solid #a8c8ef;border-radius:6px;padding:5px 12px;cursor:pointer">+ Adicionar porta</button>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:8px">
+      <label>Endereço de Instalação</label>
+      <div class="hint">Endereço completo onde o link será instalado</div>
+      <input type="text" id="endereco_instalacao" placeholder="ex: Rua das Flores, 123 — Itapuã, Salvador/BA">
+    </div>
+
+    <button class="btn-gerar" onclick="gerar()">Gerar Configuração</button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="output-area" id="output">
+    <div class="output-empty">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <p>Preencha os parâmetros e clique em<br><strong>Gerar Configuração</strong></p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>NEX NetOps Portal · AS265019</span>
+  <span>Gerador de Link Dedicado v2.0</span>
+</div>
+
+<script>
+// ── Navbar ──
+(function(){
+  var _t = localStorage.getItem('netops_token');
+  if (!_t) { window.location.href = '/login'; return; }
+  fetch('/api/auth/me', { headers: { Authorization: 'Bearer ' + _t } })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok) { localStorage.clear(); window.location.href = '/login'; return; }
+      var u = d.user;
+      var nm = u.name || u.email || '?';
+      document.getElementById('userLabel').textContent = nm;
+      document.getElementById('userAvatar').textContent = nm.charAt(0).toUpperCase();
+      document.getElementById('udName').textContent = nm;
+      document.getElementById('udRole').textContent = u.role.charAt(0).toUpperCase() + u.role.slice(1) + (u.email ? ' · ' + u.email : '');
+    })
+    .catch(function(){ localStorage.clear(); window.location.href = '/login'; });
+})();
+var _openNavDD = { id: null, btn: null };
+function toggleNavDD(ddId, btnId) {
+  var dd = document.getElementById(ddId), btn = document.getElementById(btnId);
+  if (_openNavDD.id && _openNavDD.id !== ddId) {
+    document.getElementById(_openNavDD.id).classList.remove('open');
+    var ob = _openNavDD.btn ? document.getElementById(_openNavDD.btn) : null;
+    if (ob) ob.classList.remove('open');
+  }
+  var isOpen = dd.classList.toggle('open');
+  if (btn) btn.classList.toggle('open', isOpen);
+  _openNavDD.id = isOpen ? ddId : null;
+  _openNavDD.btn = isOpen ? btnId : null;
+}
+document.addEventListener('click', function(e) {
+  if (!_openNavDD.id) return;
+  var dd = document.getElementById(_openNavDD.id);
+  var btn = _openNavDD.btn ? document.getElementById(_openNavDD.btn) : null;
+  if (dd && !dd.contains(e.target) && (!btn || !btn.contains(e.target))) {
+    dd.classList.remove('open'); if (btn) btn.classList.remove('open');
+    _openNavDD.id = null; _openNavDD.btn = null;
+  }
+});
+
+// ── Mapeamento de POPs ──────────────────────────────────────
+const POPS = {
+  'PQS':         '10.99.99.2',
+  'Webfoco':     '10.99.99.3',
+  'Enlacenet':   '10.99.99.4',
+  'Ondina':      '10.99.99.5',
+  'Alfa':        '10.99.99.6',
+  'Cabula':      '10.99.99.8',
+  'CDNs':        '10.99.99.10',
+  'Itinga-POP1': '10.99.99.11',
+  'Itinga-POP2': '10.99.99.12',
+  'TIWS':        '10.99.99.13',
+};
+
+function updatePopIp() {
+  const sel = document.getElementById('pop_nome').value;
+  document.getElementById('pop_ip_field').style.display = sel === 'outro' ? 'block' : 'none';
+}
+
+function toggleEddFields() {
+  const tipo = document.getElementById('tipo_entrega').value;
+  const eddEl = document.getElementById('edd_fields');
+  const eddSec = document.querySelector('.edd-section');
+  const temEDD = tipo === 'DEDICADO-EDD';
+  eddEl.classList.toggle('hidden', !temEDD);
+  eddSec.classList.toggle('hidden', !temEDD);
+  updatePreview();
+}
+
+function addBloco(val) {
+  const list = document.getElementById('blocos_list');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px';
+  div.innerHTML = `<input type="text" style="flex:1;font-size:13px;font-family:inherit;padding:7px 10px;border:0.5px solid #d3d1c7;border-radius:6px;outline:none" placeholder="ex: 45.183.81.64/28 ou 2804:6200::/48" value="${val||''}"><button type="button" onclick="this.parentElement.remove()" style="font-size:13px;color:#888780;background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;padding:4px 10px;cursor:pointer" title="Remover">✕</button>`;
+  list.appendChild(div);
+}
+
+function _portaClienteOpts() {
+  const modelo = document.getElementById('modelo_edd').value;
+  if (modelo === 'DM-4370') {
+    return [
+      ...Array.from({length:4}, (_,i) => ({value:`gigabit-ethernet-1/1/${i+1}`, label:`gigabit-ethernet-1/1/${i+1} — RJ45`})),
+      ...Array.from({length:4}, (_,i) => ({value:`gigabit-ethernet-1/1/${i+5}`, label:`gigabit-ethernet-1/1/${i+5} — SFP`})),
+      ...Array.from({length:4}, (_,i) => ({value:`ten-gigabit-ethernet-1/1/${i+1}`, label:`ten-gigabit-ethernet-1/1/${i+1} — SFP+`})),
+    ];
+  } else {
+    return [
+      ...Array.from({length:4}, (_,i) => ({value:`ethernet-1/${i+1}`, label:`ethernet-1/${i+1} — SFP`})),
+      ...Array.from({length:4}, (_,i) => ({value:`ethernet-1/${i+5}`, label:`ethernet-1/${i+5} — RJ45`})),
+    ];
+  }
+}
+
+function addPortaCliente(defaultVal) {
+  const list = document.getElementById('portas_cliente_list');
+  const opts = _portaClienteOpts();
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:6px';
+  let optsHtml = opts.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  div.innerHTML = `<select class="cli-porta" style="flex:2;font-size:13px;font-family:inherit;padding:7px 10px;border:0.5px solid #d3d1c7;border-radius:6px;outline:none">${optsHtml}</select><select class="cli-modo" style="flex:1;font-size:13px;font-family:inherit;padding:7px 10px;border:0.5px solid #d3d1c7;border-radius:6px;outline:none"><option value="untagged">untagged</option><option value="tagged">tagged</option></select><button type="button" onclick="this.parentElement.remove()" style="font-size:13px;color:#888780;background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;padding:4px 10px;cursor:pointer" title="Remover">✕</button>`;
+  list.appendChild(div);
+  if (defaultVal) div.querySelector('select.cli-porta').value = defaultVal;
+}
+
+function _uplinkOpts(modelo) {
+  if (modelo === 'DM-4370') {
+    return [
+      ...Array.from({length:4}, (_,i) => ({value:`ten-gigabit-ethernet-1/1/${i+1}`, label:`ten-gigabit-ethernet-1/1/${i+1} — SFP+`})),
+      ...Array.from({length:4}, (_,i) => ({value:`gigabit-ethernet-1/1/${i+5}`, label:`gigabit-ethernet-1/1/${i+5} — SFP`})),
+      ...Array.from({length:4}, (_,i) => ({value:`gigabit-ethernet-1/1/${i+1}`, label:`gigabit-ethernet-1/1/${i+1} — RJ45`})),
+    ];
+  }
+  return [
+    ...Array.from({length:4}, (_,i) => ({value:`ethernet-1/${i+1}`, label:`ethernet-1/${i+1} — SFP`})),
+    ...Array.from({length:4}, (_,i) => ({value:`ethernet-1/${i+5}`, label:`ethernet-1/${i+5} — RJ45`})),
+  ];
+}
+
+function toggleUplinkDuplo() {
+  const sim = document.querySelector('input[name="uplink_duplo"]:checked').value === 'sim';
+  document.getElementById('uplink2_field').style.display = sim ? 'block' : 'none';
+}
+
+function _fillSelect(selId, opts, defaultVal) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = opts.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+  if (defaultVal) sel.value = defaultVal;
+}
+
+function toggleEddModel() {
+  const modelo = document.getElementById('modelo_edd').value;
+  const opts = _uplinkOpts(modelo);
+  const defUp1 = modelo === 'DM-4370' ? 'ten-gigabit-ethernet-1/1/1' : 'ethernet-1/1';
+  const defUp2 = modelo === 'DM-4370' ? 'ten-gigabit-ethernet-1/1/2' : 'ethernet-1/2';
+  _fillSelect('porta_uplink', opts, defUp1);
+  _fillSelect('porta_uplink2', opts, defUp2);
+  // Reset lista de portas cliente
+  document.getElementById('portas_cliente_list').innerHTML = '';
+  addPortaCliente(modelo === 'DM-4370' ? 'gigabit-ethernet-1/1/1' : 'ethernet-1/5');
+}
+
+function toggleBlocoRoteado() {
+  const sim = document.querySelector('input[name="tem_bloco"]:checked').value === 'sim';
+  document.getElementById('bloco_roteado_field').style.display = sim ? 'block' : 'none';
+  if (sim && document.getElementById('blocos_list').children.length === 0) addBloco();
+  if (!sim) document.getElementById('blocos_list').innerHTML = '';
+}
+
+function updatePreview() {
+  const tipo = document.getElementById('tipo_entrega').value;
+  const cliente = document.getElementById('cliente').value.trim().toUpperCase();
+  if (cliente) {
+    document.getElementById('cliente').value = cliente;
+  }
+}
+
+// ── Funções de IP ───────────────────────────────────────────
+function prefixToMask(prefix) {
+  const n = parseInt(prefix);
+  const m = n === 0 ? 0 : (~0 << (32 - n)) >>> 0;
+  return [(m >>> 24) & 0xff, (m >>> 16) & 0xff, (m >>> 8) & 0xff, m & 0xff].join('.');
+}
+function ipToInt(ip) {
+  return ip.split('.').reduce((acc, o) => (acc << 8) + parseInt(o), 0) >>> 0;
+}
+function intToIp(n) {
+  return [(n >>> 24) & 0xff, (n >>> 16) & 0xff, (n >>> 8) & 0xff, n & 0xff].join('.');
+}
+function parseCidr(cidr) {
+  const [ip, prefix] = cidr.split('/');
+  const bits = parseInt(prefix);
+  const mask = prefixToMask(bits);
+  const ipInt = ipToInt(ip);
+  const nextIp = intToIp(ipInt + 1);
+  return { ip, prefix: bits, mask, nextIp };
+}
+function parseIpv6Cidr(cidr) {
+  const [addr, prefix] = cidr.split('/');
+  const parts = addr.split(':');
+  const lastPart = parts[parts.length - 1] || '0';
+  const lastVal = parseInt(lastPart, 16) || 0;
+  const nextParts = [...parts];
+  nextParts[nextParts.length - 1] = (lastVal + 1).toString(16);
+  const nextAddr = nextParts.join(':').replace(/:{3,}/, '::');
+  return { nexDisplay: addr, cpe: nextAddr, prefix: parseInt(prefix) };
+}
+
+// ── Gerador de configuração ─────────────────────────────────
+function gerarConfig(p) {
+  const { cliente, vlan, tipo_entrega, pop_nome, pop_ip, subrede, ipv6_subrede,
+          ip_gerencia, gateway_gerencia, modelo_edd, porta_uplink, porta_uplink2,
+          portas_cliente, porta_sw_entrega, blocos_roteados } = p;
+
+  const tipo = tipo_entrega || 'DEDICADO-EDD';
+  const temEDD = tipo === 'DEDICADO-EDD';
+  const descBase = `LINK-${tipo}_${cliente}`;
+  const link = parseCidr(subrede);
+  const v6 = ipv6_subrede ? parseIpv6Cidr(ipv6_subrede) : null;
+  const uplink = porta_uplink || 'ethernet-1/1';
+  const uplinks = [uplink, ...(porta_uplink2 ? [porta_uplink2] : [])];
+  const clientes = (portas_cliente && portas_cliente.length > 0)
+    ? portas_cliente
+    : [{ porta: (modelo_edd === 'DM-4370' ? 'gigabit-ethernet-1/1/1' : 'ethernet-1/5'), modo: 'untagged' }];
+  const popUp = pop_nome.toUpperCase();
+  const vlansEntrega = temEDD ? `${vlan} 999` : `${vlan}`;
+
+  const ifName = !porta_sw_entrega ? '' :
+    porta_sw_entrega.toUpperCase().startsWith('XGE')
+      ? `XGigabitEthernet${porta_sw_entrega.replace(/^XGE/i, '')}`
+      : porta_sw_entrega;
+
+  // NE40-BGP
+  let ne40 = [];
+  ne40.push(`interface Eth-Trunk 4.${vlan}`);
+  ne40.push(` vlan-type dot1q ${vlan}`);
+  ne40.push(` description ${descBase}`);
+  ne40.push(` ip address ${link.ip} ${link.mask}`);
+  ne40.push(` ipv6 enable`);
+  if (v6) ne40.push(` ipv6 address ${v6.nexDisplay} ${v6.prefix}`);
+  ne40.push(` statistic enable`);
+  ne40.push(` traffic-policy FW-CORP-IN inbound`);
+  ne40.push(` traffic-policy FW-CORP-OUT outbound`);
+  ne40.push(` tcp adjust-mss 1400 inbound`);
+  ne40.push(`#`);
+  if (blocos_roteados && blocos_roteados.length > 0) {
+    blocos_roteados.forEach(bloco => {
+      const isV6 = bloco.includes(':');
+      if (isV6) {
+        const [bAddr, bPfx] = bloco.split('/');
+        const cpeV6 = v6 ? v6.cpe : '<IP_CPE_V6>';
+        ne40.push(`ipv6 route-static ${bAddr} ${bPfx} ${cpeV6} description ${cliente}`);
+      } else {
+        const [bIp, bPrefix] = bloco.split('/');
+        ne40.push(`ip route-static ${bIp} ${prefixToMask(parseInt(bPrefix))} ${link.nextIp} description ${cliente}`);
+      }
+    });
+    ne40.push(`#`);
+  }
+
+  // SW-CORE
+  let swcore = [];
+  swcore.push(`interface eth-trunk 4`);
+  swcore.push(` port trunk allow-pass vlan ${vlan}`);
+  swcore.push(`quit`);
+  swcore.push(`vlan ${vlan}`);
+  swcore.push(`quit`);
+  swcore.push(`interface Vlanif${vlan}`);
+  swcore.push(` description TRANSPORT_L2VC_${cliente}x${popUp}`);
+  swcore.push(` mpls l2vc ${pop_ip} ${vlan}`);
+  swcore.push(` statistics enable`);
+  swcore.push(`quit`);
+
+  // SW-ENTREGA
+  let swent = [];
+  swent.push(`vlan ${vlan}`);
+  swent.push(`quit`);
+  swent.push(`interface Vlanif${vlan}`);
+  swent.push(` description TRANSPORT_L2VC_${cliente}xCORE`);
+  swent.push(` mpls l2vc 10.99.99.1 ${vlan}`);
+  swent.push(` statistic enable both`);
+  swent.push(`quit`);
+  if (ifName) {
+    swent.push(`interface ${ifName}`);
+    swent.push(` description ${descBase}_CPE`);
+    swent.push(` port link-type trunk`);
+    swent.push(` port trunk allow-pass vlan ${vlansEntrega}`);
+    swent.push(` undo port trunk allow-pass vlan 1`);
+    swent.push(`quit`);
+  }
+
+  // EDD
+  let edd = [];
+  const modelo = modelo_edd || 'DM-2104';
+  if (temEDD && ip_gerencia) {
+    const [gIp, gPrefix] = ip_gerencia.split('/');
+    const gw = gateway_gerencia || '10.20.30.1';
+
+    if (modelo === 'DM-4370') {
+      edd.push(`hostname NEX-DM4370_${cliente}`);
+      edd.push(``);
+      edd.push(`aaa user nextelecom`);
+      edd.push(` password 233132@ja`);
+      edd.push(` group admin`);
+      edd.push(`!`);
+      edd.push(`clock timezone -3`);
+      edd.push(`telnet-server enabled`);
+      edd.push(`snmp agent enabled`);
+      edd.push(`snmp agent version v2c`);
+      edd.push(`snmp community N3xtelecom`);
+      edd.push(` sec-name N3xtelecom`);
+      edd.push(`!`);
+      edd.push(`snmp vacm group N3xtelecom`);
+      edd.push(` member N3xtelecom`);
+      edd.push(`  sec-model [ v2c ]`);
+      edd.push(` !`);
+      edd.push(` access "" v2c no-auth-no-priv`);
+      edd.push(`  read-view root`);
+      edd.push(` !`);
+      edd.push(`!`);
+      edd.push(`snmp vacm view root`);
+      edd.push(` subtree 1.3`);
+      edd.push(`  included`);
+      edd.push(` !`);
+      edd.push(`!`);
+      // Descriptions das portas cliente (DM-4370)
+      clientes.forEach(c => {
+        edd.push(`interface ${c.porta}`);
+        edd.push(` description Lan_${cliente}`);
+        edd.push(`!`);
+      });
+      uplinks.forEach((ul, idx) => {
+        edd.push(`interface ${ul}`);
+        edd.push(` description Wan_${cliente}${uplinks.length > 1 ? `_uplink${idx+1}` : ''}`);
+        edd.push(`!`);
+      });
+      edd.push(``);
+      edd.push(`dot1q`);
+      edd.push(` vlan ${vlan}`);
+      edd.push(`  name ${cliente}`);
+      uplinks.forEach(ul => { edd.push(`  interface ${ul}`); edd.push(`  !`); });
+      clientes.forEach(c => {
+        edd.push(`  interface ${c.porta}`);
+        if (c.modo === 'untagged') edd.push(`    untagged`);
+        edd.push(`  !`);
+      });
+      edd.push(` !`);
+      edd.push(` vlan 999`);
+      edd.push(`  name GERENCIA-TAGGED`);
+      uplinks.forEach(ul => { edd.push(`  interface ${ul}`); edd.push(`  !`); });
+      edd.push(` !`);
+      edd.push(`!`);
+      edd.push(``);
+      edd.push(`interface l3 vlan999`);
+      edd.push(` description GERENCIA_CPE`);
+      edd.push(` lower-layer-if vlan 999`);
+      edd.push(` ipv4 address ${gIp}/${gPrefix}`);
+      edd.push(`!`);
+      edd.push(``);
+      edd.push(`router static`);
+      edd.push(` address-family ipv4`);
+      edd.push(`  0.0.0.0/0 next-hop ${gw}`);
+      edd.push(` !`);
+      edd.push(`!`);
+      edd.push(``);
+      edd.push(`commit`);
+    } else {
+      // DM-2104
+      edd.push(`configure terminal`);
+      edd.push(`hostname NEX-DM2104_${cliente}`);
+      edd.push(`!`);
+      edd.push(`username nextelecom access-level 15`);
+      edd.push(`username nextelecom password 0 233132@ja`);
+      edd.push(`username admin password 0 233132@ja`);
+      edd.push(`!`);
+      edd.push(`clock timezone bahia -3`);
+      edd.push(`!`);
+      edd.push(`ip telnet server`);
+      edd.push(`!`);
+      edd.push(`ip snmp-server`);
+      edd.push(`ip snmp-server community N3xtelecom ro`);
+      edd.push(`!`);
+      edd.push(`interface vlan ${vlan}`);
+      edd.push(` name ${cliente}`);
+      uplinks.forEach(ul => edd.push(` set-member tagged ethernet ${ul.replace('ethernet-','')}`));
+      clientes.forEach(c => {
+        const member = c.modo === 'untagged' ? 'untagged' : 'tagged';
+        edd.push(` set-member ${member} ethernet ${c.porta.replace('ethernet-','')}`);
+      });
+      edd.push(`!`);
+      edd.push(`interface vlan 999`);
+      edd.push(` name Vlan_GERENCIA`);
+      edd.push(` ip address ${gIp}/${gPrefix}`);
+      uplinks.forEach(ul => edd.push(` set-member tagged ethernet ${ul.replace('ethernet-','')}`));
+      edd.push(`!`);
+      clientes.forEach(c => {
+        edd.push(`interface ethernet ${c.porta.replace('ethernet-','')}`);
+        edd.push(` description Lan_${cliente}`);
+        if (c.modo === 'untagged') edd.push(` switchport native vlan ${vlan}`);
+        edd.push(`!`);
+      });
+      edd.push(`no remote-devices enable ethernet all`);
+      edd.push(`!`);
+      edd.push(`ip default-gateway ${gw}`);
+      edd.push(`!`);
+      edd.push(`end`);
+      edd.push(`copy running-config startup-config`);
+    }
+  }
+
+  return { descBase, link, v6, ne40, swcore, swent, edd, temEDD, popUp };
+}
+
+// ── Render output ───────────────────────────────────────────
+function renderBlock(title, badgeClass, badgeText, lines) {
+  const code = lines.join('\n');
+  const id = 'blk_' + Math.random().toString(36).slice(2);
+  return `
+<div class="block-card">
+  <div class="block-header">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="block-title">${title}</span>
+      <span class="badge ${badgeClass}">${badgeText}</span>
+    </div>
+    <button class="btn-copy" onclick="copyBlock('${id}', this)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Copiar
+    </button>
+  </div>
+  <pre id="${id}">${escHtml(code)}</pre>
+</div>`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyBlock(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar';
+    }, 2000);
+  });
+}
+
+// ── Ação do botão Gerar ─────────────────────────────────────
+function gerar() {
+  const tipo_entrega = document.getElementById('tipo_entrega').value;
+  const cliente = document.getElementById('cliente').value.trim().toUpperCase().replace(/\s+/g, '-');
+  const vlan = document.getElementById('vlan').value.trim();
+  const pop_nome = document.getElementById('pop_nome').value;
+  const pop_ip = pop_nome === 'outro'
+    ? document.getElementById('pop_ip_manual').value.trim()
+    : POPS[pop_nome];
+  const porta_sw_entrega = document.getElementById('porta_sw_entrega').value.trim();
+  const subrede = document.getElementById('subrede').value.trim();
+  const ipv6_subrede = document.getElementById('ipv6_subrede').value.trim() || null;
+  const temBloco = document.querySelector('input[name="tem_bloco"]:checked').value === 'sim';
+  const blocos_roteados = temBloco
+    ? Array.from(document.querySelectorAll('#blocos_list input')).map(i => i.value.trim()).filter(Boolean)
+    : [];
+  const modelo_edd = document.getElementById('modelo_edd').value;
+  const ip_gerencia = document.getElementById('ip_gerencia').value.trim();
+  const gateway_gerencia = document.getElementById('gateway_gerencia').value.trim() || '10.20.30.1';
+  const porta_uplink = document.getElementById('porta_uplink').value;
+  const uplink_duplo = document.querySelector('input[name="uplink_duplo"]:checked').value === 'sim';
+  const porta_uplink2 = uplink_duplo ? document.getElementById('porta_uplink2').value : null;
+  const portas_cliente = Array.from(document.querySelectorAll('#portas_cliente_list > div')).map(div => ({
+    porta: div.querySelector('.cli-porta').value,
+    modo: div.querySelector('.cli-modo').value
+  })).filter(p => p.porta);
+
+  if (!cliente || !vlan || !subrede) {
+    alert('Preencha ao menos: Nome do cliente, VLAN e Subrede IPv4.');
+    return;
+  }
+
+  let cfg;
+  try {
+    cfg = gerarConfig({ cliente, vlan, tipo_entrega, pop_nome, pop_ip,
+      subrede, ipv6_subrede, ip_gerencia, gateway_gerencia, modelo_edd,
+      porta_uplink, porta_uplink2, portas_cliente, porta_sw_entrega, blocos_roteados });
+  } catch(e) {
+    alert('Erro ao processar: ' + e.message);
+    return;
+  }
+
+  const { descBase, link, v6, ne40, swcore, swent, edd, temEDD, popUp } = cfg;
+
+  let html = '';
+
+  // Resumo
+  html += `<div class="block-card">
+  <div class="block-header">
+    <span class="block-title">Resumo</span>
+    <span class="badge badge-summary">INFO</span>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-item"><label>Descrição padrão</label><span>${escHtml(descBase)}</span></div>
+    <div class="summary-item"><label>VLAN</label><span>${vlan}</span></div>
+    <div class="summary-item"><label>IP NexTelecom (NE40)</label><span>${link.ip}</span></div>
+    <div class="summary-item"><label>IP Cliente (CPE)</label><span>${link.nextIp}</span></div>
+    ${v6 ? `<div class="summary-item"><label>IPv6 /127 NEX</label><span>${escHtml(v6.nexDisplay)}</span></div><div class="summary-item"><label>IPv6 /127 CPE</label><span>${escHtml(v6.cpe)}</span></div>` : ''}
+    <div class="summary-item"><label>Switch entrega</label><span>${popUp} (${pop_ip})</span></div>
+  </div>
+</div>`;
+
+  html += renderBlock('NE40-BGP', 'badge-ne40', 'HUAWEI NE40', ne40);
+  html += renderBlock(`SW-CORE → ${popUp}`, 'badge-sw', 'HUAWEI SW', swcore);
+  html += renderBlock(`SW-${popUp} (entrega)`, 'badge-sw', 'HUAWEI SW', swent);
+  if (temEDD && edd.length > 0) {
+    html += renderBlock('EDD DM-2104 (CPE)', 'badge-edd', 'DATACOM EDD', edd);
+  }
+
+  // Salvar estado para o botão de gravação
+  window._lastCircuit = {
+    cliente, vlan: parseInt(vlan), pop: pop_nome, switch_entrega_ip: pop_ip,
+    descricao: descBase,
+    ipv4_nex: link.ip, ipv4_cpe: link.nextIp,
+    ipv6_nex: v6 ? v6.nexDisplay : null, ipv6_cpe: v6 ? v6.cpe : null,
+    edd_modelo: modelo_edd, edd_hostname: temEDD ? `NEX-${modelo_edd}_${cliente}` : null,
+    edd_porta_uplink: porta_uplink, edd_porta_cliente: portas_cliente[0]?.porta || null,
+    edd_gerencia_ip: ip_gerencia, edd_gerencia_gw: gateway_gerencia,
+    config_ne40: ne40.join('\n'), config_sw_core: swcore.join('\n'),
+    config_sw_entrega: swent.join('\n'), config_edd: edd.join('\n'),
+    endereco_instalacao: document.getElementById('endereco_instalacao')?.value?.trim() || null,
+  };
+
+  html += `<div style="padding:16px 0 4px;display:flex;justify-content:flex-end">
+    <button id="btn-salvar" onclick="salvarCircuito()" style="padding:9px 20px;background:#1a7a4a;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Salvar Circuito no Banco
+    </button>
+  </div>`;
+
+  document.getElementById('output').innerHTML = html;
+  document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function salvarCircuito() {
+  if (!window._lastCircuit) { alert('Gere a configuração primeiro.'); return; }
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+  try {
+    const r = await fetch('/api/circuits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...window._lastCircuit, operador: 'netops-portal' }),
+    });
+    const data = await r.json();
+    if (data.ok) {
+      btn.style.background = '#155c38';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Salvo (id=' + data.circuit.id + ')';
+    } else {
+      btn.disabled = false;
+      btn.style.background = '#b91c1c';
+      btn.textContent = 'Erro: ' + data.error;
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.style.background = '#b91c1c';
+    btn.textContent = 'Falha na conexão';
+  }
+}
+
+// ── Preencher dropdown de portas ────────────────────────────
+function populatePortas() {
+  const sel = document.getElementById('porta_sw_entrega');
+  const grupos = [
+    { label: 'XGigabitEthernet — 10G (1–48)', prefix: 'XGE0/0/', count: 48 },
+    { label: '40GE — 40G (1–8)',               prefix: '40GE0/0/', count: 8 },
+    { label: '100GE — 100G (1–8)',              prefix: '100GE0/0/', count: 8 },
+  ];
+  grupos.forEach(g => {
+    const grp = document.createElement('optgroup');
+    grp.label = g.label;
+    for (let i = 1; i <= g.count; i++) {
+      const opt = document.createElement('option');
+      opt.value = g.prefix + i;
+      opt.textContent = g.prefix + i;
+      grp.appendChild(opt);
+    }
+    sel.appendChild(grp);
+  });
+}
+
+// init
+populatePortas();
+toggleEddFields();
+toggleEddModel();
+</script>
+</body>
+</html>

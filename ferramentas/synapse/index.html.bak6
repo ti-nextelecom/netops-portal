@@ -1,0 +1,2816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synapse IoT Builder — NetOps NexTelecom</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:#0d1117; color:#e6edf3; height:100vh; display:flex; flex-direction:column; overflow:hidden; user-select:none; }
+
+/* HEADER */
+.header { background:#161b22; border-bottom:1px solid #30363d; padding:10px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.header h1 { font-size:15px; font-weight:600; color:#e6edf3; }
+.header .badge { background:#1f6feb; color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; }
+.header-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.btn { padding:6px 14px; border-radius:6px; border:none; cursor:pointer; font-size:13px; font-weight:500; }
+.btn-primary { background:#1f6feb; color:#fff; }
+.btn-primary:hover { background:#388bfd; }
+.btn-danger { background:#da3633; color:#fff; }
+.btn-danger:hover { background:#f85149; }
+.btn-outline { background:transparent; color:#8b949e; border:1px solid #30363d; }
+.btn-outline:hover { color:#e6edf3; border-color:#8b949e; }
+.btn-success { background:#2ea043; color:#fff; }
+.btn-success:hover { background:#3fb950; }
+
+/* LAYOUT */
+.workspace { display:flex; flex:1; overflow:hidden; }
+
+/* SIDEBAR */
+.sidebar { width:200px; background:#161b22; border-right:1px solid #30363d; overflow-y:auto; flex-shrink:0; }
+.sidebar-section { padding:10px 8px 4px; font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:#8b949e; }
+.comp-item { margin:3px 6px; padding:8px 10px; background:#21262d; border:1px solid #30363d; border-radius:6px; cursor:grab; display:flex; align-items:center; gap:8px; font-size:12px; transition:all .15s; }
+.comp-item:hover { background:#30363d; border-color:#8b949e; }
+.comp-item:active { cursor:grabbing; }
+.comp-icon { font-size:16px; }
+.comp-name { font-size:11px; color:#e6edf3; line-height:1.2; }
+
+/* CANVAS AREA */
+.canvas-wrap { flex:1; position:relative; overflow:hidden; background:#0d1117; }
+#canvas-svg { width:100%; height:100%; }
+.canvas-grid { stroke:#1c2128; stroke-width:1; }
+.canvas-empty { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; color:#30363d; }
+.canvas-empty svg { width:60px; opacity:.3; }
+.canvas-empty p { margin-top:8px; font-size:13px; }
+
+/* PANEL DIREITO */
+.panel-right { width:260px; background:#161b22; border-left:1px solid #30363d; display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+.panel-tabs { display:flex; border-bottom:1px solid #30363d; }
+.panel-tab { flex:1; padding:10px; text-align:center; font-size:12px; cursor:pointer; color:#8b949e; background:transparent; border:none; border-bottom:2px solid transparent; }
+.panel-tab.active { color:#58a6ff; border-bottom-color:#1f6feb; }
+.panel-content { flex:1; overflow-y:auto; padding:12px; display:none; }
+.panel-content.active { display:block; }
+
+/* CENÁRIO */
+.cenario-card { background:#21262d; border:1px solid #30363d; border-radius:8px; padding:12px; margin-bottom:10px; cursor:pointer; transition:all .15s; }
+.cenario-card:hover, .cenario-card.selected { border-color:#1f6feb; background:#1c2b3a; }
+.cenario-titulo { font-size:13px; font-weight:600; color:#e6edf3; margin-bottom:4px; }
+.cenario-nivel { font-size:11px; color:#8b949e; margin-bottom:6px; }
+.cenario-desc { font-size:11px; color:#8b949e; line-height:1.5; }
+
+/* INFO DO COMPONENTE SELECIONADO */
+.info-box { background:#21262d; border:1px solid #30363d; border-radius:6px; padding:10px; margin-bottom:8px; font-size:11px; }
+.info-box h4 { color:#58a6ff; margin-bottom:6px; font-size:12px; }
+.info-box p { color:#8b949e; line-height:1.5; }
+.terminal-list { margin-top:8px; }
+.terminal-item { display:flex; align-items:center; gap:6px; padding:3px 0; font-size:11px; }
+.terminal-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+/* DICAS */
+.dica { background:#1a2332; border-left:3px solid #1f6feb; padding:8px 10px; border-radius:0 4px 4px 0; margin-bottom:6px; font-size:11px; color:#8b949e; line-height:1.5; }
+.erro-comum { background:#2d1b1b; border-left:3px solid #da3633; padding:8px 10px; border-radius:0 4px 4px 0; margin-bottom:6px; font-size:11px; color:#8b949e; line-height:1.5; }
+
+/* PROJETOS */
+.save-area { background:#21262d; border:1px solid #30363d; border-radius:6px; padding:10px; margin-bottom:10px; }
+.save-nome-input { background:#0d1117; border:1px solid #30363d; border-radius:6px; padding:6px 10px; color:#e6edf3; font-size:12px; width:100%; margin-bottom:8px; outline:none; }
+.save-nome-input:focus { border-color:#58a6ff; }
+.projeto-card { background:#21262d; border:1px solid #30363d; border-radius:6px; padding:10px; margin-bottom:6px; }
+.projeto-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.projeto-nome { font-size:12px; font-weight:600; color:#e6edf3; flex:1; word-break:break-word; }
+.projeto-data { font-size:10px; color:#8b949e; white-space:nowrap; margin-left:6px; }
+.projeto-actions { display:flex; gap:4px; }
+.projeto-btn { padding:3px 10px; border-radius:4px; border:none; cursor:pointer; font-size:11px; font-weight:500; }
+.projeto-btn-load { background:#1f6feb; color:#fff; }
+.projeto-btn-load:hover { background:#388bfd; }
+.projeto-btn-del { background:#da3633; color:#fff; }
+.projeto-btn-del:hover { background:#f85149; }
+.projeto-empty { color:#8b949e; font-size:12px; text-align:center; padding:20px 0; line-height:1.6; }
+.cenario-load-btn { display:block; width:100%; margin-top:8px; padding:5px; border-radius:5px; border:1px solid #1f6feb; background:transparent; color:#58a6ff; font-size:11px; cursor:pointer; }
+.cenario-load-btn:hover { background:#1f6feb22; }
+
+/* RESULTADO VALIDAÇÃO */
+.resultado-bar { background:#161b22; border-top:1px solid #30363d; padding:10px 16px; flex-shrink:0; min-height:50px; max-height:120px; overflow-y:auto; }
+.resultado-item { display:flex; align-items:center; gap:8px; padding:3px 0; font-size:12px; }
+.resultado-ok { color:#3fb950; }
+.resultado-erro { color:#f85149; }
+.resultado-aviso { color:#d29922; }
+.resultado-vazio { color:#8b949e; font-size:12px; font-style:italic; }
+
+/* SVG COMPONENTES */
+.comp-svg-group { cursor:pointer; }
+.comp-svg-body { fill:transparent; stroke:transparent; transition:stroke .12s, fill .12s; }
+.comp-svg-group:hover .comp-svg-body { stroke:#30363d; stroke-width:1; stroke-dasharray:5,3; }
+.comp-selected .comp-svg-body { stroke:#388bfd !important; stroke-width:2 !important; stroke-dasharray:none !important; fill:#1a73e808 !important; }
+.comp-label { font-size:11px; fill:#e6edf3; font-family:'Segoe UI',sans-serif; text-anchor:middle; pointer-events:none; }
+.comp-sublabel { font-size:10px; fill:#8b949e; font-family:'Segoe UI',sans-serif; text-anchor:middle; pointer-events:none; }
+.comp-icon-svg { pointer-events:none; overflow:visible; }
+.terminal-circle { cursor:crosshair; }
+.terminal-circle:hover { stroke-width:2.5; filter:brightness(1.6); }
+.terminal-label { font-size:9px; fill:#c9d1d9; font-family:'Segoe UI',sans-serif; pointer-events:none; }
+.wire { stroke-width:2; fill:none; cursor:pointer; }
+.wire:hover { stroke-width:3; }
+.wire-preview { stroke:#8b949e; stroke-width:2; stroke-dasharray:5,4; fill:none; pointer-events:none; }
+.wire-handle { cursor:grab; opacity:0; transition:opacity .15s; }
+.wire-handle:hover { opacity:1 !important; }
+g:hover > .wire-handle { opacity:.6; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:#0d1117; }
+::-webkit-scrollbar-thumb { background:#30363d; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#8b949e; }
+
+/* TOOLTIP */
+.tooltip { position:fixed; background:#1c2128; border:1px solid #30363d; border-radius:6px; padding:8px 10px; font-size:11px; color:#e6edf3; pointer-events:none; z-index:100; max-width:200px; line-height:1.5; display:none; }
+
+/* BACKLOG BUTTON */
+.btn-backlog { background:#6e40c9; color:#fff; }
+.btn-backlog:hover { background:#8957e5; }
+
+/* MODAL BACKLOG */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9999; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:#161b22; border:1px solid #30363d; border-radius:10px; padding:24px 28px; max-width:520px; width:90%; max-height:80vh; overflow-y:auto; position:relative; }
+.modal-box h2 { font-size:15px; font-weight:600; color:#e6edf3; margin-bottom:16px; border-bottom:1px solid #21262d; padding-bottom:10px; }
+.modal-close { position:absolute; top:14px; right:16px; background:transparent; border:none; color:#8b949e; font-size:18px; cursor:pointer; }
+.modal-close:hover { color:#e6edf3; }
+.bl-entry { margin-bottom:16px; }
+.bl-version { font-size:12px; font-weight:700; color:#58a6ff; margin-bottom:4px; }
+.bl-date { font-size:11px; color:#8b949e; margin-bottom:6px; }
+.bl-items { list-style:none; padding:0; }
+.bl-items li { font-size:12px; color:#c9d1d9; padding:3px 0 3px 14px; position:relative; line-height:1.5; }
+.bl-items li::before { content:'•'; position:absolute; left:0; color:#8b949e; }
+.bl-tag { display:inline-block; font-size:10px; padding:1px 6px; border-radius:10px; margin-right:4px; vertical-align:middle; }
+.bl-tag.new { background:#1a4731; color:#3fb950; }
+.bl-tag.fix { background:#2d1b1b; color:#f85149; }
+.bl-tag.change { background:#2d2200; color:#d29922; }
+
+
+/* PAINEL CABO UTP */
+.cable-header { font-size:13px; font-weight:600; color:#58a6ff; margin-bottom:4px; }
+.cable-std { font-size:11px; color:#8b949e; margin-bottom:12px; }
+.utp-pair { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:5px; margin-bottom:4px; background:#21262d; }
+.utp-pair.ativo { background:#1a2b1a; border-left:2px solid #3fb950; }
+.utp-pair.inativo { opacity:.45; }
+.utp-strands { display:flex; gap:2px; flex-shrink:0; }
+.utp-strand { width:7px; height:24px; border-radius:2px; }
+.utp-details { flex:1; min-width:0; }
+.utp-pname { font-size:11px; font-weight:600; color:#c9d1d9; }
+.utp-func { font-size:10px; color:#8b949e; line-height:1.4; }
+.utp-badge { font-size:9px; font-weight:700; padding:2px 6px; border-radius:8px; flex-shrink:0; }
+.utp-badge.ativo { background:#1a4731; color:#3fb950; }
+.utp-badge.poe { background:#0d2b4a; color:#58a6ff; }
+.utp-badge.inativo { background:#21262d; color:#555; }
+.cable-note { font-size:10px; color:#8b949e; margin-top:10px; padding:7px 9px; background:#0d1117; border-radius:5px; line-height:1.5; border-left:2px solid #30363d; }
+.cable-dc-row { display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:5px; margin-bottom:4px; background:#21262d; }
+
+
+.btn-disparo { display:block; width:100%; margin-top:10px; padding:8px; border-radius:6px; border:1px solid #388bfd; background:#0d2b4a; color:#58a6ff; font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; }
+.btn-disparo:hover { background:#1f6feb; color:#fff; }
+.btn-disparo:active { transform:scale(.97); }
+.btn-disparo:disabled { opacity:.4; cursor:not-allowed; }
+</style>
+</head>
+<body>
+<script>
+(function(){
+  var token = localStorage.getItem('netops_token');
+  if (!token) { window.location.replace('/login?next=' + encodeURIComponent(window.location.pathname)); return; }
+  fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(function(r){ if (!r.ok) throw new Error(); return r.json(); })
+    .then(function(d){ if (!d.user) throw new Error(); })
+    .catch(function(){
+      localStorage.removeItem('netops_token');
+      window.location.replace('/login?next=' + encodeURIComponent(window.location.pathname));
+    });
+})();
+</script>
+
+<div class="header">
+  <img src="synapse-logo.jpg" alt="Synapse IoT Builder" style="height:38px;object-fit:contain;">
+  <span class="badge">BETA</span>
+  <div class="header-actions">
+    <select id="sel-cenario" style="background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;">
+      <option value="">— Selecionar Cenário —</option>
+    </select>
+    <button class="btn btn-outline" onclick="limparCanvas()">🗑 Limpar</button>
+    <button class="btn btn-success" onclick="validarCircuito()">✓ Validar Circuito</button>
+    <button class="btn btn-backlog" id="btnBacklog" onclick="openBacklog()" style="display:none">📋 Backlog</button>
+  </div>
+</div>
+
+<div class="workspace">
+
+  <!-- SIDEBAR COMPONENTES -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-section">Alimentação</div>
+    <div class="comp-item" draggable="true" data-tipo="tomada-127v">
+      <span class="comp-icon">🔌</span><span class="comp-name">Energia 127V AC</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="tomada-220v">
+      <span class="comp-icon">🔌</span><span class="comp-name">Energia 220V AC</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="fonte-12v">
+      <span class="comp-icon">🔋</span><span class="comp-name">Fonte 12V DC</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="injetor-poe-15w">
+      <span class="comp-icon">⚡</span><span class="comp-name">Injetor PoE 15W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="injetor-poe-30w">
+      <span class="comp-icon">⚡</span><span class="comp-name">Injetor PoE+ 30W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="nobreak-12v">
+      <span class="comp-icon">🔌</span><span class="comp-name">Fonte Nobreak 12V</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="bateria-chumbo">
+      <span class="comp-icon">🪫</span><span class="comp-name">Bateria 12V</span>
+    </div>
+
+    <div class="sidebar-section">Rede</div>
+    <div class="comp-item" draggable="true" data-tipo="wan-internet">
+      <span class="comp-icon">☁️</span><span class="comp-name">WAN</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="switch-poe">
+      <span class="comp-icon">🔀</span><span class="comp-name">Switch PoE 65W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="switch-poe-120w">
+      <span class="comp-icon">🔀</span><span class="comp-name">Switch PoE 120W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="switch-poe-plus-250w">
+      <span class="comp-icon">🔀</span><span class="comp-name">Switch PoE+ 250W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="switch-normal">
+      <span class="comp-icon">🔁</span><span class="comp-name">Switch Sem PoE</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="roteador">
+      <span class="comp-icon">🌐</span><span class="comp-name">Roteador</span>
+    </div>
+
+    <div class="sidebar-section">CFTV — PoE</div>
+    <div class="comp-item" draggable="true" data-tipo="camera-dome-poe">
+      <span class="comp-icon">📷</span><span class="comp-name">Dome PoE 13W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="camera-bullet-poe">
+      <span class="comp-icon">📷</span><span class="comp-name">Bullet PoE 15W</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="camera-ptz-poe">
+      <span class="comp-icon">📷</span><span class="comp-name">PTZ PoE+ 25W</span>
+    </div>
+    <div class="sidebar-section">CFTV — 12V DC</div>
+    <div class="comp-item" draggable="true" data-tipo="camera-dome-12v">
+      <span class="comp-icon">📷</span><span class="comp-name">Dome 12V DC</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="camera-bullet-12v">
+      <span class="comp-icon">📷</span><span class="comp-name">Bullet 12V DC</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="camera-ptz-12v">
+      <span class="comp-icon">📷</span><span class="comp-name">PTZ 12V DC</span>
+    </div>
+
+    <div class="sidebar-section">Controle de Acesso</div>
+    <div class="comp-item" draggable="true" data-tipo="controle-facial">
+      <span class="comp-icon">👤</span><span class="comp-name">Controle Facial 12V</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="controle-facial-poe">
+      <span class="comp-icon">👤</span><span class="comp-name">Controle Facial ControlID</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="controle-facial-hikvision">
+      <span class="comp-icon">👤</span><span class="comp-name">Controle Facial Hikvision</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="controlador-controlid">
+      <span class="comp-icon">🖥️</span><span class="comp-name">Controlador ControlID</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="botao-saida">
+      <span class="comp-icon">⏺</span><span class="comp-name">Botão de Saída</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="rele-12v">
+      <span class="comp-icon">⚙</span><span class="comp-name">Relé 12V</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="telefone-voip">
+      <span class="comp-icon">📞</span><span class="comp-name">Telefone VoIP</span>
+    </div>
+
+    <div class="sidebar-section">Fechadura</div>
+    <div class="comp-item" draggable="true" data-tipo="fechadura-na">
+      <span class="comp-icon">🔓</span><span class="comp-name">Fechadura NA</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="fechadura-nf">
+      <span class="comp-icon">🔒</span><span class="comp-name">Fechadura NF</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="eletroima">
+      <span class="comp-icon">🧲</span><span class="comp-name">Eletroímã</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="diodo-flyback">
+      <span class="comp-icon">⬡</span><span class="comp-name">Diodo Flyback</span>
+    </div>
+
+    <div class="sidebar-section">Cabeamento</div>
+    <div class="comp-item" draggable="true" data-tipo="cabo-utp-t568b">
+      <span class="comp-icon">🔗</span><span class="comp-name">Cabo UTP T568B</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="cabo-utp-t568a">
+      <span class="comp-icon">🔗</span><span class="comp-name">Cabo UTP T568A</span>
+    </div>
+    <div class="comp-item" draggable="true" data-tipo="painel-cabeamento-utp">
+      <span class="comp-icon">📋</span><span class="comp-name">Guia Cabeamento UTP</span>
+    </div>
+  </div>
+
+  <!-- CANVAS SVG -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <svg id="canvas-svg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+          <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1c2128" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+      <g id="wires-layer"></g>
+      <g id="comps-layer"></g>
+      <line id="wire-preview" class="wire-preview" style="display:none"/>
+    </svg>
+    <div class="canvas-empty" id="canvas-empty">
+      <p>Arraste componentes da esquerda<br>para iniciar o diagrama</p>
+    </div>
+  </div>
+
+  <!-- PANEL DIREITO -->
+  <div class="panel-right">
+    <div class="panel-tabs">
+      <button class="panel-tab active" onclick="showTab('info')">Info</button>
+      <button class="panel-tab" onclick="showTab('cenarios')">Cenários</button>
+      <button class="panel-tab" onclick="showTab('dicas')">Dicas</button>
+      <button class="panel-tab" onclick="showTab('projetos')">Projetos</button>
+    </div>
+
+    <div id="tab-info" class="panel-content active">
+      <div id="info-placeholder" style="color:#8b949e;font-size:12px;text-align:center;padding:20px 0;">
+        Clique em um componente<br>para ver detalhes
+      </div>
+      <div id="info-comp" style="display:none"></div>
+    </div>
+
+    <div id="tab-cenarios" class="panel-content">
+      <div id="cenarios-list"></div>
+    </div>
+
+    <div id="tab-dicas" class="panel-content">
+      <div id="dicas-content">
+        <p style="font-size:12px;color:#8b949e;margin-bottom:10px;">Dicas gerais de instalação:</p>
+      </div>
+    </div>
+
+    <div id="tab-projetos" class="panel-content">
+      <div class="save-area">
+        <input class="save-nome-input" id="projeto-nome-input" placeholder="Nome do projeto..." maxlength="40">
+        <button class="btn btn-primary" style="width:100%;font-size:12px;" onclick="salvarProjeto()">💾 Salvar projeto atual</button>
+      </div>
+      <div id="projetos-list"><div class="projeto-empty">Nenhum projeto salvo.<br>Monte um diagrama e salve aqui.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BARRA DE RESULTADOS -->
+<div class="resultado-bar" id="resultado-bar">
+  <span class="resultado-vazio">Clique em "Validar Circuito" para verificar as conexões</span>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ============================================================
+// DEFINIÇÕES DE COMPONENTES (inline para MVP standalone)
+// ============================================================
+const COMPONENTES = {
+  'camera-ip-poe': {
+    id:'camera-ip-poe', nome:'Câmera IP PoE 13W', cor:'#1a73e8', icone:'📷', w:150, h:80,
+    consumo_w: 13, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE + dados',cor:'#1a73e8'}
+    ],
+    info:'Câmera dome/bullet padrão. Consumo 13W — 802.3af. Não aceita 12V DC direto.',
+    erros:['Ligar 12V DC no RJ45','Usar switch sem PoE']
+  },
+  'camera-ip-poe-7w': {
+    id:'camera-ip-poe-7w', nome:'Câmera IP PoE 7W', cor:'#1565c0', icone:'📷', w:150, h:80,
+    consumo_w: 7, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE + dados',cor:'#42a5f5'}
+    ],
+    info:'Câmera compacta de baixo consumo. 7W — ideal para switches com budget reduzido.',
+    erros:['Usar switch sem PoE','Crimpar cabo errado']
+  },
+  'camera-ip-poe-25w': {
+    id:'camera-ip-poe-25w', nome:'Câmera PTZ PoE+ 25W', cor:'#0277bd', icone:'📷', w:155, h:80,
+    consumo_w: 25, padrão_poe: '802.3at',
+    terminais:[
+      {id:'rj45',nome:'RJ45 PoE+',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE+ (802.3at) + dados',cor:'#29b6f6'}
+    ],
+    info:'Câmera PTZ motorizada. 25W — exige switch PoE+ (802.3at). Switch PoE padrão (802.3af) pode não suportar.',
+    erros:['Ligar em switch PoE 802.3af — câmera reinicia ou não liga','Budget do switch insuficiente']
+  },
+  'camera-ip-12v': {
+    id:'camera-ip-12v', nome:'Câmera IP 12V DC', cor:'#0d47a1', icone:'📷', w:150, h:90,
+    consumo_w: 0,
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.25,tipo:'rj45-dados',desc:'Dados (sem PoE)',cor:'#42a5f5'},
+      {id:'v12-pos',nome:'+12V',lado:'E',posY:.6,tipo:'12v-positivo',desc:'Alimentação +12V DC',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'E',posY:.82,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'}
+    ],
+    info:'Alimentação por 12V DC separado. Dados por RJ45 sem PoE. Fonte externa obrigatória.',
+    erros:['Ligar PoE no RJ45 — pode danificar','Inverter +12V com GND','Esquecer GND']
+  },
+  'camera-ip-bivolt': {
+    id:'camera-ip-bivolt', nome:'Câmera IP 12V/PoE', cor:'#283593', icone:'📷', w:155, h:110,
+    consumo_w: 13, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45/PoE',lado:'E',posY:.2,tipo:'rj45-poe',desc:'PoE + dados (prioridade)',cor:'#1a73e8'},
+      {id:'rj45-d',nome:'RJ45',lado:'E',posY:.45,tipo:'rj45-dados',desc:'Dados sem PoE',cor:'#42a5f5'},
+      {id:'v12-pos',nome:'+12V',lado:'E',posY:.7,tipo:'12v-positivo',desc:'Alimentação +12V DC (alternativa ao PoE)',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'E',posY:.9,tipo:'12v-negativo',desc:'Terra / GND (obrigatório com 12V)',cor:'#555'}
+    ],
+    info:'Câmera bivolt: aceita PoE (13W) OU 12V DC. Use um ou outro — nunca os dois simultaneamente.',
+    erros:['Ligar PoE e 12V ao mesmo tempo — dano garantido','Esquecer GND ao usar 12V']
+  },
+
+  'camera-dome-poe': {
+    id:'camera-dome-poe', nome:'Câmera Dome PoE 13W', cor:'#1a73e8', icone:'📷', w:150, h:80,
+    consumo_w:13, padrão_poe:'802.3af',
+    terminais:[{id:'rj45',nome:'RJ45',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE + dados',cor:'#1a73e8'}],
+    info:'Câmera dome IP PoE padrão. 13W — 802.3af. Instalação em teto, visão ampla. Não aceita 12V DC direto.',
+    erros:['Ligar 12V DC no RJ45','Usar switch sem PoE']
+  },
+  'camera-dome-12v': {
+    id:'camera-dome-12v', nome:'Câmera Dome 12V DC', cor:'#6a1b9a', icone:'📷', w:150, h:90,
+    consumo_w:0,
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.25,tipo:'rj45-dados',desc:'Dados (sem PoE)',cor:'#ab47bc'},
+      {id:'v12-pos',nome:'+12V',lado:'E',posY:.6,tipo:'12v-positivo',desc:'Alimentação +12V DC',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'E',posY:.82,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'}
+    ],
+    info:'Câmera dome IP com alimentação 12V DC separada. Dados por RJ45 sem PoE. Fonte externa obrigatória.',
+    erros:['Ligar PoE no RJ45 — pode danificar','Inverter +12V com GND','Esquecer GND']
+  },
+  'camera-bullet-poe': {
+    id:'camera-bullet-poe', nome:'Câmera Bullet PoE 15W', cor:'#e65100', icone:'📷', w:150, h:80,
+    consumo_w:15, padrão_poe:'802.3af',
+    terminais:[{id:'rj45',nome:'RJ45',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE + dados',cor:'#ff7043'}],
+    info:'Câmera bullet IP PoE. 15W — 802.3af. Uso externo, resistente a intempéries (IP66+).',
+    erros:['Ligar 12V DC no RJ45','Usar switch sem PoE']
+  },
+  'camera-bullet-12v': {
+    id:'camera-bullet-12v', nome:'Câmera Bullet 12V DC', cor:'#bf360c', icone:'📷', w:150, h:90,
+    consumo_w:0,
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.25,tipo:'rj45-dados',desc:'Dados (sem PoE)',cor:'#ff7043'},
+      {id:'v12-pos',nome:'+12V',lado:'E',posY:.6,tipo:'12v-positivo',desc:'Alimentação +12V DC',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'E',posY:.82,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'}
+    ],
+    info:'Câmera bullet IP com alimentação 12V DC separada. Uso externo. Fonte externa obrigatória.',
+    erros:['Ligar PoE no RJ45 — pode danificar','Inverter +12V com GND','Esquecer GND']
+  },
+  'camera-ptz-poe': {
+    id:'camera-ptz-poe', nome:'Câmera PTZ PoE+ 25W', cor:'#0277bd', icone:'📷', w:155, h:80,
+    consumo_w:25, padrão_poe:'802.3at',
+    terminais:[{id:'rj45',nome:'RJ45 PoE+',lado:'E',posY:.5,tipo:'rj45-poe',desc:'Entrada PoE+ (802.3at) + dados',cor:'#29b6f6'}],
+    info:'Câmera PTZ motorizada PoE+. 25W — exige switch PoE+ (802.3at). Pan/Tilt/Zoom por controle IP.',
+    erros:['Ligar em switch PoE 802.3af — câmera reinicia ou não liga','Budget do switch insuficiente']
+  },
+  'camera-ptz-12v': {
+    id:'camera-ptz-12v', nome:'Câmera PTZ 12V DC', cor:'#37474f', icone:'📷', w:155, h:90,
+    consumo_w:0,
+    terminais:[
+      {id:'rj45',nome:'RJ45',lado:'E',posY:.2,tipo:'rj45-dados',desc:'Dados (sem PoE)',cor:'#78909c'},
+      {id:'v12-pos',nome:'+12V',lado:'E',posY:.55,tipo:'12v-positivo',desc:'Alimentação +12V DC (2A mín.)',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'E',posY:.8,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'}
+    ],
+    info:'Câmera PTZ com alimentação 12V DC separada. Requer fonte com mínimo 2A. Pan/Tilt/Zoom por IP.',
+    erros:['Usar fonte abaixo de 2A — câmera não movimenta','Inverter +12V com GND','Esquecer GND']
+  },
+  'painel-cabeamento-utp': {
+    id:'painel-cabeamento-utp', nome:'Guia Cabeamento UTP', cor:'#1565c0', icone:'📋', w:360, h:270,
+    terminais:[],
+    info:'Painel de referência de cabeamento UTP para controle de acesso. Padrão NexTelecom baseado em IEEE 802.3 PoE Mode B. Veja o elemento no canvas para a tabela completa de cores e distâncias.',
+    erros:[]
+  },
+  'wan-internet': {
+    id:'wan-internet', nome:'WAN', cor:'#0288d1', icone:'☁️', w:120, h:70,
+    terminais:[
+      {id:'out',nome:'WAN',lado:'D',posY:.5,tipo:'rj45-dados',desc:'Saída WAN — internet',cor:'#58a6ff'}
+    ],
+    info:'Representa a entrada de internet (WAN). Conecte na porta WAN do roteador.',
+    erros:['Conectar em porta LAN do roteador (sem roteamento)']
+  },
+  'switch-poe': {
+    id:'switch-poe', nome:'Switch PoE 65W', cor:'#0f9d58', icone:'🔀', w:160, h:120,
+    budget_poe_w: 65, padrão_poe: '802.3af',
+    terminais:[
+      {id:'poe1',nome:'PoE 1',lado:'D',posY:.18,tipo:'rj45-poe-out',desc:'Saída PoE porta 1',cor:'#0f9d58'},
+      {id:'poe2',nome:'PoE 2',lado:'D',posY:.38,tipo:'rj45-poe-out',desc:'Saída PoE porta 2',cor:'#0f9d58'},
+      {id:'poe3',nome:'PoE 3',lado:'D',posY:.58,tipo:'rj45-poe-out',desc:'Saída PoE porta 3',cor:'#0f9d58'},
+      {id:'poe4',nome:'PoE 4',lado:'D',posY:.78,tipo:'rj45-poe-out',desc:'Saída PoE porta 4',cor:'#0f9d58'},
+      {id:'uplink',nome:'Uplink',lado:'E',posY:.5,tipo:'rj45-dados',desc:'Uplink para rede',cor:'#58a6ff'},
+      {id:'ac-in',nome:'AC 100-240V',lado:'E',posY:.82,tipo:'ac-bivolt',desc:'Entrada AC bivolt 100-240V',cor:'#9e9e9e'}
+    ],
+    info:'Switch PoE 4 portas — 802.3af — budget total 65W. Ideal para até 4 câmeras PoE padrão.',
+    erros:['Conectar câmera PoE no uplink — não terá alimentação','Exceder budget 65W — câmeras desligam por overload']
+  },
+  'switch-poe-120w': {
+    id:'switch-poe-120w', nome:'Switch PoE 120W', cor:'#00897b', icone:'🔀', w:160, h:160,
+    budget_poe_w: 120, padrão_poe: '802.3af/at',
+    terminais:[
+      {id:'poe1',nome:'PoE 1',lado:'D',posY:.12,tipo:'rj45-poe-out',desc:'Saída PoE porta 1',cor:'#00897b'},
+      {id:'poe2',nome:'PoE 2',lado:'D',posY:.24,tipo:'rj45-poe-out',desc:'Saída PoE porta 2',cor:'#00897b'},
+      {id:'poe3',nome:'PoE 3',lado:'D',posY:.36,tipo:'rj45-poe-out',desc:'Saída PoE porta 3',cor:'#00897b'},
+      {id:'poe4',nome:'PoE 4',lado:'D',posY:.48,tipo:'rj45-poe-out',desc:'Saída PoE porta 4',cor:'#00897b'},
+      {id:'poe5',nome:'PoE 5',lado:'D',posY:.60,tipo:'rj45-poe-out',desc:'Saída PoE porta 5',cor:'#00897b'},
+      {id:'poe6',nome:'PoE 6',lado:'D',posY:.72,tipo:'rj45-poe-out',desc:'Saída PoE porta 6',cor:'#00897b'},
+      {id:'poe7',nome:'PoE 7',lado:'D',posY:.84,tipo:'rj45-poe-out',desc:'Saída PoE porta 7',cor:'#00897b'},
+      {id:'poe8',nome:'PoE 8',lado:'D',posY:.94,tipo:'rj45-poe-out',desc:'Saída PoE porta 8',cor:'#00897b'},
+      {id:'uplink',nome:'Uplink',lado:'E',posY:.5,tipo:'rj45-dados',desc:'Uplink para rede',cor:'#58a6ff'},
+      {id:'ac-in',nome:'AC 100-240V',lado:'E',posY:.82,tipo:'ac-bivolt',desc:'Entrada AC bivolt 100-240V',cor:'#9e9e9e'}
+    ],
+    info:'Switch PoE 8 portas — 802.3af/at — budget total 120W. Suporta câmeras PoE padrão e PoE+ leves.',
+    erros:['Exceder budget 120W com várias câmeras PTZ 25W','Conectar câmera PoE no uplink']
+  },
+  'switch-poe-plus-250w': {
+    id:'switch-poe-plus-250w', nome:'Switch PoE+ 250W', cor:'#2e7d32', icone:'🔀', w:165, h:160,
+    budget_poe_w: 250, padrão_poe: '802.3at',
+    terminais:[
+      {id:'poe1',nome:'PoE+ 1',lado:'D',posY:.12,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 1 (até 30W)',cor:'#4caf50'},
+      {id:'poe2',nome:'PoE+ 2',lado:'D',posY:.24,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 2 (até 30W)',cor:'#4caf50'},
+      {id:'poe3',nome:'PoE+ 3',lado:'D',posY:.36,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 3 (até 30W)',cor:'#4caf50'},
+      {id:'poe4',nome:'PoE+ 4',lado:'D',posY:.48,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 4 (até 30W)',cor:'#4caf50'},
+      {id:'poe5',nome:'PoE+ 5',lado:'D',posY:.60,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 5 (até 30W)',cor:'#4caf50'},
+      {id:'poe6',nome:'PoE+ 6',lado:'D',posY:.72,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 6 (até 30W)',cor:'#4caf50'},
+      {id:'poe7',nome:'PoE+ 7',lado:'D',posY:.84,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 7 (até 30W)',cor:'#4caf50'},
+      {id:'poe8',nome:'PoE+ 8',lado:'D',posY:.94,tipo:'rj45-poe-out',desc:'Saída PoE+ porta 8 (até 30W)',cor:'#4caf50'},
+      {id:'uplink',nome:'Uplink',lado:'E',posY:.5,tipo:'rj45-dados',desc:'Uplink para rede',cor:'#58a6ff'},
+      {id:'ac-in',nome:'AC 100-240V',lado:'E',posY:.82,tipo:'ac-bivolt',desc:'Entrada AC bivolt 100-240V',cor:'#9e9e9e'}
+    ],
+    info:'Switch PoE+ 8 portas — 802.3at — budget 250W. Suporta câmeras PTZ 25W e domo high-end. Recomendado para projetos com câmeras de alta potência.',
+    erros:['Exceder budget 250W (8 × 30W = 240W max por porta)','Misturar com câmeras af em layout at sem checar consumo']
+  },
+  'switch-normal': {
+    id:'switch-normal', nome:'Switch Sem PoE', cor:'#546e7a', icone:'🔁', w:160, h:110,
+    terminais:[
+      {id:'p1',nome:'Porta 1',lado:'D',posY:.2,tipo:'rj45-dados',desc:'Porta dados (SEM PoE)',cor:'#78909c'},
+      {id:'p2',nome:'Porta 2',lado:'D',posY:.45,tipo:'rj45-dados',desc:'Porta dados (SEM PoE)',cor:'#78909c'},
+      {id:'p3',nome:'Porta 3',lado:'D',posY:.7,tipo:'rj45-dados',desc:'Porta dados (SEM PoE)',cor:'#78909c'},
+      {id:'uplink',nome:'Uplink',lado:'E',posY:.5,tipo:'rj45-dados',desc:'Uplink para rede',cor:'#58a6ff'},
+      {id:'ac-in',nome:'AC 100-240V',lado:'E',posY:.82,tipo:'ac-bivolt',desc:'Entrada AC bivolt 100-240V',cor:'#9e9e9e'}
+    ],
+    info:'Switch comum SEM PoE. Passa apenas dados — câmeras PoE não receberão alimentação.',
+    erros:['Conectar câmera PoE aqui — câmera não liga','Ligar sem considerar que não há PoE']
+  },
+  'roteador': {
+    id:'roteador', nome:'Roteador', cor:'#1565c0', icone:'🌐', w:140, h:90,
+    terminais:[
+      {id:'wan',nome:'WAN',lado:'E',posY:.3,tipo:'rj45-dados',desc:'Entrada WAN — internet / uplink',cor:'#ef5350'},
+      {id:'ac-in',nome:'AC',lado:'E',posY:.7,tipo:'ac-bivolt',desc:'Entrada AC bivolt 100-240V',cor:'#9e9e9e'},
+      {id:'lan1',nome:'LAN 1',lado:'D',posY:.3,tipo:'rj45-dados',desc:'Porta LAN 1 — dados para switch/dispositivo',cor:'#58a6ff'},
+      {id:'lan2',nome:'LAN 2',lado:'D',posY:.7,tipo:'rj45-dados',desc:'Porta LAN 2 — dados',cor:'#58a6ff'}
+    ],
+    info:'Roteador de borda. WAN = internet; LAN = rede interna para switches e dispositivos.',
+    erros:['Conectar LAN no WAN (sem internet para a rede)','Conectar câmera PoE diretamente no roteador (sem PoE)']
+  },
+  'injetor-poe-15w': {
+    id:'injetor-poe-15w', nome:'Injetor PoE 15W', cor:'#f57c00', icone:'⚡', w:145, h:90,
+    budget_poe_w: 15, padrão_poe: '802.3af',
+    terminais:[
+      {id:'lan-in',nome:'LAN IN',lado:'E',posY:.4,tipo:'rj45-dados',desc:'Entrada dados (sem PoE)',cor:'#58a6ff'},
+      {id:'poe-out',nome:'POE OUT',lado:'D',posY:.4,tipo:'rj45-poe-out',desc:'Saída dados + PoE (máx 15W)',cor:'#0f9d58'},
+      {id:'ac-in',nome:'AC',lado:'B',posY:.7,tipo:'ac-bivolt',desc:'Entrada AC 127V ou 220V',cor:'#e0e0e0'}
+    ],
+    info:'Injetor PoE 802.3af — 1 porta, até 15,4W. Ideal para câmeras dome/bullet padrão. NÃO suporta câmeras PTZ 25W.',
+    erros:['Ligar câmera PTZ 25W — excede os 15W, câmera reinicia ou não liga','Inverter LAN IN com POE OUT']
+  },
+  'injetor-poe-30w': {
+    id:'injetor-poe-30w', nome:'Injetor PoE+ 30W', cor:'#e65100', icone:'⚡', w:148, h:90,
+    budget_poe_w: 30, padrão_poe: '802.3at',
+    terminais:[
+      {id:'lan-in',nome:'LAN IN',lado:'E',posY:.4,tipo:'rj45-dados',desc:'Entrada dados (sem PoE)',cor:'#58a6ff'},
+      {id:'poe-out',nome:'POE OUT',lado:'D',posY:.4,tipo:'rj45-poe-out',desc:'Saída dados + PoE+ (máx 30W)',cor:'#ff6d00'},
+      {id:'ac-in',nome:'AC',lado:'B',posY:.7,tipo:'ac-bivolt',desc:'Entrada AC 127V ou 220V',cor:'#e0e0e0'}
+    ],
+    info:'Injetor PoE+ 802.3at — 1 porta, até 30W. Suporta câmeras PTZ 25W e controles faciais PoE. Compatível com dispositivos 802.3af também.',
+    erros:['Inverter LAN IN com POE OUT','Usar para múltiplas câmeras — injetor tem apenas 1 saída']
+  },
+  'injetor-poe': {
+    id:'injetor-poe', nome:'Injetor PoE', cor:'#f57c00', icone:'⚡', w:140, h:80,
+    terminais:[
+      {id:'lan-in',nome:'LAN IN',lado:'E',posY:.4,tipo:'rj45-dados',desc:'Entrada dados',cor:'#58a6ff'},
+      {id:'poe-out',nome:'POE OUT',lado:'D',posY:.4,tipo:'rj45-poe-out',desc:'Saída dados+PoE',cor:'#0f9d58'},
+      {id:'ac-in',nome:'AC',lado:'B',posY:.7,tipo:'ac-bivolt',desc:'Entrada AC 127V ou 220V',cor:'#e0e0e0'}
+    ],
+    info:'Injeta PoE em cabos sem PoE nativo.',
+    erros:['Inverter LAN IN com POE OUT']
+  },
+  'fonte-12v': {
+    id:'fonte-12v', nome:'Fonte 12V DC', cor:'#e53935', icone:'🔋', w:120, h:90,
+    terminais:[
+      {id:'v12-pos',nome:'+12V',lado:'D',posY:.3,tipo:'12v-positivo',desc:'Saída +12V DC',cor:'#f44336'},
+      {id:'gnd',nome:'GND',lado:'D',posY:.65,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'},
+      {id:'ac-in',nome:'AC',lado:'E',posY:.5,tipo:'ac-bivolt',desc:'Entrada AC 127V ou 220V',cor:'#e0e0e0'}
+    ],
+    info:'Converte AC em 12V DC para fechaduras e acessórios. Bivolt (127V/220V).',
+    erros:['Inverter +12V com GND','Fonte subdimensionada']
+  },
+  'nobreak-12v': {
+    id:'nobreak-12v', nome:'Fonte Nobreak 12V', cor:'#7b1fa2', icone:'🔌', w:170, h:180,
+    terminais:[
+      {id:'ac-in',nome:'AC',lado:'E',posY:.22,tipo:'ac-bivolt',desc:'Borne 4 — Entrada AC bivolt 100~240V',cor:'#e0e0e0'},
+      {id:'bat-pos',nome:'BAT+',lado:'E',posY:.55,tipo:'bateria-positivo',desc:'Borne 3 — Positivo bateria 12V/7Ah',cor:'#ff7043'},
+      {id:'bat-neg',nome:'BAT-',lado:'E',posY:.75,tipo:'bateria-negativo',desc:'Borne 3 — Negativo bateria',cor:'#333'},
+      {id:'na',nome:'NA',lado:'D',posY:.22,tipo:'saida-na',desc:'Borne 1 — Saída fechadura NA (Normalmente Aberta)',cor:'#66bb6a'},
+      {id:'gnd',nome:'GND',lado:'D',posY:.50,tipo:'12v-negativo',desc:'Borne 1 — Terra / GND',cor:'#555'},
+      {id:'nf',nome:'NF',lado:'D',posY:.75,tipo:'saida-nf',desc:'Borne 1 — Saída fechadura NF (Normalmente Fechada)',cor:'#ef5350'},
+      {id:'bot',nome:'BOT',lado:'B',posY:.2,tipo:'botao-acionamento',desc:'Borne 2 — Entrada botoeira',cor:'#ffb300'},
+      {id:'gnd2',nome:'GND',lado:'B',posY:.5,tipo:'12v-negativo',desc:'Borne 2 — Terra / GND',cor:'#555'},
+      {id:'v12-pos',nome:'+12V',lado:'B',posY:.8,tipo:'12v-positivo',desc:'Borne 2 — Saída +12V DC',cor:'#f44336'}
+    ],
+    info:'IPEC A2070 — Nobreak 12V 2A com timer. Bivolt 100~240V. Saídas NA/NF para fechadura e botoeira.',
+    erros:['Inverter BAT+/BAT-','Confundir NA com NF','Fonte subdimensionada','Bateria incompatível (usar 12V/7Ah)']
+  },
+  'tomada-127v': {
+    id:'tomada-127v', nome:'Energia 127V AC', cor:'#9e9e9e', icone:'🔌', w:110, h:70,
+    terminais:[
+      {id:'ac-out',nome:'AC 127V',lado:'D',posY:.5,tipo:'ac-127v',desc:'Saída AC 127V',cor:'#bdbdbd'}
+    ],
+    info:'Ponto de energia AC 127V da instalação. Alimenta fontes e equipamentos bivolt.',
+    erros:['Ligar equipamento 220V em rede 127V — queima o equipamento']
+  },
+  'tomada-220v': {
+    id:'tomada-220v', nome:'Energia 220V AC', cor:'#616161', icone:'🔌', w:110, h:70,
+    terminais:[
+      {id:'ac-out',nome:'AC 220V',lado:'D',posY:.5,tipo:'ac-220v',desc:'Saída AC 220V',cor:'#e0e0e0'}
+    ],
+    info:'Ponto de energia AC 220V da instalação. Alimenta fontes e equipamentos bivolt.',
+    erros:['Ligar equipamento 127V em rede 220V — queima o equipamento']
+  },
+  'bateria-chumbo': {
+    id:'bateria-chumbo', nome:'Bateria 12V', cor:'#455a64', icone:'🪫', w:120, h:70,
+    terminais:[
+      {id:'bat-pos',nome:'BAT+',lado:'D',posY:.3,tipo:'bateria-positivo',desc:'Terminal positivo (vermelho)',cor:'#f44336'},
+      {id:'bat-neg',nome:'BAT-',lado:'D',posY:.7,tipo:'bateria-negativo',desc:'Terminal negativo (preto)',cor:'#333'}
+    ],
+    info:'Bateria chumbo-ácida selada 12V. Vermelho=BAT+, Preto=BAT-.',
+    erros:['Inverter polaridade — dano na fonte','Curto-circuitar terminais']
+  },
+  'fechadura-na': {
+    id:'fechadura-na', nome:'Fechadura NA', cor:'#00897b', icone:'🔓', w:140, h:80,
+    terminais:[
+      {id:'com',nome:'COM',lado:'E',posY:.33,tipo:'comum-rele',desc:'Terminal comum',cor:'#ffc107'},
+      {id:'na',nome:'NA',lado:'E',posY:.67,tipo:'rele-na',desc:'Normalmente Aberto — liga aqui',cor:'#4caf50'}
+    ],
+    info:'NA = Normalmente Aberto. SEM energia: porta ABERTA. COM energia: porta TRAVADA.',
+    erros:['Confundir NA com NF','Ligar no terminal errado']
+  },
+  'fechadura-nf': {
+    id:'fechadura-nf', nome:'Fechadura NF', cor:'#c62828', icone:'🔒', w:140, h:80,
+    terminais:[
+      {id:'com',nome:'COM',lado:'E',posY:.33,tipo:'comum-rele',desc:'Terminal comum',cor:'#ffc107'},
+      {id:'nf',nome:'NF',lado:'E',posY:.67,tipo:'rele-nf',desc:'Normalmente Fechado — liga aqui',cor:'#f44336'}
+    ],
+    info:'NF = Normalmente Fechado. SEM energia: porta TRAVADA. COM energia: porta ABRE.',
+    erros:['Usar NF onde precisa de NA','Consumo constante com energia']
+  },
+  'eletroima': {
+    id:'eletroima', nome:'Eletroímã NF', cor:'#1565c0', icone:'🧲', w:140, h:80,
+    terminais:[
+      {id:'pos',nome:'+12V',lado:'E',posY:.35,tipo:'12v-positivo',desc:'Positivo 12V',cor:'#f44336'},
+      {id:'neg',nome:'GND',lado:'E',posY:.65,tipo:'12v-negativo',desc:'Negativo / GND',cor:'#555'}
+    ],
+    info:'COM energia = porta TRAVADA (campo magnético). SEM energia = ABRE (fail-safe).',
+    erros:['Inverter polaridade','Não instalar diodo de proteção']
+  },
+  'diodo-flyback': {
+    id:'diodo-flyback', nome:'Diodo Flyback', cor:'#ff9800', icone:'⬡', w:100, h:60,
+    terminais:[
+      {id:'anodo', nome:'A (−)', lado:'E', posY:.5, tipo:'12v-negativo', desc:'Anodo — conectar ao GND do eletroímã', cor:'#555'},
+      {id:'catodo',nome:'K (+)', lado:'D', posY:.5, tipo:'12v-positivo', desc:'Catodo (faixa) — conectar ao +12V do eletroímã', cor:'#f44336'}
+    ],
+    info:'Diodo 1N4007 — proteção contra back-EMF (pico de tensão reverso quando o relé corta a bobina do eletroímã). Instalar em paralelo com o eletroímã: catodo K no +12V, anodo A no GND.',
+    erros:['Instalar ao contrário (queima imediato)','Omitir — danifica o relé a longo prazo']
+  },
+  'controle-facial-hikvision': {
+    id:'controle-facial-hikvision', nome:'Controle Facial Hikvision', cor:'#b71c1c', icone:'👤', w:175, h:200,
+    consumo_w: 12, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45 PoE',lado:'E',posY:.15,tipo:'rj45-poe',desc:'PoE + dados (12W, 802.3af) — DS-K1T344MX-E1',cor:'#1a73e8'},
+      {id:'v12-in',nome:'+12V',lado:'E',posY:.50,tipo:'12v-positivo',desc:'Alimentação 12V DC (alternativa ao PoE)',cor:'#f44336'},
+      {id:'gnd-in',nome:'GND',lado:'E',posY:.80,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'},
+      {id:'rele-com',nome:'COM',lado:'D',posY:.10,tipo:'comum-rele',desc:'Relé porta — comum',cor:'#ffc107'},
+      {id:'rele-no',nome:'NA',lado:'D',posY:.24,tipo:'rele-na',desc:'Relé — Normalmente Aberto (NO)',cor:'#4caf50'},
+      {id:'rele-nc',nome:'NF',lado:'D',posY:.38,tipo:'rele-nf',desc:'Relé — Normalmente Fechado (NC)',cor:'#f44336'},
+      {id:'wieg-d0',nome:'W0',lado:'D',posY:.55,tipo:'wiegand-d0',desc:'Wiegand saída D0 — para controlador externo',cor:'#42a5f5'},
+      {id:'wieg-d1',nome:'W1',lado:'D',posY:.70,tipo:'wiegand-d1',desc:'Wiegand saída D1 — para controlador externo',cor:'#42a5f5'},
+      {id:'wieg-gnd',nome:'GND',lado:'D',posY:.85,tipo:'12v-negativo',desc:'GND referência Wiegand',cor:'#555'},
+      {id:'btn',nome:'BTN',lado:'B',posY:.2,tipo:'entrada-digital',desc:'REX — botão de saída (exit button)',cor:'#ffb300'},
+      {id:'sensor',nome:'DS',lado:'B',posY:.5,tipo:'entrada-digital',desc:'Sensor de porta (door sensor)',cor:'#78909c'},
+      {id:'rs485p',nome:'485+',lado:'B',posY:.75,tipo:'rs485-a',desc:'RS-485+ — integração Hikvision iVMS/controlador',cor:'#66bb6a'},
+      {id:'rs485n',nome:'485-',lado:'B',posY:.9,tipo:'rs485-b',desc:'RS-485- — integração Hikvision iVMS/controlador',cor:'#555'}
+    ],
+    info:'Hikvision DS-K1T344MX-E1 — Reconhecimento facial. PoE 12W ou 12V DC. Relé para controle de porta (NA/NF). Wiegand W0/W1 para controlador universal. RS-485 para iVMS Hikvision. BTN = REX; DS = sensor de porta.',
+    erros:['Usar PoE e 12V ao mesmo tempo','Confundir NO e NC do relé','Wiegand GND flutuante — falhas de leitura','Conectar RS-485 em controlador não-Hikvision sem adaptação']
+  },
+  'controlador-controlid': {
+    id:'controlador-controlid', nome:'Controlador ControlID', cor:'#4527a0', icone:'🖥️', w:175, h:185,
+    terminais:[
+      {id:'v12-in',nome:'+12V',lado:'E',posY:.20,tipo:'12v-positivo',desc:'Alimentação 12V DC (min. 2A)',cor:'#f44336'},
+      {id:'gnd-in',nome:'GND',lado:'E',posY:.40,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'},
+      {id:'link-a',nome:'A',lado:'E',posY:.65,tipo:'rs485-a',desc:'Link RS-485 A — conexão iDFace MAX',cor:'#42a5f5'},
+      {id:'link-b',nome:'B',lado:'E',posY:.82,tipo:'rs485-b',desc:'Link RS-485 B — conexão iDFace MAX',cor:'#78909c'},
+      {id:'rele-com',nome:'COM',lado:'D',posY:.15,tipo:'comum-rele',desc:'Relé porta — comum',cor:'#ffc107'},
+      {id:'rele-na',nome:'NA',lado:'D',posY:.35,tipo:'rele-na',desc:'Relé — Normalmente Aberto',cor:'#4caf50'},
+      {id:'rele-nf',nome:'NF',lado:'D',posY:.55,tipo:'rele-nf',desc:'Relé — Normalmente Fechado',cor:'#f44336'},
+      {id:'win-d0',nome:'WIN D0',lado:'D',posY:.75,tipo:'wiegand-d0',desc:'Wiegand entrada D0 — leitor externo',cor:'#42a5f5'},
+      {id:'win-d1',nome:'WIN D1',lado:'D',posY:.90,tipo:'wiegand-d1',desc:'Wiegand entrada D1 — leitor externo',cor:'#42a5f5'},
+      {id:'rex',nome:'REX',lado:'B',posY:.25,tipo:'entrada-digital',desc:'REX — botão de saída (exit button)',cor:'#ffb300'},
+      {id:'ds',nome:'DS',lado:'B',posY:.55,tipo:'entrada-digital',desc:'Sensor de porta (door sensor)',cor:'#78909c'},
+      {id:'gnd-b',nome:'GND',lado:'B',posY:.82,tipo:'12v-negativo',desc:'GND referência entradas',cor:'#555'}
+    ],
+    info:'ControlID MAE (Módulo de Acionamento Externo) — incluso na caixa do iDFace MAX. Conecta ao iDFace MAX via RS-485 A/B + 12V. Gerencia relé de porta, botão de saída (REX), sensor de porta e leitores Wiegand.',
+    erros:['Confundir link A/B com RS-485 genérico — cabo de 4 vias dedicado','REX sem GND de referência','Alimentar o MAE com fonte diferente do iDFace MAX sem potência suficiente']
+  },
+  'botao-saida': {
+    id:'botao-saida', nome:'Botão Saída', cor:'#2e7d32', icone:'⏺', w:120, h:70,
+    terminais:[
+      {id:'no1',nome:'NO',lado:'D',posY:.35,tipo:'pulso-no',desc:'Normalmente Aberto — fecha ao apertar (Modo 1)',cor:'#4caf50'},
+      {id:'com1',nome:'COM',lado:'D',posY:.65,tipo:'pulso-com',desc:'Terminal comum do pulsador (Modo 1)',cor:'#ffc107'},
+      {id:'pwr-in',nome:'12V IN',lado:'E',posY:.35,tipo:'12v-positivo',desc:'+12V entrada para bypass direto (Modo 2)',cor:'#f44336'},
+      {id:'pwr-out',nome:'12V OUT',lado:'E',posY:.65,tipo:'12v-positivo',desc:'+12V saída para fechadura (Modo 2)',cor:'#ff7043'}
+    ],
+    info:'Pulsador REX (Request to Exit). <b>Modo 1</b>: NO/COM → BTN do controlador. <b>Modo 2</b>: 12V IN/OUT em série com a fechadura (bypass direto).',
+    erros:['Usar NC em vez de NO no Modo 1','No Modo 2, conectar GND da fechadura direto à fonte']
+  },
+  'controle-facial': {
+    id:'controle-facial', nome:'Controle Facial 12V', cor:'#4527a0', icone:'👤', w:160, h:140,
+    terminais:[
+      {id:'v12-in',nome:'+12V',lado:'E',posY:.15,tipo:'12v-positivo',desc:'Alimentação +12V',cor:'#f44336'},
+      {id:'gnd-in',nome:'GND',lado:'E',posY:.35,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'},
+      {id:'rele-com',nome:'COM',lado:'D',posY:.25,tipo:'comum-rele',desc:'Relé interno — comum',cor:'#ffc107'},
+      {id:'rele-na',nome:'NA',lado:'D',posY:.5,tipo:'rele-na',desc:'Relé — Normalmente Aberto',cor:'#4caf50'},
+      {id:'rele-nf',nome:'NF',lado:'D',posY:.72,tipo:'rele-nf',desc:'Relé — Normalmente Fechado',cor:'#f44336'},
+      {id:'btn-in',nome:'BTN',lado:'B',posY:.3,tipo:'pulso-no',desc:'Entrada botão externo',cor:'#4caf50'},
+      {id:'btn-gnd',nome:'BTN-',lado:'B',posY:.7,tipo:'12v-negativo',desc:'GND botão externo',cor:'#555'}
+    ],
+    info:'Controlador com câmera facial. Relé interno libera fechadura ao reconhecer rosto.',
+    erros:['Não ligar GND','Confundir saída NA/NF','Ligar sem aterramento']
+  },
+  'controle-facial-poe': {
+    id:'controle-facial-poe', nome:'Controle Facial ControlID', cor:'#6a1b9a', icone:'👤', w:175, h:200,
+    consumo_w: 12, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45 PoE',lado:'E',posY:.15,tipo:'rj45-poe',desc:'PoE + dados (12W, 802.3af) — iDFace MAX',cor:'#1a73e8'},
+      {id:'v12-in',nome:'+12V',lado:'E',posY:.50,tipo:'12v-positivo',desc:'Alimentação 12V DC (alternativa ao PoE)',cor:'#f44336'},
+      {id:'gnd-in',nome:'GND',lado:'E',posY:.80,tipo:'12v-negativo',desc:'Terra / GND',cor:'#555'},
+      {id:'rele-com',nome:'COM',lado:'D',posY:.10,tipo:'comum-rele',desc:'Relé interno — comum',cor:'#ffc107'},
+      {id:'rele-na',nome:'NA',lado:'D',posY:.24,tipo:'rele-na',desc:'Relé — Normalmente Aberto (porta NA)',cor:'#4caf50'},
+      {id:'rele-nf',nome:'NF',lado:'D',posY:.38,tipo:'rele-nf',desc:'Relé — Normalmente Fechado (porta NF)',cor:'#f44336'},
+      {id:'gpio1',nome:'GPIO1',lado:'D',posY:.55,tipo:'entrada-digital',desc:'GPIO1 — configurável (REX / botão de saída)',cor:'#ffb300'},
+      {id:'gpio2',nome:'GPIO2',lado:'D',posY:.70,tipo:'entrada-digital',desc:'GPIO2 — configurável (sensor de porta)',cor:'#ffb300'},
+      {id:'gpio3',nome:'GPIO3',lado:'D',posY:.85,tipo:'entrada-digital',desc:'GPIO3 — configurável (alarme / saída auxiliar)',cor:'#78909c'},
+      {id:'rs485-a',nome:'A',lado:'B',posY:.3,tipo:'rs485-a',desc:'RS-485 A — link SecBox/MAE (módulo externo)',cor:'#42a5f5'},
+      {id:'rs485-b',nome:'B',lado:'B',posY:.7,tipo:'rs485-b',desc:'RS-485 B — link SecBox/MAE (módulo externo)',cor:'#78909c'}
+    ],
+    info:'ControlID iDFace MAX — Reconhecimento facial. PoE 12W (recomendado) ou 12V DC. Relé interno libera porta (NA ou NF). GPIOs configuráveis para REX, sensor de porta e alarme. RS-485 A/B para módulo SecBox externo.',
+    erros:['Usar PoE e 12V ao mesmo tempo — dano ao equipamento','Confundir NA/NF do relé','GPIO sem GND de referência','RS-485 necessário apenas com SecBox/MAE']
+  },
+  'rele-12v': {
+    id:'rele-12v', nome:'Relé 12V', cor:'#6d4c41', icone:'⚙', w:130, h:100,
+    terminais:[
+      {id:'bobina-pos',nome:'BOB+',lado:'E',posY:.25,tipo:'12v-positivo',desc:'Bobina +12V',cor:'#f44336'},
+      {id:'bobina-neg',nome:'BOB-',lado:'E',posY:.75,tipo:'12v-negativo',desc:'Bobina GND',cor:'#555'},
+      {id:'com',nome:'COM',lado:'D',posY:.25,tipo:'comum-rele',desc:'Contato comum',cor:'#ffc107'},
+      {id:'no',nome:'NO',lado:'D',posY:.5,tipo:'rele-na',desc:'Normalmente Aberto',cor:'#4caf50'},
+      {id:'nc',nome:'NC',lado:'D',posY:.75,tipo:'rele-nf',desc:'Normalmente Fechado',cor:'#f44336'}
+    ],
+    info:'Relé auxiliar 12V. Aciona por controlador de acesso ou outro dispositivo.',
+    erros:['Inverter bobina+/-','Confundir NO com NC nos contatos']
+  },
+  'telefone-voip': {
+    id:'telefone-voip', nome:'Telefone VoIP', cor:'#00838f', icone:'📞', w:150, h:100,
+    consumo_w: 3, padrão_poe: '802.3af',
+    terminais:[
+      {id:'rj45',nome:'RJ45 PoE',lado:'E',posY:.25,tipo:'rj45-poe',desc:'Dados + PoE (3W, 802.3af)',cor:'#00bcd4'},
+      {id:'v12-in',nome:'+12V',lado:'E',posY:.6,tipo:'12v-positivo',desc:'Alimentação +12V DC (alternativa ao PoE)',cor:'#f44336'},
+      {id:'gnd-in',nome:'GND',lado:'E',posY:.85,tipo:'12v-negativo',desc:'Terra / GND (obrigatório com 12V)',cor:'#555'}
+    ],
+    info:'Telefone IP SIP. Alimentado por PoE (3W) ou 12V DC — nunca os dois ao mesmo tempo. Conecta à rede VoIP pelo RJ45.',
+    erros:['Usar PoE e 12V simultaneamente — dano ao equipamento','VLAN de voz não configurada — sem registro SIP','Esquecer GND ao usar 12V']
+  },
+  'cabo-utp-t568b': {
+    id:'cabo-utp-t568b', nome:'Cabo UTP T568B', cor:'#795548', icone:'🔗', w:180, h:170, eh_cabo:true,
+    fios:[
+      {id:'f1',nome:'Pin 1',cor:'#ffb347',desc:'Laranja-Branco (par 2)',pino:1},
+      {id:'f2',nome:'Pin 2',cor:'#ff4500',desc:'Laranja (par 2)',pino:2},
+      {id:'f3',nome:'Pin 3',cor:'#90ee90',desc:'Verde-Branco (par 3)',pino:3},
+      {id:'f4',nome:'Pin 4',cor:'#1e90ff',desc:'Azul (par 1)',pino:4},
+      {id:'f5',nome:'Pin 5',cor:'#add8e6',desc:'Azul-Branco (par 1)',pino:5},
+      {id:'f6',nome:'Pin 6',cor:'#228b22',desc:'Verde (par 3)',pino:6},
+      {id:'f7',nome:'Pin 7',cor:'#deb887',desc:'Marrom-Branco (par 4)',pino:7},
+      {id:'f8',nome:'Pin 8',cor:'#8b4513',desc:'Marrom (par 4)',pino:8}
+    ],
+    info:'Cabo UTP T568B — padrão mais usado em redes comerciais. Pares: 1-2 Laranja, 3-6 Verde, 4-5 Azul, 7-8 Marrom.',
+    erros:['Crimpar uma ponta em 568A e outra em 568B — cabo cruzado!','Inverter par Laranja com Verde — perda de performance']
+  },
+  'cabo-utp-t568a': {
+    id:'cabo-utp-t568a', nome:'Cabo UTP T568A', cor:'#5d4037', icone:'🔗', w:180, h:170, eh_cabo:true,
+    fios:[
+      {id:'f1',nome:'Pin 1',cor:'#90ee90',desc:'Verde-Branco (par 3)',pino:1},
+      {id:'f2',nome:'Pin 2',cor:'#228b22',desc:'Verde (par 3)',pino:2},
+      {id:'f3',nome:'Pin 3',cor:'#ffb347',desc:'Laranja-Branco (par 2)',pino:3},
+      {id:'f4',nome:'Pin 4',cor:'#1e90ff',desc:'Azul (par 1)',pino:4},
+      {id:'f5',nome:'Pin 5',cor:'#add8e6',desc:'Azul-Branco (par 1)',pino:5},
+      {id:'f6',nome:'Pin 6',cor:'#ff4500',desc:'Laranja (par 2)',pino:6},
+      {id:'f7',nome:'Pin 7',cor:'#deb887',desc:'Marrom-Branco (par 4)',pino:7},
+      {id:'f8',nome:'Pin 8',cor:'#8b4513',desc:'Marrom (par 4)',pino:8}
+    ],
+    info:'Cabo UTP T568A — padrão alternativo (usado em alguns países e pela norma ANSI). Pares 1-2 Verde, 3-6 Laranja. ATENÇÃO: misturar T568A com T568B numa mesma ponta = cabo cruzado.',
+    erros:['Usar T568A em rede que usa T568B — cabo cruzado não funciona em maioria dos switches modernos','Confundir pin 1 (Verde-Branco) com pin 1 do 568B (Laranja-Branco)']
+  }
+};
+
+// Compatibilidade de tipos de terminal
+const COMPAT = {
+  '12v-positivo':   ['12v-positivo','comum-rele','bobina-pos'],
+  '12v-negativo':   ['12v-negativo','gnd','pulso-com'],
+  'gnd':            ['gnd','12v-negativo'],
+  'comum-rele':     ['12v-positivo','pulso-no','pulso-com','rele-na','rele-nf'],
+  'rj45-poe':       ['rj45-poe-out'],
+  'rj45-poe-out':   ['rj45-poe','rj45-dados'],
+  'rj45-dados':     ['rj45-dados','rj45-poe-out'],
+  'pulso-no':       ['comum-rele','pulso-com','pulso-no','entrada-digital'],
+  'pulso-com':      ['pulso-no','12v-negativo','rele-na','entrada-digital'],
+  'entrada-digital':['pulso-no','pulso-com'],
+  'rele-na':        ['comum-rele','pulso-com','12v-positivo'],
+  'rele-nf':        ['comum-rele','12v-positivo'],
+  'fio-utp':        ['fio-utp'],
+  'bateria-positivo':['bateria-positivo'],
+  'bateria-negativo':['bateria-negativo'],
+  'ac-220v':        ['ac-220v','ac-bivolt'],
+  'ac-127v':        ['ac-127v','ac-bivolt'],
+  'ac-bivolt':      ['ac-127v','ac-220v']
+};
+
+// ============================================================
+// ESTADO GLOBAL
+// ============================================================
+let instancias = [];   // componentes no canvas
+let conexoes = [];     // { id, a:{instId,termId}, b:{instId,termId} }
+let idCounter = 0;
+let selecionado = null;
+let drawingWire = null; // { instId, termId, x, y }
+let dragOffset = { x:0, y:0 };
+let draggingInst = null;
+let draggingWaypoint = null;
+let wireClickTimer = null;
+let cenarioAtual = null;
+
+const svg = document.getElementById('canvas-svg');
+const wiresLayer = document.getElementById('wires-layer');
+const compsLayer = document.getElementById('comps-layer');
+const wirePreview = document.getElementById('wire-preview');
+const canvasEmpty = document.getElementById('canvas-empty');
+
+// ============================================================
+// UTILS
+// ============================================================
+function getTerminais(def) {
+  if (def.eh_cabo) {
+    const ts = [];
+    def.fios.forEach((f,i) => {
+      const posY = (i+0.5) / def.fios.length;
+      ts.push({id:'a'+f.id, nome:f.nome, lado:'E', posY, tipo:'fio-utp', desc:f.desc+' (ponta A)', cor:f.cor, fio:f});
+      ts.push({id:'b'+f.id, nome:f.nome, lado:'D', posY, tipo:'fio-utp', desc:f.desc+' (ponta B)', cor:f.cor, fio:f});
+    });
+    return ts;
+  }
+  return def.terminais || [];
+}
+
+function getTerminalPos(inst, tId) {
+  const def = COMPONENTES[inst.tipo];
+  const ts = getTerminais(def);
+  const t = ts.find(x => x.id === tId);
+  if (!t) return null;
+  const { x, y, w, h } = inst;
+  let tx, ty;
+  if (t.lado === 'E') { tx = x; ty = y + t.posY * h; }
+  else if (t.lado === 'D') { tx = x + w; ty = y + t.posY * h; }
+  else if (t.lado === 'T' || t.lado === 'cima') { tx = x + t.posY * w; ty = y; }
+  else if (t.lado === 'B' || t.lado === 'baixo') { tx = x + t.posY * w; ty = y + h; }
+  return { x: tx, y: ty };
+}
+
+function getWireColor(tipo) {
+  const map = {
+    '12v-positivo':'#f44336','12v-negativo':'#555555','gnd':'#555555',
+    'rj45-poe':'#1a73e8','rj45-poe-out':'#0f9d58','rj45-dados':'#58a6ff',
+    'comum-rele':'#ffc107','pulso-no':'#4caf50','pulso-com':'#cddc39','entrada-digital':'#ffb300',
+    'rele-na':'#4caf50','rele-nf':'#f44336',
+    'fio-utp':'#795548','bateria-positivo':'#ff7043','bateria-negativo':'#333',
+    'ac-220v':'#e0e0e0'
+  };
+  return map[tipo] || '#8b949e';
+}
+
+function svgCoords(e) {
+  const rect = svg.getBoundingClientRect();
+  return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function novaInstancia(tipo, x, y) {
+  const def = COMPONENTES[tipo];
+  if (!def) return;
+  const inst = { id: 'i' + (++idCounter), tipo, x, y, w: Math.round(def.w * 1.38), h: Math.round(def.h * 1.38) };
+  instancias.push(inst);
+  renderInstancia(inst);
+  canvasEmpty.style.display = 'none';
+  simular();
+  return inst;
+}
+
+// ============================================================
+// ÍCONES SVG (viewBox 0 0 48 48) — placeholder {C} = def.cor
+// ============================================================
+const ICONS = {
+  'cam-dome': `
+    <path d="M7 30 A17 18 0 0 1 41 30" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="5" y="29" width="38" height="4" rx="2" fill="{C}" fill-opacity="0.45" stroke="{C}" stroke-width="1.5"/>
+    <rect x="18" y="33" width="12" height="5" rx="1.5" fill="{C}" fill-opacity="0.3" stroke="{C}" stroke-width="1"/>
+    <circle cx="24" cy="22" r="9" fill="none" stroke="{C}" stroke-width="2"/>
+    <circle cx="24" cy="22" r="5" fill="{C}" fill-opacity="0.18" stroke="{C}" stroke-width="1.5"/>
+    <circle cx="24" cy="22" r="2" fill="{C}" fill-opacity="0.7"/>`,
+  'cam-ptz': `
+    <path d="M4 27 A20 20 0 0 1 44 27" fill="none" stroke="{C}" stroke-width="1" stroke-dasharray="4,3" stroke-opacity="0.35"/>
+    <path d="M8 29 A16 16 0 0 1 40 29" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="10" y="28" width="28" height="5" rx="2" fill="{C}" fill-opacity="0.4" stroke="{C}" stroke-width="1.5"/>
+    <rect x="18" y="33" width="12" height="7" rx="2" fill="{C}" fill-opacity="0.25" stroke="{C}" stroke-width="1.5"/>
+    <circle cx="24" cy="19" r="10" fill="none" stroke="{C}" stroke-width="1" stroke-opacity="0.45"/>
+    <circle cx="24" cy="19" r="7" fill="none" stroke="{C}" stroke-width="2"/>
+    <circle cx="24" cy="19" r="4" fill="{C}" fill-opacity="0.18" stroke="{C}" stroke-width="1.5"/>
+    <circle cx="24" cy="19" r="1.8" fill="{C}" fill-opacity="0.7"/>
+    <circle cx="15" cy="19" r="1.5" fill="{C}" fill-opacity="0.7"/>
+    <circle cx="33" cy="19" r="1.5" fill="{C}" fill-opacity="0.7"/>
+    <circle cx="24" cy="10" r="1.5" fill="{C}" fill-opacity="0.7"/>
+    <circle cx="24" cy="28" r="1.5" fill="{C}" fill-opacity="0.7"/>`,
+  'cam-bullet': `
+    <rect x="4" y="19" width="30" height="11" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="34" y="21" width="9" height="7" rx="2" fill="none" stroke="{C}" stroke-width="2"/>
+    <circle cx="38.5" cy="24.5" r="2.2" fill="{C}" fill-opacity="0.4" stroke="{C}" stroke-width="1.2"/>
+    <circle cx="38.5" cy="24.5" r="0.9" fill="{C}"/>
+    <rect x="11" y="10" width="14" height="9" rx="2" fill="{C}" fill-opacity="0.35" stroke="{C}" stroke-width="1.2"/>
+    <line x1="18" y1="10" x2="18" y2="19" stroke="{C}" stroke-width="2.5"/>
+    <circle cx="9" cy="24.5" r="1.2" fill="{C}" fill-opacity="0.55"/>
+    <circle cx="20" cy="24.5" r="1.2" fill="{C}" fill-opacity="0.55"/>
+    <circle cx="29" cy="24.5" r="1.2" fill="{C}" fill-opacity="0.55"/>`,
+  'switch': `
+    <rect x="2" y="14" width="44" height="20" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="6" y="19" width="5" height="9" rx="1" fill="{C}" fill-opacity="0.75"/>
+    <rect x="13" y="19" width="5" height="9" rx="1" fill="{C}" fill-opacity="0.75"/>
+    <rect x="20" y="19" width="5" height="9" rx="1" fill="{C}" fill-opacity="0.75"/>
+    <rect x="27" y="19" width="5" height="9" rx="1" fill="{C}" fill-opacity="0.75"/>
+    <rect x="35" y="18" width="7" height="11" rx="1.5" fill="none" stroke="{C}" stroke-width="1.5" stroke-opacity="0.6"/>
+    <circle cx="44" cy="16" r="2" fill="{C}"/>
+    <circle cx="44" cy="32" r="2" fill="{C}" fill-opacity="0.4"/>`,
+  'injector': `
+    <rect x="6" y="12" width="36" height="24" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <line x1="6" y1="24" x2="0" y2="24" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="42" y1="24" x2="48" y2="24" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M18 24 L28 24 M25 20 L29 24 L25 28" fill="none" stroke="{C}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="24" y="17" text-anchor="middle" font-size="7" fill="{C}" font-family="'Segoe UI',sans-serif" font-weight="700">PoE</text>`,
+  'fonte': `
+    <rect x="4" y="10" width="40" height="28" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <text x="14" y="31" text-anchor="middle" font-size="16" fill="{C}" font-family="'Segoe UI',sans-serif" font-weight="300">~</text>
+    <line x1="24" y1="12" x2="24" y2="36" stroke="{C}" stroke-width="1" stroke-opacity="0.3"/>
+    <text x="35" y="28" text-anchor="middle" font-size="9" fill="{C}" font-family="'Segoe UI',sans-serif" font-weight="700">12V</text>
+    <text x="35" y="36" text-anchor="middle" font-size="7" fill="{C}" fill-opacity="0.65" font-family="sans-serif">DC</text>
+    <line x1="44" y1="17" x2="48" y2="17" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="44" y1="31" x2="48" y2="31" stroke="{C}" stroke-width="2" stroke-linecap="round"/>`,
+  'nobreak': `
+    <rect x="3" y="8" width="42" height="32" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="7" y="13" width="16" height="14" rx="2" fill="none" stroke="{C}" stroke-width="1.5" stroke-opacity="0.7"/>
+    <text x="15" y="24" text-anchor="middle" font-size="14" fill="{C}" font-family="sans-serif">~</text>
+    <rect x="26" y="13" width="16" height="14" rx="2" fill="{C}" fill-opacity="0.15" stroke="{C}" stroke-width="1.5"/>
+    <text x="34" y="23" text-anchor="middle" font-size="9" fill="{C}" font-family="'Segoe UI',sans-serif" font-weight="700">12V</text>
+    <text x="34" y="31" text-anchor="middle" font-size="6" fill="{C}" fill-opacity="0.65" font-family="sans-serif">BAT</text>`,
+  'outlet': `
+    <circle cx="24" cy="22" r="17" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="18" y="11" width="4.5" height="11" rx="1.5" fill="{C}"/>
+    <rect x="25.5" y="11" width="4.5" height="11" rx="1.5" fill="{C}"/>
+    <path d="M16 29 L32 29" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>`,
+  'battery': `
+    <rect x="4" y="14" width="36" height="20" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="40" y="18" width="6" height="12" rx="2" fill="{C}" fill-opacity="0.7"/>
+    <rect x="13" y="8" width="7" height="6" rx="1" fill="{C}" fill-opacity="0.6"/>
+    <rect x="28" y="8" width="7" height="6" rx="1" fill="{C}" fill-opacity="0.4"/>
+    <rect x="8" y="18" width="11" height="8" rx="1" fill="{C}" fill-opacity="0.75"/>
+    <rect x="23" y="18" width="11" height="8" rx="1" fill="{C}" fill-opacity="0.4"/>
+    <text x="13.5" y="25" text-anchor="middle" font-size="7" fill="#0d1117" font-family="sans-serif" font-weight="700">+</text>`,
+  'fechadura-open': `
+    <rect x="10" y="22" width="28" height="22" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <path d="M16 22 Q16 10 24 10 Q32 10 32 16" fill="none" stroke="{C}" stroke-width="2.5" stroke-opacity="0.4" stroke-dasharray="5,3"/>
+    <path d="M32 16 Q32 10 38 10 Q44 10 44 18" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <circle cx="24" cy="33" r="4" fill="{C}" fill-opacity="0.6"/>
+    <line x1="24" y1="37" x2="24" y2="42" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>`,
+  'fechadura-closed': `
+    <rect x="10" y="22" width="28" height="22" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <path d="M16 22 Q16 10 24 10 Q32 10 32 22" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <circle cx="24" cy="33" r="4" fill="{C}" fill-opacity="0.6"/>
+    <line x1="24" y1="37" x2="24" y2="42" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>`,
+  'diode': `<g stroke="{C}" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="12,10 36,24 12,38" fill="{C}" opacity="0.85" stroke="{C}"/>
+    <line x1="36" y1="10" x2="36" y2="38"/>
+    <line x1="4" y1="24" x2="12" y2="24"/>
+    <line x1="36" y1="24" x2="44" y2="24"/>
+  </g>`,
+  'magnet': `
+    <path d="M12 42 L12 22 Q12 8 24 8 Q36 8 36 22 L36 42" fill="none" stroke="{C}" stroke-width="4" stroke-linecap="round"/>
+    <rect x="7" y="38" width="12" height="8" rx="2" fill="{C}"/>
+    <rect x="29" y="38" width="12" height="8" rx="2" fill="{C}" fill-opacity="0.55"/>`,
+  'button': `
+    <circle cx="24" cy="24" r="21" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <circle cx="24" cy="24" r="14" fill="{C}" fill-opacity="0.12"/>
+    <circle cx="24" cy="24" r="9" fill="{C}" fill-opacity="0.45"/>
+    <text x="24" y="9" text-anchor="middle" font-size="6.5" fill="{C}" font-family="'Segoe UI',sans-serif" font-weight="700">SAÍDA</text>`,
+  'facial': `
+    <rect x="4" y="4" width="40" height="32" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <path d="M4 4 L12 4 M4 4 L4 12 M44 4 L36 4 M44 4 L44 12 M4 36 L12 36 M4 36 L4 28 M44 36 L36 36 M44 36 L44 28" stroke="{C}" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="24" cy="18" rx="8" ry="10" fill="none" stroke="{C}" stroke-width="1.5" stroke-opacity="0.75"/>
+    <circle cx="21" cy="16" r="2" fill="{C}" fill-opacity="0.8"/>
+    <circle cx="27" cy="16" r="2" fill="{C}" fill-opacity="0.8"/>
+    <path d="M19 23 Q24 28 29 23" fill="none" stroke="{C}" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="24" y="46" text-anchor="middle" font-size="6" fill="{C}" fill-opacity="0.7" font-family="'Segoe UI',sans-serif">RELÉ INTERNO</text>`,
+  'relay': `
+    <rect x="6" y="12" width="36" height="24" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <rect x="10" y="19" width="14" height="10" rx="1" fill="none" stroke="{C}" stroke-width="1.5"/>
+    <path d="M11 24 L13 22 L15 26 L17 22 L19 26 L21 22 L23 24" fill="none" stroke="{C}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="28" y1="28" x2="38" y2="23" stroke="{C}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="28" cy="28" r="2" fill="{C}" fill-opacity="0.5"/>
+    <line x1="38" y1="30" x2="38" y2="30" stroke="{C}"/>
+    <line x1="0" y1="19" x2="6" y2="19" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="0" y1="29" x2="6" y2="29" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="42" y1="23" x2="48" y2="23" stroke="{C}" stroke-width="2.5" stroke-linecap="round"/>`,
+  'phone': `
+    <path d="M10 6 Q6 6 6 10 L6 15 Q6 18 10 19 L14 21 Q16 22 15 25 L13 29 Q11 32 13 35 L15 38 Q17 42 21 40 L25 38 Q28 36 31 33 L34 30 Q37 27 38 24 L40 19 Q42 15 39 11 L36 8 Q33 6 29 8 L26 10 Q23 12 20 10 L17 8 Q13 6 10 6 Z" fill="none" stroke="{C}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  'cable': `
+    <rect x="0" y="18" width="13" height="12" rx="2" fill="none" stroke="{C}" stroke-width="2"/>
+    <rect x="35" y="18" width="13" height="12" rx="2" fill="none" stroke="{C}" stroke-width="2"/>
+    <line x1="13" y1="24" x2="35" y2="24" stroke="{C}" stroke-width="2.5" stroke-dasharray="5,3"/>
+    <circle cx="17" cy="21" r="2" fill="{C}" fill-opacity="0.8"/>
+    <circle cx="17" cy="27" r="2" fill="{C}" fill-opacity="0.8"/>
+    <circle cx="31" cy="21" r="2" fill="{C}" fill-opacity="0.8"/>
+    <circle cx="31" cy="27" r="2" fill="{C}" fill-opacity="0.8"/>`,
+  'cloud': `
+    <path d="M10 38 Q4 38 4 31 Q4 24 11 23 Q10 15 18 14 Q25 14 27 20 Q31 17 36 19 Q44 19 44 27 Q48 27 47 33 Q47 38 40 38 Z" fill="none" stroke="{C}" stroke-width="2.5" stroke-linejoin="round"/>`,
+  'router': `
+    <rect x="4" y="16" width="40" height="22" rx="3" fill="none" stroke="{C}" stroke-width="2.5"/>
+    <line x1="16" y1="16" x2="13" y2="6" stroke="{C}" stroke-width="2" stroke-linecap="round"/>
+    <line x1="32" y1="16" x2="35" y2="6" stroke="{C}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="24" cy="27" r="6" fill="none" stroke="{C}" stroke-width="1.5"/>
+    <line x1="18" y1="27" x2="30" y2="27" stroke="{C}" stroke-width="1" stroke-opacity="0.6"/>
+    <path d="M21.5 21.5 Q24 27 21.5 32.5" fill="none" stroke="{C}" stroke-width="1" stroke-opacity="0.6"/>
+    <path d="M26.5 21.5 Q24 27 26.5 32.5" fill="none" stroke="{C}" stroke-width="1" stroke-opacity="0.6"/>
+    <circle cx="40" cy="20" r="2" fill="{C}"/>
+    <circle cx="40" cy="26" r="2" fill="{C}" fill-opacity="0.4"/>`
+};
+
+function getIconKey(tipo) {
+  if (tipo.startsWith('camera-dome')) return 'cam-dome';
+  if (tipo.startsWith('camera-bullet')) return 'cam-bullet';
+  if (tipo.startsWith('camera-ptz')) return 'cam-ptz';
+  if (tipo.startsWith('camera')) {
+    if (tipo.includes('25w')) return 'cam-ptz';
+    if (tipo.includes('12v')) return 'cam-bullet';
+    return 'cam-dome';
+  }
+  if (tipo.startsWith('switch')) return 'switch';
+  if (tipo.startsWith('injetor')) return 'injector';
+  if (tipo === 'fonte-12v') return 'fonte';
+  if (tipo === 'nobreak-12v') return 'nobreak';
+  if (tipo.startsWith('tomada')) return 'outlet';
+  if (tipo === 'bateria-chumbo') return 'battery';
+  if (tipo === 'fechadura-na') return 'fechadura-open';
+  if (tipo === 'fechadura-nf') return 'fechadura-closed';
+  if (tipo === 'eletroima') return 'magnet';
+  if (tipo === 'diodo-flyback') return 'diode';
+  if (tipo === 'botao-saida') return 'button';
+  if (tipo.startsWith('controle-facial')) return 'facial';
+  if (tipo === 'controle-facial-hikvision') return 'facial';
+  if (tipo === 'controlador-controlid') return 'facial';
+  if (tipo === 'rele-12v') return 'relay';
+  if (tipo === 'telefone-voip') return 'phone';
+  if (tipo.startsWith('cabo-utp')) return 'cable';
+  if (tipo === 'roteador') return 'router';
+  if (tipo === 'wan-internet') return 'cloud';
+  return null;
+}
+
+// ============================================================
+// RENDER COMPONENTE NO SVG
+// ============================================================
+function renderPainelEspecial(inst, g, rect) {
+  const x = inst.x, y = inst.y;
+  rect.setAttribute('fill', '#0d1f35');
+  rect.setAttribute('stroke', '#1565c0');
+  rect.setAttribute('stroke-width', '2');
+  function mkT(dx, dy, text, fill, size, bold) {
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x+dx); t.setAttribute('y', y+dy);
+    t.setAttribute('fill', fill||'#c9d1d9'); t.setAttribute('font-size', size||'9');
+    t.setAttribute('font-family','Consolas,Courier New,monospace');
+    if (bold) t.setAttribute('font-weight','bold');
+    t.setAttribute('pointer-events','none');
+    t.textContent = text; g.appendChild(t);
+  }
+  function mkC(dx, dy, fill) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x+dx); c.setAttribute('cy',y+dy);
+    c.setAttribute('r',4); c.setAttribute('fill',fill);
+    c.setAttribute('pointer-events','none'); g.appendChild(c);
+  }
+  mkT(10,18,'📋 GUIA DE CABEAMENTO UTP','#42a5f5','11',true);
+  mkT(10,30,'Padrão NexTelecom · base: IEEE 802.3 PoE Mode B','#8b949e','8');
+  mkT(10,44,'── CORES DOS PARES ──────────────────────────','#ffd700','9',true);
+  mkC(16,53,'#1a73e8'); mkT(24,57,'Azul     (+) POSITIVO','#c9d1d9','9');
+  mkC(16,65,'#795548'); mkT(24,69,'Marrom   (-) NEGATIVO','#c9d1d9','9');
+  mkC(16,77,'#4caf50'); mkT(24,81,'Verde    RS-485 A / B','#c9d1d9','9');
+  mkC(16,89,'#ff9800'); mkT(24,93,'Laranja  Wiegand / sinal extra','#c9d1d9','9');
+  mkT(10,107,'── MODO NA — 1 par por polaridade ───────────','#ffd700','9',true);
+  mkT(10,119,'(+) Par Azul   |   (-) Par Marrom','#c9d1d9','9');
+  mkT(10,131,'RS-485: Par Verde   |   Extra: Par Laranja','#8b949e','9');
+  mkT(10,145,'── MODO NF — 2 pares/pol (cabo dedicado) ────','#ffd700','9',true);
+  mkT(10,157,'(+) Par Azul + Par Laranja','#c9d1d9','9');
+  mkT(10,169,'(-) Par Marrom + Par Verde','#c9d1d9','9');
+  mkT(10,181,'RS-485 em 2º cabo separado','#8b949e','9');
+  mkT(10,195,'── DISTÂNCIA MÁXIMA — 12V DC (queda ≤10%) ──','#ffd700','9',true);
+  mkT(10,207,'UTP 1par/pol:  0.5A→28m | 1.0A→14m | 1.5A→9m','#c9d1d9','9');
+  mkT(10,219,'UTP 2par/pol:  0.5A→57m | 1.0A→28m | 1.5A→19m','#c9d1d9','9');
+  mkT(10,231,'2×0.75mm²:     0.5A→51m | 1.0A→26m | 1.5A→17m','#c9d1d9','9');
+  mkT(10,243,'2×1.0mm²:      0.5A→69m | 1.0A→34m | 1.5A→23m','#c9d1d9','9');
+  mkT(10,255,'2×1.5mm²:      0.5A→103m | 1.0A→51m | 1.5A→34m','#c9d1d9','9');
+  rect.addEventListener('mousedown', e => { e.stopPropagation(); startDrag(e, inst); });
+  g.addEventListener('click', e => { if (!drawingWire) selecionarInstancia(inst.id); });
+}
+
+function renderInstancia(inst) {
+  const def = COMPONENTES[inst.tipo];
+  const ts = getTerminais(def);
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.id = 'inst-' + inst.id;
+  g.setAttribute('class','comp-svg-group');
+  g.style.cursor = 'move';
+
+  // Corpo (transparente por padrão — borda só ao selecionar)
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x', inst.x); rect.setAttribute('y', inst.y);
+  rect.setAttribute('width', inst.w); rect.setAttribute('height', inst.h);
+  rect.setAttribute('rx', 8); rect.setAttribute('ry', 8);
+  rect.setAttribute('class','comp-svg-body');
+  g.appendChild(rect);
+
+  // Painel especial — renderização própria
+  if (inst.tipo && inst.tipo.startsWith('painel-')) {
+    renderPainelEspecial(inst, g, rect);
+    compsLayer.appendChild(g);
+    return;
+  }
+
+  // Ícone SVG
+  const iconKey = getIconKey(inst.tipo);
+  if (iconKey && ICONS[iconKey]) {
+    const iconSize = def.eh_cabo ? Math.min(inst.w * 0.38, inst.h * 0.45) : Math.min(inst.w * 0.52, inst.h * 0.54);
+    const iconX = inst.x + inst.w / 2 - iconSize / 2;
+    const iconY = def.eh_cabo ? inst.y + 10 : inst.y + inst.h * 0.08;
+    const iconSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    iconSvg.setAttribute('x', iconX); iconSvg.setAttribute('y', iconY);
+    iconSvg.setAttribute('width', iconSize); iconSvg.setAttribute('height', iconSize);
+    iconSvg.setAttribute('viewBox','0 0 48 48');
+    iconSvg.setAttribute('class','comp-icon-svg');
+    iconSvg.id = 'icon-' + inst.id;
+    iconSvg.innerHTML = ICONS[iconKey].replace(/{C}/g, def.cor);
+    g.appendChild(iconSvg);
+  }
+
+  // Nome do componente (fundo na parte inferior)
+  const nomeEl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  nomeEl.setAttribute('x', inst.x + inst.w/2);
+  nomeEl.setAttribute('y', inst.y + inst.h - (def.budget_poe_w ? 18 : 8));
+  nomeEl.setAttribute('class','comp-sublabel'); nomeEl.textContent = def.nome;
+  g.appendChild(nomeEl);
+
+  // Terminais
+  ts.forEach(t => {
+    const pos = getTerminalPos(inst, t.id);
+    if (!pos) return;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', pos.x); c.setAttribute('cy', pos.y); c.setAttribute('r', 6);
+    c.setAttribute('fill', t.cor || getWireColor(t.tipo));
+    c.setAttribute('stroke', '#0d1117'); c.setAttribute('stroke-width','1.5');
+    c.setAttribute('class','terminal-circle');
+    c.dataset.instId = inst.id; c.dataset.termId = t.id;
+    c.addEventListener('mousedown', onTerminalMousedown);
+    c.addEventListener('mouseenter', e => showTooltip(e, t.nome + ' — ' + t.desc));
+    c.addEventListener('mouseleave', hideTooltip);
+    g.appendChild(c);
+
+    // Label terminal
+    const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    const offX = t.lado==='E' ? -8 : t.lado==='D' ? 8 : 0;
+    const offY = t.lado==='T' ? -8 : t.lado==='B' ? 12 : 3;
+    lbl.setAttribute('x', pos.x + offX); lbl.setAttribute('y', pos.y + offY);
+    lbl.setAttribute('class','terminal-label');
+    lbl.setAttribute('text-anchor', t.lado==='E' ? 'end' : t.lado==='D' ? 'start' : 'middle');
+    lbl.textContent = t.nome;
+    g.appendChild(lbl);
+  });
+
+  // Drag (rect transparente ainda captura eventos; ícone tem pointer-events:none)
+  rect.addEventListener('mousedown', e => { e.stopPropagation(); startDrag(e, inst); });
+  nomeEl.addEventListener('mousedown', e => { e.stopPropagation(); startDrag(e, inst); });
+
+  // Budget PoE — indicador em tempo real no switch
+  if (def.budget_poe_w) {
+    rect.id = 'body-' + inst.id;
+    const budgetEl = document.createElementNS('http://www.w3.org/2000/svg','text');
+    budgetEl.id = 'budget-' + inst.id;
+    budgetEl.setAttribute('x', inst.x + inst.w/2);
+    budgetEl.setAttribute('y', inst.y + inst.h - 6);
+    budgetEl.setAttribute('text-anchor','middle');
+    budgetEl.setAttribute('font-size','9');
+    budgetEl.setAttribute('font-family','Segoe UI,sans-serif');
+    budgetEl.setAttribute('fill','#3fb950');
+    budgetEl.setAttribute('pointer-events','none');
+    budgetEl.textContent = `PoE: 0W / ${def.budget_poe_w}W`;
+    g.appendChild(budgetEl);
+  }
+
+  // Click seleção
+  g.addEventListener('click', e => { if (!drawingWire) selecionarInstancia(inst.id); });
+
+  // Badge ON/OFF de estado de energia (exceto botão, cabos UTP e fechaduras)
+  if (inst.tipo !== 'botao-saida' && !inst.tipo.startsWith('cabo-utp') && inst.tipo !== 'fechadura-na' && inst.tipo !== 'fechadura-nf' && inst.tipo !== 'diodo-flyback') {
+    const pwrBg = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    pwrBg.id = 'pwrbg-' + inst.id;
+    pwrBg.setAttribute('x', inst.x + inst.w - 28);
+    pwrBg.setAttribute('y', inst.y + 3);
+    pwrBg.setAttribute('width', 25);
+    pwrBg.setAttribute('height', 13);
+    pwrBg.setAttribute('rx', 6);
+    pwrBg.setAttribute('fill', '#1a1e24');
+    pwrBg.setAttribute('stroke', '#30363d');
+    pwrBg.setAttribute('stroke-width', '1');
+    pwrBg.setAttribute('pointer-events', 'none');
+    g.appendChild(pwrBg);
+    const pwrTxt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    pwrTxt.id = 'pwrtxt-' + inst.id;
+    pwrTxt.setAttribute('x', inst.x + inst.w - 15.5);
+    pwrTxt.setAttribute('y', inst.y + 13);
+    pwrTxt.setAttribute('text-anchor', 'middle');
+    pwrTxt.setAttribute('font-size', '8');
+    pwrTxt.setAttribute('font-weight', '700');
+    pwrTxt.setAttribute('font-family', 'Segoe UI,sans-serif');
+    pwrTxt.setAttribute('fill', '#444');
+    pwrTxt.setAttribute('pointer-events', 'none');
+    pwrTxt.textContent = 'OFF';
+    g.appendChild(pwrTxt);
+  }
+
+  // Badge de estado para fechaduras
+  if (inst.tipo === 'fechadura-na' || inst.tipo === 'fechadura-nf') {
+    const badge = document.createElementNS('http://www.w3.org/2000/svg','text');
+    badge.id = 'lockstate-' + inst.id;
+    badge.setAttribute('x', inst.x + inst.w/2);
+    badge.setAttribute('y', inst.y + 13);
+    badge.setAttribute('text-anchor', 'middle');
+    badge.setAttribute('font-size', '9');
+    badge.setAttribute('font-weight', '700');
+    badge.setAttribute('font-family', 'Segoe UI,sans-serif');
+    badge.setAttribute('fill', inst.tipo === 'fechadura-nf' ? '#f85149' : '#3fb950');
+    badge.setAttribute('pointer-events', 'none');
+    badge.textContent = inst.tipo === 'fechadura-nf' ? 'FECHADA' : 'ABERTA';
+    g.appendChild(badge);
+  }
+
+  // Badge de estado para eletroímã NF: energizado = FECHADO, sem energia = ABERTO
+  if (inst.tipo === 'eletroima') {
+    const badge = document.createElementNS('http://www.w3.org/2000/svg','text');
+    badge.id = 'magstate-' + inst.id;
+    badge.setAttribute('x', inst.x + inst.w/2);
+    badge.setAttribute('y', inst.y + 13);
+    badge.setAttribute('text-anchor', 'middle');
+    badge.setAttribute('font-size', '9');
+    badge.setAttribute('font-weight', '700');
+    badge.setAttribute('font-family', 'Segoe UI,sans-serif');
+    badge.setAttribute('fill', '#3fb950');
+    badge.setAttribute('pointer-events', 'none');
+    badge.textContent = 'ABERTO';
+    g.appendChild(badge);
+  }
+
+  compsLayer.appendChild(g);
+}
+
+function atualizarPosInstancia(inst) {
+  const g = document.getElementById('inst-' + inst.id);
+  if (!g) return;
+  g.remove();
+  renderInstancia(inst);
+  // atualizar fios conectados
+  conexoes.forEach(c => {
+    if (c.a.instId === inst.id || c.b.instId === inst.id) renderConexao(c);
+  });
+}
+
+// ============================================================
+// DRAG COMPONENTE
+// ============================================================
+function startDrag(e, inst) {
+  e.preventDefault();
+  const coords = svgCoords(e);
+  draggingInst = inst;
+  dragOffset = { x: coords.x - inst.x, y: coords.y - inst.y };
+}
+
+svg.addEventListener('mousemove', e => {
+  const coords = svgCoords(e);
+  if (draggingWaypoint) {
+    const { conn, idx } = draggingWaypoint;
+    conn.waypoints[idx] = { x: coords.x, y: coords.y };
+    renderConexao(conn);
+    return;
+  }
+  if (draggingInst) {
+    draggingInst.x = coords.x - dragOffset.x;
+    draggingInst.y = coords.y - dragOffset.y;
+    atualizarPosInstancia(draggingInst);
+  }
+  if (drawingWire) {
+    wirePreview.setAttribute('x2', coords.x);
+    wirePreview.setAttribute('y2', coords.y);
+  }
+});
+
+svg.addEventListener('mouseup', e => {
+  const wasDragging = !!draggingInst;
+  draggingWaypoint = null;
+  draggingInst = null;
+  if (wasDragging) simular();
+  if (drawingWire && e.target !== wirePreview) {
+    if (e.target.dataset && e.target.dataset.termId) {
+      // clicou em outro terminal — conexão tratada no onTerminalMousedown
+    } else {
+      cancelarFio();
+    }
+  }
+});
+
+svg.addEventListener('click', e => {
+  if (e.target === svg || e.target.tagName === 'rect' && !e.target.closest('.comp-svg-group')) {
+    desselecionar();
+  }
+});
+
+// ============================================================
+// CONEXÃO DE FIOS
+// ============================================================
+function onTerminalMousedown(e) {
+  e.stopPropagation();
+  const instId = e.target.dataset.instId;
+  const termId = e.target.dataset.termId;
+  const pos = getTerminalPos(instancias.find(i=>i.id===instId), termId);
+  if (!pos) return;
+
+  if (!drawingWire) {
+    drawingWire = { instId, termId, x: pos.x, y: pos.y };
+    wirePreview.setAttribute('x1', pos.x); wirePreview.setAttribute('y1', pos.y);
+    wirePreview.setAttribute('x2', pos.x); wirePreview.setAttribute('y2', pos.y);
+    wirePreview.style.display = 'block';
+  } else {
+    // Completar conexão
+    if (drawingWire.instId === instId && drawingWire.termId === termId) {
+      cancelarFio(); return;
+    }
+    criarConexao(drawingWire.instId, drawingWire.termId, instId, termId);
+    cancelarFio();
+  }
+}
+
+function cancelarFio() {
+  drawingWire = null;
+  wirePreview.style.display = 'none';
+}
+
+function criarConexao(aInstId, aTermId, bInstId, bTermId) {
+  const aInst = instancias.find(i=>i.id===aInstId);
+  const bInst = instancias.find(i=>i.id===bInstId);
+  if (!aInst || !bInst) return;
+  const aDef = COMPONENTES[aInst.tipo];
+  const bDef = COMPONENTES[bInst.tipo];
+  const aTs = getTerminais(aDef);
+  const bTs = getTerminais(bDef);
+  const aT = aTs.find(t=>t.id===aTermId);
+  const bT = bTs.find(t=>t.id===bTermId);
+  if (!aT || !bT) return;
+
+  // Verificar compatibilidade com mensagem contextual
+  const compat = COMPAT[aT.tipo] || [];
+  if (!compat.includes(bT.tipo)) {
+    const msg = explicarIncompatibilidade(aDef, aT, bDef, bT);
+    mostrarAvisoDestaque(msg);
+  }
+
+  // Verificar duplicata
+  const existe = conexoes.find(c =>
+    (c.a.instId===aInstId && c.a.termId===aTermId && c.b.instId===bInstId && c.b.termId===bTermId) ||
+    (c.a.instId===bInstId && c.a.termId===bTermId && c.b.instId===aInstId && c.b.termId===aTermId)
+  );
+  if (existe) return;
+
+  const conn = { id:'c'+(++idCounter), a:{instId:aInstId,termId:aTermId}, b:{instId:bInstId,termId:bTermId}, tipoA:aT.tipo, tipoB:bT.tipo };
+  conexoes.push(conn);
+  renderConexao(conn);
+  atualizarBudgetsSwitches();
+}
+
+function distToSegment(p, a, b) {
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const lenSq = dx*dx + dy*dy;
+  if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+  const t = Math.max(0, Math.min(1, ((p.x-a.x)*dx + (p.y-a.y)*dy) / lenSq));
+  return Math.hypot(p.x - (a.x + t*dx), p.y - (a.y + t*dy));
+}
+
+function renderConexao(conn) {
+  const old = document.getElementById('conn-' + conn.id);
+  if (old) old.remove();
+
+  const aInst = instancias.find(i=>i.id===conn.a.instId);
+  const bInst = instancias.find(i=>i.id===conn.b.instId);
+  if (!aInst || !bInst) return;
+  const aPos = getTerminalPos(aInst, conn.a.termId);
+  const bPos = getTerminalPos(bInst, conn.b.termId);
+  if (!aPos || !bPos) return;
+
+  const isCompat = (COMPAT[conn.tipoA]||[]).includes(conn.tipoB);
+  const cor = isCompat ? getWireColor(conn.tipoA) : '#f85149';
+  const dx = Math.abs(bPos.x - aPos.x) * 0.4;
+  const wps = conn.waypoints || [];
+
+  const grp = document.createElementNS('http://www.w3.org/2000/svg','g');
+  grp.id = 'conn-' + conn.id;
+
+  // Remover fio
+  const remover = () => {
+    clearTimeout(wireClickTimer); wireClickTimer = null;
+    conexoes = conexoes.filter(c=>c.id!==conn.id);
+    grp.remove();
+    atualizarBudgetsSwitches();
+  };
+
+  // Path — bezier suave através de todos os pontos (Catmull-Rom → cubic bezier)
+  const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+  const allPts = [aPos, ...wps, bPos];
+  let pathD;
+  if (allPts.length === 2) {
+    pathD = `M${aPos.x},${aPos.y} C${aPos.x+dx},${aPos.y} ${bPos.x-dx},${bPos.y} ${bPos.x},${bPos.y}`;
+  } else {
+    pathD = `M${allPts[0].x},${allPts[0].y}`;
+    for (let i = 0; i < allPts.length - 1; i++) {
+      const p0 = allPts[Math.max(0, i-1)];
+      const p1 = allPts[i];
+      const p2 = allPts[i+1];
+      const p3 = allPts[Math.min(allPts.length-1, i+2)];
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      pathD += ` C${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+  }
+  path.setAttribute('d', pathD);
+  path.setAttribute('stroke', cor); path.setAttribute('stroke-width','2'); path.setAttribute('fill','none');
+  path.setAttribute('class','wire'); path.style.cursor = 'cell';
+  if (!isCompat) path.setAttribute('stroke-dasharray','4,3');
+
+  // Clique no fio → criar ponto (com delay para não conflitar com dblclick)
+  path.addEventListener('click', e => {
+    if (drawingWire) return;
+    e.stopPropagation();
+    // Mostrar info do cabo no painel
+    selecionarCabo(conn);
+    clearTimeout(wireClickTimer);
+    const coords = svgCoords(e);
+    wireClickTimer = setTimeout(() => {
+      wireClickTimer = null;
+      const allPts = [aPos, ...(conn.waypoints||[]), bPos];
+      let bestSeg = 0, bestDist = Infinity;
+      for (let i = 0; i < allPts.length - 1; i++) {
+        const d = distToSegment(coords, allPts[i], allPts[i+1]);
+        if (d < bestDist) { bestDist = d; bestSeg = i; }
+      }
+      if (!conn.waypoints) conn.waypoints = [];
+      conn.waypoints.splice(bestSeg, 0, { x: coords.x, y: coords.y });
+      renderConexao(conn);
+    }, 220);
+  });
+  path.addEventListener('dblclick', e => { e.stopPropagation(); remover(); });
+  grp.appendChild(path);
+
+  // Circles dos waypoints — drag para mover, dblclick para remover
+  wps.forEach((wp, idx) => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx', wp.x); c.setAttribute('cy', wp.y); c.setAttribute('r', 5);
+    c.setAttribute('fill', cor); c.setAttribute('stroke','#0d1117'); c.setAttribute('stroke-width','1.5');
+    c.setAttribute('cursor','move');
+    c.addEventListener('mousedown', e => { e.stopPropagation(); e.preventDefault(); draggingWaypoint = { conn, idx }; });
+    c.addEventListener('dblclick', e => {
+      e.stopPropagation();
+      conn.waypoints.splice(idx, 1);
+      renderConexao(conn);
+      atualizarBudgetsSwitches();
+    });
+    grp.appendChild(c);
+  });
+
+  // X se incompatível
+  if (!isCompat) {
+    const mx = (aPos.x + bPos.x) / 2;
+    const my = (aPos.y + bPos.y) / 2;
+    const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circ.setAttribute('cx', mx); circ.setAttribute('cy', my); circ.setAttribute('r', 9);
+    circ.setAttribute('fill','#da3633'); circ.setAttribute('stroke','#0d1117'); circ.setAttribute('stroke-width','1.5');
+    grp.appendChild(circ);
+    const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x', mx); txt.setAttribute('y', my + 4);
+    txt.setAttribute('text-anchor','middle'); txt.setAttribute('font-size','11');
+    txt.setAttribute('font-weight','bold'); txt.setAttribute('fill','#fff');
+    txt.setAttribute('pointer-events','none'); txt.textContent = '✕';
+    grp.appendChild(txt);
+  }
+
+  grp.addEventListener('mouseenter', e => showTooltip(e, isCompat ? 'Clique para criar ponto de curvatura · Duplo-clique no fio para remover' : '❌ Conexão inválida — duplo-clique para remover'));
+  grp.addEventListener('mouseleave', hideTooltip);
+  wiresLayer.appendChild(grp);
+}
+
+// ============================================================
+// SELEÇÃO E INFO
+// ============================================================
+function selecionarInstancia(instId) {
+  document.querySelectorAll('.comp-svg-group').forEach(g => g.classList.remove('comp-selected'));
+  // remover botão delete anterior
+  const oldBtn = document.getElementById('delete-btn');
+  if (oldBtn) oldBtn.remove();
+
+  const g = document.getElementById('inst-' + instId);
+  if (g) g.classList.add('comp-selected');
+  selecionado = instId;
+  const inst = instancias.find(i=>i.id===instId);
+  if (!inst) return;
+  const def = COMPONENTES[inst.tipo];
+  mostrarInfoComp(def, instId);
+  showTab('info');
+
+  // Botão ✕ flutuante sobre o componente
+  const rect = svg.getBoundingClientRect();
+  const btn = document.createElement('button');
+  btn.id = 'delete-btn';
+  btn.title = 'Excluir componente (Delete)';
+  btn.textContent = '✕';
+  btn.style.cssText = `position:absolute;top:${inst.y - 12}px;left:${inst.x + inst.w - 12}px;width:22px;height:22px;background:#da3633;color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:12px;line-height:1;z-index:50;display:flex;align-items:center;justify-content:center;`;
+  btn.addEventListener('click', e => { e.stopPropagation(); deletarSelecionado(); });
+  canvasWrap.appendChild(btn);
+}
+
+function deletarSelecionado() {
+  if (!selecionado) return;
+  // Remover fios conectados
+  const fiosParaRemover = conexoes.filter(c => c.a.instId === selecionado || c.b.instId === selecionado);
+  fiosParaRemover.forEach(c => {
+    const el = document.getElementById('conn-' + c.id);
+    if (el) el.remove();
+  });
+  conexoes = conexoes.filter(c => c.a.instId !== selecionado && c.b.instId !== selecionado);
+  // Remover elemento do canvas
+  const g = document.getElementById('inst-' + selecionado);
+  if (g) g.remove();
+  instancias = instancias.filter(i => i.id !== selecionado);
+  desselecionar();
+  atualizarBudgetsSwitches();
+  if (instancias.length === 0) canvasEmpty.style.display = 'block';
+}
+
+function desselecionar() {
+  document.querySelectorAll('.comp-svg-group').forEach(g => g.classList.remove('comp-selected'));
+  const oldBtn = document.getElementById('delete-btn');
+  if (oldBtn) oldBtn.remove();
+  selecionado = null;
+}
+
+// Tecla Delete/Backspace para excluir selecionado
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Delete' || e.key === 'Backspace') && selecionado && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+    e.preventDefault();
+    deletarSelecionado();
+  }
+  if (e.key === 'Escape') { cancelarFio(); desselecionar(); }
+});
+
+function mostrarInfoComp(def, instId) {
+  const ts = getTerminais(def);
+  document.getElementById('info-placeholder').style.display = 'none';
+  const box = document.getElementById('info-comp');
+  box.style.display = 'block';
+  let html = `<div class="info-box"><h4>${def.icone} ${def.nome}</h4><p>${def.info}</p>`;
+  if (ts.length) {
+    html += `<div class="terminal-list">`;
+    ts.forEach(t => {
+      const cor = t.cor || getWireColor(t.tipo);
+      html += `<div class="terminal-item"><div class="terminal-dot" style="background:${cor}"></div><span style="color:#c9d1d9">${t.nome}</span><span style="color:#8b949e;margin-left:4px;">— ${t.desc||t.tipo}</span></div>`;
+    });
+    html += `</div></div>`;
+  }
+  if (def.erros && def.erros.length) {
+    html += `<p style="font-size:11px;color:#8b949e;margin:6px 0 4px">⚠️ Erros comuns:</p>`;
+    def.erros.forEach(e => { html += `<div class="erro-comum">${e}</div>`; });
+  }
+
+  // Botão de disparo para controladores e botões de acesso
+  const TIPOS_DISPARO = ['botao-saida','controle-facial','controle-facial-poe','rele-12v'];
+  if (instId && TIPOS_DISPARO.includes(def.id)) {
+    const inst = instancias.find(i => i.id === instId);
+    const podDisparar = inst && inst._powered && !inst._triggered;
+
+    // Detectar modo de operação do Botão de Saída
+    if (def.id === 'botao-saida') {
+      const hasPwrConn = conexoes.some(c =>
+        (c.a.instId === instId && (c.a.termId === 'pwr-in' || c.a.termId === 'pwr-out')) ||
+        (c.b.instId === instId && (c.b.termId === 'pwr-in' || c.b.termId === 'pwr-out'))
+      );
+      const hasBtnConn = conexoes.some(c =>
+        (c.a.instId === instId && (c.a.termId === 'no1' || c.a.termId === 'com1')) ||
+        (c.b.instId === instId && (c.b.termId === 'no1' || c.b.termId === 'com1'))
+      );
+      const modoLabel = hasPwrConn
+        ? '<span style="color:#ff7043;font-weight:700">⚡ Modo 2 — Bypass Direto</span>'
+        : hasBtnConn
+          ? '<span style="color:#4caf50;font-weight:700">↗ Modo 1 — Via Controlador</span>'
+          : '<span style="color:#8b949e">— Não conectado</span>';
+      html += `<p style="font-size:11px;margin:8px 0 4px">Modo de operação: ${modoLabel}</p>`;
+    }
+
+    html += `<button id="btn-disparo-${instId}" class="btn-disparo" ${podDisparar ? '' : 'disabled'} onclick="dispararControle('${instId}')">
+      ⚡ Simular Acionamento
+    </button>`;
+    if (!podDisparar && inst && !inst._powered) {
+      html += `<p style="font-size:10px;color:#f85149;margin-top:4px">⚠ Dispositivo desligado — conecte energia primeiro.</p>`;
+    }
+  }
+
+  box.innerHTML = html;
+}
+
+// ============================================================
+// DRAG-AND-DROP DO SIDEBAR
+// ============================================================
+document.querySelectorAll('.comp-item').forEach(item => {
+  item.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('tipo', item.dataset.tipo);
+  });
+});
+
+const canvasWrap = document.getElementById('canvas-wrap');
+canvasWrap.addEventListener('dragover', e => e.preventDefault());
+canvasWrap.addEventListener('drop', e => {
+  e.preventDefault();
+  const tipo = e.dataTransfer.getData('tipo');
+  if (!tipo) return;
+  const rect = svg.getBoundingClientRect();
+  const x = e.clientX - rect.left - (COMPONENTES[tipo]?.w||140)/2;
+  const y = e.clientY - rect.top - (COMPONENTES[tipo]?.h||80)/2;
+  novaInstancia(tipo, Math.max(0,x), Math.max(0,y));
+});
+
+// ============================================================
+// VALIDAÇÃO
+// ============================================================
+function validarCircuito() {
+  const bar = document.getElementById('resultado-bar');
+  if (instancias.length === 0) {
+    bar.innerHTML = '<span class="resultado-vazio">Nenhum componente no canvas.</span>';
+    return;
+  }
+
+  const resultados = [];
+  let ok = 0, erros = 0, avisos = 0;
+
+  // 1. Verificar conexões incompatíveis
+  conexoes.forEach(conn => {
+    const aInst = instancias.find(i=>i.id===conn.a.instId);
+    const bInst = instancias.find(i=>i.id===conn.b.instId);
+    if (!aInst || !bInst) return;
+    const aDef = COMPONENTES[aInst.tipo];
+    const bDef = COMPONENTES[bInst.tipo];
+    const aTs = getTerminais(aDef);
+    const bTs = getTerminais(bDef);
+    const aT = aTs.find(t=>t.id===conn.a.termId);
+    const bT = bTs.find(t=>t.id===conn.b.termId);
+    if (!aT || !bT) return;
+    const compat = (COMPAT[aT.tipo]||[]).includes(bT.tipo);
+    if (compat) {
+      resultados.push({ tipo:'ok', msg:`✓ ${aDef.nome} → ${bDef.nome}: ${aT.nome} ↔ ${bT.nome}` });
+      ok++;
+    } else {
+      resultados.push({ tipo:'erro', msg:`✗ Incompatível: ${aDef.nome}.${aT.nome} (${aT.tipo}) → ${bDef.nome}.${bT.nome} (${bT.tipo})` });
+      erros++;
+    }
+  });
+
+  // 2. Câmeras PoE: verificar se conectadas em fonte PoE real
+  const TIPOS_CAM_POE = ['camera-ip-poe','camera-ip-poe-7w','camera-ip-poe-25w','camera-ip-bivolt','camera-dome-poe','camera-bullet-poe','camera-ptz-poe'];
+  instancias.filter(i=>TIPOS_CAM_POE.includes(i.tipo)).forEach(inst => {
+    const connRj45 = conexoes.filter(c =>
+      (c.a.instId===inst.id && (c.a.termId==='rj45')) ||
+      (c.b.instId===inst.id && (c.b.termId==='rj45'))
+    );
+    if (connRj45.length === 0) {
+      resultados.push({ tipo:'aviso', msg:`⚠ ${COMPONENTES[inst.tipo].nome}: RJ45/PoE não conectado` }); avisos++;
+    } else {
+      // Verificar se o outro lado tem PoE
+      connRj45.forEach(c => {
+        const outroId = c.a.instId===inst.id ? c.b.instId : c.a.instId;
+        const outroTerm = c.a.instId===inst.id ? c.b.termId : c.a.termId;
+        const outro = instancias.find(i=>i.id===outroId);
+        if (!outro) return;
+        const outroDef = COMPONENTES[outro.tipo];
+        const outroTs = getTerminais(outroDef);
+        const outroT = outroTs.find(t=>t.id===outroTerm);
+        if (outroT && outroT.tipo === 'rj45-dados') {
+          resultados.push({ tipo:'erro', msg:`✗ ERRO CRÍTICO: ${COMPONENTES[inst.tipo].nome} conectada em ${outroDef.nome} que NÃO tem PoE — câmera não irá ligar!` }); erros++;
+        } else {
+          resultados.push({ tipo:'ok', msg:`✓ ${COMPONENTES[inst.tipo].nome}: PoE conectado corretamente` }); ok++;
+        }
+      });
+    }
+  });
+
+  // Câmera 12V: verificar +12V e GND
+  instancias.filter(i=>['camera-ip-12v','camera-dome-12v','camera-bullet-12v','camera-ptz-12v'].includes(i.tipo)).forEach(inst => {
+    const tem12v = conexoes.some(c=>(c.a.instId===inst.id&&c.a.termId==='v12-pos')||(c.b.instId===inst.id&&c.b.termId==='v12-pos'));
+    const temGnd = conexoes.some(c=>(c.a.instId===inst.id&&c.a.termId==='gnd')||(c.b.instId===inst.id&&c.b.termId==='gnd'));
+    if (!tem12v) { resultados.push({tipo:'erro', msg:'✗ Câmera IP 12V: terminal +12V não conectado — sem alimentação'}); erros++; }
+    else if (!temGnd) { resultados.push({tipo:'erro', msg:'✗ Câmera IP 12V: GND não conectado — câmera instável ou não liga'}); erros++; }
+    else { resultados.push({tipo:'ok', msg:'✓ Câmera IP 12V: alimentação 12V conectada corretamente'}); ok++; }
+  });
+
+  // 3. Fonte 12V sem carga
+  instancias.filter(i=>i.tipo==='fonte-12v'||i.tipo==='nobreak-12v').forEach(inst => {
+    const temCarga = conexoes.some(c =>
+      (c.a.instId===inst.id && (c.a.termId==='v12-pos'||c.a.termId==='gnd')) ||
+      (c.b.instId===inst.id && (c.b.termId==='v12-pos'||c.b.termId==='gnd'))
+    );
+    if (!temCarga) {
+      resultados.push({ tipo:'aviso', msg:`⚠ ${COMPONENTES[inst.tipo].nome} sem carga conectada` }); avisos++;
+    }
+  });
+
+  // 4. Budget PoE por switch
+  instancias.filter(i => COMPONENTES[i.tipo] && COMPONENTES[i.tipo].budget_poe_w).forEach(inst => {
+    const swDef = COMPONENTES[inst.tipo];
+    const swTs = getTerminais(swDef);
+    let consumoTotal = 0;
+    const camerasList = [];
+
+    conexoes.forEach(c => {
+      const isSwitchA = c.a.instId === inst.id;
+      const isSwitchB = c.b.instId === inst.id;
+      if (!isSwitchA && !isSwitchB) return;
+      const switchTermId = isSwitchA ? c.a.termId : c.b.termId;
+      const switchT = swTs.find(t => t.id === switchTermId);
+      if (!switchT || switchT.tipo !== 'rj45-poe-out') return;
+      const camInstId = isSwitchA ? c.b.instId : c.a.instId;
+      const camInst = instancias.find(i => i.id === camInstId);
+      if (!camInst) return;
+      const camDef = COMPONENTES[camInst.tipo];
+      if (camDef && camDef.consumo_w > 0) {
+        consumoTotal += camDef.consumo_w;
+        camerasList.push(`${camDef.nome} (${camDef.consumo_w}W)`);
+      }
+    });
+
+    if (consumoTotal === 0) {
+      resultados.push({ tipo:'aviso', msg:`⚠ ${swDef.nome}: Nenhuma câmera PoE conectada (budget ${swDef.budget_poe_w}W disponível)` }); avisos++;
+    } else if (consumoTotal > swDef.budget_poe_w) {
+      resultados.push({ tipo:'erro', msg:`✗ SOBRECARGA PoE: ${swDef.nome} — ${consumoTotal}W excede budget de ${swDef.budget_poe_w}W! (${camerasList.join(', ')})` }); erros++;
+    } else {
+      const pct = Math.round((consumoTotal / swDef.budget_poe_w) * 100);
+      resultados.push({ tipo:'ok', msg:`✓ Budget PoE OK: ${swDef.nome} — ${consumoTotal}W / ${swDef.budget_poe_w}W usados (${pct}%)` }); ok++;
+    }
+  });
+
+  // 5. Fechadura sem COM conectado
+  ['fechadura-na','fechadura-nf','eletroima'].forEach(tipo => {
+    instancias.filter(i=>i.tipo===tipo).forEach(inst => {
+      const temCom = conexoes.some(c =>
+        (c.a.instId===inst.id) || (c.b.instId===inst.id)
+      );
+      if (!temCom) {
+        resultados.push({ tipo:'aviso', msg:`⚠ ${COMPONENTES[tipo].nome} sem nenhuma conexão` }); avisos++;
+      }
+    });
+  });
+
+  if (conexoes.length === 0 && instancias.length > 0) {
+    resultados.push({ tipo:'aviso', msg:`⚠ Componentes no canvas mas nenhuma conexão realizada` }); avisos++;
+  }
+
+  // Montar HTML
+  const cor = erros > 0 ? '#f85149' : avisos > 0 ? '#d29922' : '#3fb950';
+  let html = `<div style="display:flex;align-items:center;gap:16px;margin-bottom:6px;">
+    <span style="font-size:12px;font-weight:600;color:${cor}">${erros===0&&avisos===0?'✓ Circuito OK':'Resultado da Validação'}</span>
+    <span class="resultado-ok">✓ ${ok} corretas</span>
+    ${avisos>0?`<span class="resultado-aviso">⚠ ${avisos} avisos</span>`:''}
+    ${erros>0?`<span class="resultado-erro">✗ ${erros} erros</span>`:''}
+  </div>`;
+  resultados.forEach(r => {
+    html += `<div class="resultado-item ${r.tipo==='ok'?'resultado-ok':r.tipo==='erro'?'resultado-erro':'resultado-aviso'}">${r.msg}</div>`;
+  });
+  bar.innerHTML = html;
+}
+
+// ============================================================
+// CENÁRIOS
+// ============================================================
+// ============================================================
+// CENÁRIOS PRÉ-MONTADOS (canvas completo)
+// ============================================================
+const CENARIOS_CANVAS = {
+  'c1': {
+    nodes: [
+      {tipo:'tomada-127v',      x:50,  y:370},
+      {tipo:'switch-poe',       x:60,  y:180},
+      {tipo:'camera-ip-poe-7w', x:360, y:100},
+      {tipo:'camera-ip-poe',    x:360, y:250},
+      {tipo:'camera-ip-poe',    x:360, y:400}
+    ],
+    edges: [
+      [0,'ac-out', 1,'ac-in'],
+      [1,'poe1', 2,'rj45'],
+      [1,'poe2', 3,'rj45'],
+      [1,'poe3', 4,'rj45']
+    ]
+  },
+  'c2': {
+    nodes: [
+      {tipo:'tomada-127v',    x:40,  y:220},
+      {tipo:'nobreak-12v',    x:210, y:190},
+      {tipo:'bateria-chumbo', x:220, y:390},
+      {tipo:'switch-normal',  x:440, y:140},
+      {tipo:'camera-ip-12v',  x:440, y:310}
+    ],
+    edges: [
+      [0,'ac-out',  1,'ac-in'],
+      [1,'bat-pos', 2,'bat-pos'],
+      [1,'bat-neg', 2,'bat-neg'],
+      [1,'v12-pos', 4,'v12-pos'],
+      [1,'gnd',     4,'gnd'],
+      [3,'p1',      4,'rj45']
+    ]
+  },
+  'c3': {
+    nodes: [
+      {tipo:'tomada-127v',         x:50,  y:420},
+      {tipo:'switch-poe',          x:50,  y:220},
+      {tipo:'controle-facial-poe', x:330, y:160},
+      {tipo:'fechadura-na',        x:610, y:180},
+      {tipo:'botao-saida',         x:330, y:400}
+    ],
+    edges: [
+      [0,'ac-out',   1,'ac-in'],
+      [1,'poe1',     2,'rj45'],
+      [2,'rele-com', 3,'com'],
+      [2,'rele-na',  3,'na'],
+      [4,'no1',      2,'btn-in'],
+      [4,'com1',     2,'btn-gnd']
+    ]
+  },
+  'c4': {
+    nodes: [
+      {tipo:'tomada-127v',    x:40,  y:270},
+      {tipo:'fonte-12v',      x:210, y:240},
+      {tipo:'controle-facial',x:420, y:160},
+      {tipo:'eletroima',      x:700, y:220},
+      {tipo:'botao-saida',    x:420, y:400}
+    ],
+    edges: [
+      [0,'ac-out',   1,'ac-in'],
+      [1,'v12-pos',  2,'v12-in'],
+      [1,'gnd',      2,'gnd-in'],
+      [1,'v12-pos',  2,'rele-com'],
+      [2,'rele-nf',  3,'pos'],
+      [1,'gnd',      3,'neg'],
+      [4,'no1',      2,'btn-in'],
+      [4,'com1',     2,'btn-gnd']
+    ]
+  },
+  'c5': {
+    nodes: [
+      {tipo:'tomada-127v',          x:50,  y:480},
+      {tipo:'switch-poe-plus-250w', x:50,  y:180},
+      {tipo:'camera-ip-poe-25w',    x:360, y:80},
+      {tipo:'camera-ip-poe-25w',    x:360, y:230},
+      {tipo:'camera-ip-poe-7w',     x:360, y:380},
+      {tipo:'switch-poe',           x:360, y:500}
+    ],
+    edges: [
+      [0,'ac-out', 1,'ac-in'],
+      [0,'ac-out', 5,'ac-in'],
+      [1,'poe1', 2,'rj45'],
+      [1,'poe2', 3,'rj45'],
+      [1,'poe3', 4,'rj45'],
+      [1,'poe4', 5,'poe1']
+    ]
+  },
+  'c6': {
+    nodes: [
+      {tipo:'tomada-127v',         x:40,  y:150},
+      {tipo:'switch-poe',          x:180, y:80},
+      {tipo:'camera-dome-poe',     x:450, y:30},
+      {tipo:'camera-bullet-poe',   x:450, y:170},
+      {tipo:'controle-facial-poe', x:450, y:310},
+      {tipo:'controle-facial-poe', x:450, y:500},
+      {tipo:'fechadura-nf',        x:730, y:330},
+      {tipo:'eletroima',           x:730, y:540},
+      {tipo:'tomada-127v',         x:40,  y:480},
+      {tipo:'nobreak-12v',         x:190, y:450},
+      {tipo:'bateria-chumbo',      x:200, y:610},
+      {tipo:'botao-saida',         x:220, y:310}
+    ],
+    edges: [
+      [0,'ac-out',   1,'ac-in'],
+      [8,'ac-out',   9,'ac-in'],
+      [9,'bat-pos',  10,'bat-pos'],
+      [9,'bat-neg',  10,'bat-neg'],
+      [1,'poe1',     2,'rj45'],
+      [1,'poe2',     3,'rj45'],
+      [1,'poe3',     4,'rj45'],
+      [1,'poe4',     5,'rj45'],
+      [4,'rele-nf',  6,'com'],
+      [4,'rele-com', 6,'nf'],
+      [9,'v12-pos',  5,'rele-com'],
+      [5,'rele-nf',  7,'pos'],
+      [9,'gnd',      7,'neg'],
+      [11,'no1',     4,'btn-in'],
+      [11,'com1',    4,'btn-gnd']
+    ]
+  }
+};
+
+function limparCanvasSilencioso() {
+  instancias = []; conexoes = []; idCounter = 0;
+  compsLayer.innerHTML = ''; wiresLayer.innerHTML = '';
+  canvasEmpty.style.display = 'block';
+  document.getElementById('resultado-bar').innerHTML = '<span class="resultado-vazio">Clique em "Validar Circuito" para verificar as conexões</span>';
+}
+
+function carregarCanvasCenario(cenarioId) {
+  const def = CENARIOS_CANVAS[cenarioId];
+  if (!def) return;
+  if (instancias.length && !confirm('Isso vai substituir o canvas atual. Continuar?')) return;
+  limparCanvasSilencioso();
+  const insts = def.nodes.map(n => novaInstancia(n.tipo, n.x, n.y));
+  def.edges.forEach(([ai, at, bi, bt]) => {
+    if (insts[ai] && insts[bi]) criarConexao(insts[ai].id, at, insts[bi].id, bt);
+  });
+  atualizarBudgetsSwitches();
+  document.getElementById('resultado-bar').innerHTML = '<span class="resultado-vazio">Cenário carregado — clique "Validar Circuito" para verificar</span>';
+}
+
+function getEstadoCanvas() {
+  return {
+    instancias: JSON.parse(JSON.stringify(instancias)),
+    conexoes:   JSON.parse(JSON.stringify(conexoes)),
+    idCounter
+  };
+}
+
+function carregarEstadoCanvas(estado) {
+  instancias = JSON.parse(JSON.stringify(estado.instancias));
+  conexoes   = JSON.parse(JSON.stringify(estado.conexoes));
+  idCounter  = estado.idCounter;
+  compsLayer.innerHTML = ''; wiresLayer.innerHTML = '';
+  canvasEmpty.style.display = instancias.length ? 'none' : 'block';
+  instancias.forEach(i => renderInstancia(i));
+  conexoes.forEach(c => renderConexao(c));
+  atualizarBudgetsSwitches();
+}
+
+const PROJ_KEY = 'netops_simulador_projetos';
+
+function salvarProjeto() {
+  const input = document.getElementById('projeto-nome-input');
+  const nome = (input.value || '').trim();
+  if (!nome) { input.focus(); mostrarAvisoDestaque('⚠️ Digite um nome para o projeto.'); return; }
+  if (!instancias.length) { mostrarAvisoDestaque('⚠️ Canvas vazio — adicione componentes antes de salvar.'); return; }
+  const projetos = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}');
+  projetos[nome] = { estado: getEstadoCanvas(), ts: new Date().toISOString() };
+  localStorage.setItem(PROJ_KEY, JSON.stringify(projetos));
+  input.value = '';
+  renderizarProjetos();
+  mostrarAvisoDestaque('✅ Projeto "' + nome + '" salvo!');
+}
+
+function carregarProjeto(nome) {
+  const projetos = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}');
+  const p = projetos[nome];
+  if (!p) return;
+  if (instancias.length && !confirm('Substituir canvas atual com o projeto "' + nome + '"?')) return;
+  carregarEstadoCanvas(p.estado);
+  document.getElementById('resultado-bar').innerHTML = '<span class="resultado-vazio">Projeto "' + nome + '" carregado — clique "Validar Circuito" para verificar</span>';
+}
+
+function excluirProjeto(nome) {
+  if (!confirm('Excluir projeto "' + nome + '"?')) return;
+  const projetos = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}');
+  delete projetos[nome];
+  localStorage.setItem(PROJ_KEY, JSON.stringify(projetos));
+  renderizarProjetos();
+}
+
+function renderizarProjetos() {
+  const lista = document.getElementById('projetos-list');
+  const projetos = JSON.parse(localStorage.getItem(PROJ_KEY) || '{}');
+  const nomes = Object.keys(projetos);
+  if (!nomes.length) {
+    lista.innerHTML = '<div class="projeto-empty">Nenhum projeto salvo.<br>Monte um diagrama e salve aqui.</div>';
+    return;
+  }
+  lista.innerHTML = '';
+  nomes.slice().reverse().forEach(nome => {
+    const p = projetos[nome];
+    const data = new Date(p.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const nomeEsc = nome.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const div = document.createElement('div');
+    div.className = 'projeto-card';
+    div.innerHTML = `<div class="projeto-card-header"><span class="projeto-nome">${nome}</span><span class="projeto-data">${data}</span></div>
+      <div class="projeto-actions">
+        <button class="projeto-btn projeto-btn-load" onclick="carregarProjeto('${nomeEsc}')">����� Carregar</button>
+        <button class="projeto-btn projeto-btn-del" onclick="excluirProjeto('${nomeEsc}')">🗑 Excluir</button>
+      </div>`;
+    lista.appendChild(div);
+  });
+}
+
+const CENARIOS = [
+  { id:'c1', titulo:'Câmera IP com PoE', nivel:'Iniciante', icone:'📷',
+    desc:'Conecte uma câmera IP em um switch PoE usando cabo UTP. A câmera deve receber dados e alimentação pelo mesmo cabo (pinos 1,2,3,6 para dados; 4,5,7,8 para PoE).',
+    dicas:['Use sempre T568B nas duas pontas para cabo direto','PoE usa os pares de dados (1,2,3,6) e os pares de reserva (4,5,7,8)'],
+    erros:['Crimpar em 568A quando rede usa 568B','Usar par errado para PoE']
+  },
+  { id:'c2', titulo:'Fechadura NA com Botão de Saída', nivel:'Iniciante', icone:'🔓',
+    desc:'Instale uma fechadura NA (Normalmente Aberta) com fonte 12V e botão de saída. A porta trava com energia e abre ao apertar o botão.',
+    dicas:['NA = sem energia fica ABERTA — instale onde falha de energia não é problema','Botão pulsador NO corta momentaneamente o circuito para liberar','Para mais segurança use NF: porta trava sem energia'],
+    erros:['Confundir NA com NF','Usar botão NC em vez de NO']
+  },
+  { id:'c3', titulo:'Eletroímã Fail-Safe', nivel:'Intermediário', icone:'🧲',
+    desc:'Configure um eletroímã controlado por controle de acesso facial. O eletroímã trava com energia (fail-safe: abre sem energia).',
+    dicas:['Eletroímã fail-safe é mais seguro: emergência abre a porta','O relé do facial corta o GND do eletroímã para liberar','Use nobreak para não abrir portas em queda de energia'],
+    erros:['Inverter polaridade do eletroímã','Não instalar diodo de proteção no relé']
+  },
+  { id:'c4', titulo:'Sistema Completo CFTV + Acesso', nivel:'Avançado', icone:'🏢',
+    desc:'Monte um sistema com câmera IP PoE, fechadura NF controlada por facial, botão de saída e nobreak para garantir continuidade mesmo sem energia.',
+    dicas:['NF = porta trava sem energia — mais seguro para saídas de emergência','Nobreak garante que a câmera e o controle de acesso funcionem em queda de energia','Dimensione a bateria: some o consumo de todos os equipamentos'],
+    erros:['Não incluir nobreak em locais críticos','Subdimensionar a fonte 12V','Não ligar câmera no switch PoE (ligar no uplink por engano)']
+  },
+  { id:'c6', titulo:'Lab IoT POC — CFTV + Duplo Acesso', nivel:'Avançado', icone:'🔬',
+    desc:'Cenário de laboratório com 2 câmeras PoE (dome e bullet), leitores faciais Hikvision e iDFace, fechadura NF e eletroímã controlados por leitores distintos, com nobreak 12V e bateria de backup para as fechaduras.',
+    dicas:[
+      'Budget do switch: 13W (dome) + 15W (bullet) + 12W (Hikvision) + 12W (iDFace) = 52W < 65W ✓',
+      'Hikvision controla fechadura NF via relé NA — abre ao reconhecer',
+      'iDFace controla eletroímã via relé NF — fail-safe: abre se perder energia',
+      'Nobreak + bateria mantém o eletroímã travado durante queda de energia AC'
+    ],
+    erros:[
+      'Ligar 12V e PoE no mesmo leitor simultaneamente — dano ao equipamento',
+      'Confundir NA/NF nos terminais do relé do leitor',
+      'Subdimensionar a bateria — calcule o consumo das fechaduras'
+    ]
+  }
+];
+
+function popularCenarios() {
+  const sel = document.getElementById('sel-cenario');
+  const lista = document.getElementById('cenarios-list');
+  CENARIOS.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id; opt.textContent = c.titulo;
+    sel.appendChild(opt);
+
+    const div = document.createElement('div');
+    div.className = 'cenario-card';
+    div.dataset.id = c.id;
+    div.innerHTML = `<div class="cenario-titulo">${c.icone} ${c.titulo}</div><div class="cenario-nivel">${c.nivel}</div><div class="cenario-desc">${c.desc}</div><button class="cenario-load-btn" onclick="event.stopPropagation();carregarCanvasCenario('${c.id}')">🎯 Carregar no Canvas</button>`;
+    div.addEventListener('click', () => selecionarCenario(c.id));
+    lista.appendChild(div);
+  });
+}
+
+function selecionarCenario(id) {
+  cenarioAtual = CENARIOS.find(c=>c.id===id);
+  if (!cenarioAtual) return;
+  document.querySelectorAll('.cenario-card').forEach(d => d.classList.toggle('selected', d.dataset.id===id));
+  document.getElementById('sel-cenario').value = id;
+  mostrarDicas(cenarioAtual);
+  showTab('dicas');
+}
+
+document.getElementById('sel-cenario').addEventListener('change', e => {
+  if (e.target.value) selecionarCenario(e.target.value);
+});
+
+function mostrarDicas(c) {
+  const div = document.getElementById('dicas-content');
+  let html = `<p style="font-size:12px;font-weight:600;color:#e6edf3;margin-bottom:8px;">${c.icone} ${c.titulo}</p>`;
+  html += `<div class="info-box"><p>${c.desc}</p></div>`;
+  if (c.dicas.length) {
+    html += `<p style="font-size:11px;color:#8b949e;margin:8px 0 4px">💡 Dicas:</p>`;
+    c.dicas.forEach(d => { html += `<div class="dica">${d}</div>`; });
+  }
+  if (c.erros.length) {
+    html += `<p style="font-size:11px;color:#8b949e;margin:8px 0 4px">⚠️ Erros comuns:</p>`;
+    c.erros.forEach(e => { html += `<div class="erro-comum">${e}</div>`; });
+  }
+  div.innerHTML = html;
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(name) {
+  document.querySelectorAll('.panel-tab').forEach((t,i) => {
+    const names = ['info','cenarios','dicas','projetos'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.panel-content').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name === 'projetos') renderizarProjetos();
+}
+
+// ============================================================
+// TOOLTIP
+// ============================================================
+function showTooltip(e, text) {
+  const tt = document.getElementById('tooltip');
+  tt.textContent = text;
+  tt.style.display = 'block';
+  tt.style.left = (e.clientX+12)+'px';
+  tt.style.top = (e.clientY+12)+'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').style.display = 'none';
+}
+document.addEventListener('mousemove', e => {
+  const tt = document.getElementById('tooltip');
+  if (tt.style.display==='block') { tt.style.left=(e.clientX+12)+'px'; tt.style.top=(e.clientY+12)+'px'; }
+});
+
+// ============================================================
+// EXPLICAÇÃO DE INCOMPATIBILIDADES
+// ============================================================
+function explicarIncompatibilidade(aDef, aT, bDef, bT) {
+  // Câmera PoE em switch sem PoE
+  if (aT.tipo === 'rj45-poe' && bT.tipo === 'rj45-dados')
+    return `❌ ERRO: ${aDef.nome} precisa de PoE, mas ${bDef.nome} não fornece PoE. A câmera NÃO irá ligar!`;
+  if (bT.tipo === 'rj45-poe' && aT.tipo === 'rj45-dados')
+    return `❌ ERRO: ${bDef.nome} precisa de PoE, mas ${aDef.nome} não fornece PoE. A câmera NÃO irá ligar!`;
+  // 12V invertido
+  if ((aT.tipo === '12v-positivo' && bT.tipo === '12v-negativo') ||
+      (aT.tipo === '12v-negativo' && bT.tipo === '12v-positivo'))
+    return `❌ ERRO: Polaridade invertida! +12V conectado no GND — risco de dano ao equipamento!`;
+  // AC em DC
+  if ((aT.tipo === 'ac-220v' || aT.tipo === 'ac-127v' || aT.tipo === 'ac-bivolt') && bT.tipo.startsWith('12v'))
+    return `❌ ERRO: Tentando ligar AC (${aT.nome}) em terminal DC (${bT.nome}) — curto-circuito!`;
+  if ((bT.tipo === 'ac-220v' || bT.tipo === 'ac-127v' || bT.tipo === 'ac-bivolt') && aT.tipo.startsWith('12v'))
+    return `❌ ERRO: Tentando ligar AC (${bT.nome}) em terminal DC (${aT.nome}) — curto-circuito!`;
+  // Bateria invertida
+  if (aT.tipo === 'bateria-positivo' && bT.tipo === 'bateria-negativo')
+    return `❌ ERRO: Polaridade da bateria invertida — BAT+ no BAT-! Risco de explosão ou dano.`;
+  // NA/NF trocados em fechadura
+  if (aT.tipo === 'rele-na' && bT.tipo === 'rele-nf')
+    return `⚠️ ATENÇÃO: Conectando terminal NA em NF — comportamento da fechadura será oposto ao esperado!`;
+  // Genérico
+  return `⚠️ Conexão incompatível: ${aDef.nome} [${aT.nome}] → ${bDef.nome} [${bT.nome}]. Tipos: ${aT.tipo} ↔ ${bT.tipo}`;
+}
+
+// ============================================================
+// AVISO / LIMPAR
+// ============================================================
+function mostrarAvisoDestaque(msg) {
+  const bar = document.getElementById('resultado-bar');
+  if (bar.querySelector('.resultado-vazio')) bar.innerHTML = '';
+  const div = document.createElement('div');
+  const isErro = msg.startsWith('❌');
+  div.className = `resultado-item ${isErro ? 'resultado-erro' : 'resultado-aviso'}`;
+  div.style.cssText = 'font-weight:500;padding:4px 0;';
+  div.textContent = msg;
+  bar.appendChild(div);
+  // Scroll para mostrar
+  bar.scrollTop = bar.scrollHeight;
+}
+
+function mostrarAviso(msg) {
+  mostrarAvisoDestaque('⚠️ ' + msg);
+}
+
+function atualizarBudgetsSwitches() {
+  instancias.filter(i => COMPONENTES[i.tipo] && COMPONENTES[i.tipo].budget_poe_w).forEach(inst => {
+    const swDef = COMPONENTES[inst.tipo];
+    const swTs = getTerminais(swDef);
+    let consumoTotal = 0;
+    conexoes.forEach(c => {
+      const isSwitchA = c.a.instId === inst.id;
+      const isSwitchB = c.b.instId === inst.id;
+      if (!isSwitchA && !isSwitchB) return;
+      const switchTermId = isSwitchA ? c.a.termId : c.b.termId;
+      const switchT = swTs.find(t => t.id === switchTermId);
+      if (!switchT || switchT.tipo !== 'rj45-poe-out') return;
+      const camInstId = isSwitchA ? c.b.instId : c.a.instId;
+      const camInst = instancias.find(i => i.id === camInstId);
+      if (!camInst) return;
+      const camDef = COMPONENTES[camInst.tipo];
+      if (camDef && camDef.consumo_w > 0) consumoTotal += camDef.consumo_w;
+    });
+
+    const budget = swDef.budget_poe_w;
+    const pct = budget > 0 ? consumoTotal / budget : 0;
+    const cor = consumoTotal > budget ? '#f85149' : pct > 0.7 ? '#d29922' : '#3fb950';
+    const sinal = consumoTotal > budget ? '⚠ ' : '';
+    const budgetEl = document.getElementById('budget-' + inst.id);
+    if (budgetEl) {
+      budgetEl.textContent = `${sinal}PoE: ${consumoTotal}W / ${budget}W`;
+      budgetEl.setAttribute('fill', cor);
+    }
+    const bodyEl = document.getElementById('body-' + inst.id);
+    if (bodyEl) bodyEl.setAttribute('stroke', consumoTotal > budget ? '#f85149' : swDef.cor);
+  });
+  simular();
+}
+
+function limparCanvas() {
+  if (!confirm('Limpar todo o canvas? Essa ação não pode ser desfeita.')) return;
+  instancias = []; conexoes = []; idCounter = 0;
+  compsLayer.innerHTML = ''; wiresLayer.innerHTML = '';
+  canvasEmpty.style.display = 'block';
+  document.getElementById('resultado-bar').innerHTML = '<span class="resultado-vazio">Clique em "Validar Circuito" para verificar as conexões</span>';
+}
+
+// ============================================================
+// ============================================================
+// SIDEBAR: substituir emoji por ícones SVG
+// ============================================================
+function initSidebarIcons() {
+  document.querySelectorAll('.comp-item[data-tipo]').forEach(item => {
+    const tipo = item.dataset.tipo;
+    const def = COMPONENTES[tipo];
+    const span = item.querySelector('.comp-icon');
+    if (!def || !span) return;
+    const key = getIconKey(tipo);
+    if (!key || !ICONS[key]) return;
+    const svg = `<svg width="22" height="22" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;flex-shrink:0">${ICONS[key].replace(/{C}/g, def.cor)}</svg>`;
+    span.innerHTML = svg;
+  });
+}
+
+// INIT
+// ============================================================
+popularCenarios();
+renderizarProjetos();
+initSidebarIcons();
+mostrarDicas({ icone:'💡', titulo:'Dicas Gerais', desc:'Arraste componentes do painel esquerdo para o canvas. Clique em um terminal (círculo colorido) para iniciar uma conexão, depois clique no terminal de destino. Duplo-clique em um fio para removê-lo.',
+  dicas:['Terminais compatíveis: +12V → COM fechadura; GND → NA/NF','PoE: câmera → porta PoE do switch (não o uplink)','Nobreak = fonte + bateria integradas'], erros:[] });
+
+
+// BACKLOG — verificação de role
+(function() {
+  const token = localStorage.getItem('netops_token');
+  if (!token) return;
+  fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(d => {
+      var role = (d.user && d.user.role) || '';
+      if (role === 'administrador' || role === 'master') {
+        var btn = document.getElementById('btnBacklog');
+        if (btn) btn.style.display = '';
+      }
+    }).catch(function(){});
+})();
+
+function openBacklog() {
+  document.getElementById('modalBacklog').classList.add('open');
+}
+function closeBacklog() {
+  document.getElementById('modalBacklog').classList.remove('open');
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeBacklog();
+});
+
+
+// ============================================================
+// CABO UTP — PAINEL DE INFORMAÇÃO
+// ============================================================
+function selecionarCabo(conn) {
+  desselecionar();
+  showTab('info');
+
+  const instA = instancias.find(i => i.id === conn.a.instId);
+  const instB = instancias.find(i => i.id === conn.b.instId);
+  if (!instA || !instB) return;
+
+  const defA = COMPONENTES[instA.tipo];
+  const defB = COMPONENTES[instB.tipo];
+  const tsA  = getTerminais(defA);
+  const tsB  = getTerminais(defB);
+  const termA = tsA.find(t => t.id === conn.a.termId);
+  const termB = tsB.find(t => t.id === conn.b.termId);
+
+  const tipos = [termA?.tipo, termB?.tipo];
+  const isRJ45 = tipos.some(t => t && t.startsWith('rj45'));
+  const is12vPos = tipos.some(t => t === '12v-positivo');
+  const is12vNeg = tipos.some(t => t === '12v-negativo');
+  const isBat    = tipos.some(t => t && t.startsWith('bateria'));
+  const isPoE    = tipos.some(t => t === 'rj45-poe' || t === 'rj45-poe-out');
+  // isPoeAt = true somente se o dispositivo que CONSOME energia exige 802.3at
+  // O switch pode ser PoE+ mas se a câmera é 802.3af a negociação resulta em 802.3af
+  const isPoeAt = isPoE && (
+    (defA.padrão_poe === '802.3at' && defA.consumo_w > 0) ||
+    (defB.padrão_poe === '802.3at' && defB.consumo_w > 0) ||
+    (defA.consumo_w != null && defA.consumo_w >= 20) ||
+    (defB.consumo_w != null && defB.consumo_w >= 20)
+  );
+
+  document.getElementById('info-placeholder').style.display = 'none';
+  const box = document.getElementById('info-comp');
+  box.style.display = 'block';
+
+  if (is12vPos || is12vNeg || isBat) {
+    // Cabo DC — não UTP
+    box.innerHTML = `
+      <div class="info-box">
+        <h4>⚡ Cabo DC</h4>
+        <p>Cabo de alimentação em corrente contínua (CC/DC). Não utiliza pares UTP.</p>
+      </div>
+      <div class="cable-dc-row" style="border-left:2px solid #f44336">
+        <div style="width:10px;height:28px;background:#f44336;border-radius:2px;flex-shrink:0"></div>
+        <div><div style="font-size:11px;font-weight:600;color:#c9d1d9">Fio Positivo (+)</div><div style="font-size:10px;color:#8b949e">+12V DC — vermelho · conectar em +12V da fonte</div></div>
+      </div>
+      <div class="cable-dc-row" style="border-left:2px solid #555">
+        <div style="width:10px;height:28px;background:#555;border-radius:2px;flex-shrink:0"></div>
+        <div><div style="font-size:11px;font-weight:600;color:#c9d1d9">Fio Negativo (−) / GND</div><div style="font-size:10px;color:#8b949e">Terra · preto ou escuro · nunca inverter com positivo</div></div>
+      </div>
+      <div class="cable-note">⚠️ Inverter polaridade pode danificar permanentemente câmeras, controles e fechaduras. Verificar com multímetro antes de ligar.</div>
+    `;
+    return;
+  }
+
+  if (!isRJ45) {
+    box.innerHTML = '<div class="info-box"><h4>Cabo</h4><p>Selecione um cabo RJ45 ou DC para ver o mapa de pares.</p></div>';
+    return;
+  }
+
+  // Definir status dos 4 pares
+  const pares = [
+    {
+      nome: 'Par 1 — Azul / Branco-Azul',
+      cor1: '#2196f3', cor2: '#e3f2fd',
+      pinos: 'Pinos 4, 5',
+      func: isPoE ? (isPoeAt ? 'PoE+ Negativo (Alt B) · Alimentação' : 'Livre — não usado em 802.3af Mode A') : 'Inutilizado (100Mbps)',
+      status: isPoE ? (isPoeAt ? 'poe' : 'inativo') : 'inativo',
+      label: isPoE ? (isPoeAt ? 'PoE−' : 'LIVRE') : 'LIVRE'
+    },
+    {
+      nome: 'Par 2 — Laranja / Branco-Laranja',
+      cor1: '#ff9800', cor2: '#fff3e0',
+      pinos: 'Pinos 1, 2',
+      func: isPoE ? 'TX Dados + PoE Positivo (Alt A)' : 'TX Dados',
+      status: 'ativo',
+      label: isPoE ? 'TX · PoE+' : 'TX'
+    },
+    {
+      nome: 'Par 3 — Verde / Branco-Verde',
+      cor1: '#4caf50', cor2: '#e8f5e9',
+      pinos: 'Pinos 3, 6',
+      func: isPoE ? 'RX Dados + PoE Negativo (Alt A)' : 'RX Dados',
+      status: 'ativo',
+      label: isPoE ? 'RX · PoE−' : 'RX'
+    },
+    {
+      nome: 'Par 4 — Marrom / Branco-Marrom',
+      cor1: '#795548', cor2: '#efebe9',
+      pinos: 'Pinos 7, 8',
+      func: isPoE ? (isPoeAt ? 'PoE+ Positivo (Alt B) · Alimentação' : 'Livre — não usado em 802.3af Mode A') : 'Inutilizado (100Mbps)',
+      status: isPoE ? (isPoeAt ? 'poe' : 'inativo') : 'inativo',
+      label: isPoE ? (isPoeAt ? 'PoE+' : 'LIVRE') : 'LIVRE'
+    }
+  ];
+
+  const std = isPoeAt ? '802.3at PoE+ — até 30W' : isPoE ? '802.3af PoE — até 15W' : 'Dados apenas — sem PoE';
+  const nota = isPoE
+    ? (isPoeAt
+        ? 'PoE+ 802.3at usa todos os 4 pares: Alt A (pares 2+3) + Alt B (pares 1+4) entregam até 30W. Use Cat5e ou superior. Máx 100m.'
+        : 'PoE 802.3af Mode A (mais comum): pares 2+3 carregam dados e PoE simultaneamente via corrente phantom sobreposta. Pares 1+4 livres. Switch pode usar Mode B (pares 1+4 = PoE, 2+3 = dados). Depende da implementação do switch. Use Cat5e ou superior.')
+    : 'Apenas pares 2+3 ativos (TX + RX — 100Mbps). Pares 1+4 inutilizados. Para Gigabit todos os 4 pares são necessários. Máx 100m.';
+
+  let paresHtml = pares.map(p => `
+    <div class="utp-pair ${p.status}">
+      <div class="utp-strands">
+        <div class="utp-strand" style="background:${p.cor2};border:1px solid ${p.cor1}"></div>
+        <div class="utp-strand" style="background:${p.cor1}"></div>
+      </div>
+      <div class="utp-details">
+        <div class="utp-pname">${p.nome}</div>
+        <div class="utp-func">${p.pinos} · ${p.func}</div>
+      </div>
+      <div class="utp-badge ${p.status}">${p.label}</div>
+    </div>
+  `).join('');
+
+  box.innerHTML = `
+    <div class="info-box" style="margin-bottom:10px">
+      <div class="cable-header">🔌 Cabo UTP — T568B</div>
+      <div class="cable-std">${defA.nome} → ${defB.nome}<br><span style="color:#58a6ff">${std}</span></div>
+      ${paresHtml}
+      <div class="cable-note">${nota}</div>
+    </div>
+  `;
+}
+
+
+// ============================================================
+// MOTOR DE SIMULAÇÃO DE ENERGIA
+// ============================================================
+
+// Terminais de saída de energia por tipo de componente
+const POWER_OUTPUT_TERMS = {
+  'tomada-127v':     ['ac-out'],
+  'tomada-220v':     ['ac-out'],
+  'fonte-12v':       ['v12-pos', 'gnd'],
+  'nobreak-12v':     ['v12-pos', 'gnd', 'gnd2', 'na', 'nf'],
+  'bateria-chumbo':  ['bat-pos', 'bat-neg'],
+  'injetor-poe-15w': ['poe-out'],
+  'injetor-poe-30w': ['poe-out'],
+  'injetor-poe':     ['poe-out'],
+};
+
+const TIPOS_SEMPRE_LIGADOS = ['tomada-127v','tomada-220v','bateria-chumbo','wan-internet'];
+
+function isTerminalLive(instId, termId) {
+  const inst = instancias.find(i => i.id === instId);
+  if (!inst || !inst._powered) return false;
+  const tipo = inst.tipo;
+  if (tipo.startsWith('switch-')) return true;
+  if (tipo === 'rele-12v') return termId === 'com' || termId === 'no';
+  if (tipo.startsWith('controle-facial') || tipo === 'controlador-controlid') {
+    // NF (normalmente fechado) conduz em repouso; NA só conduz quando pulsado
+    if (termId === 'rele-com' || termId === 'rele-na' || termId === 'rele-no') return true;
+    if (termId === 'rele-nf' || termId === 'rele-nc') return !inst._pulsed;
+    return false;
+  }
+  if (tipo === 'botao-saida') return !!inst._triggered && termId === 'pwr-out';
+  const outputs = POWER_OUTPUT_TERMS[tipo];
+  return outputs ? outputs.includes(termId) : false;
+}
+
+function getConnOther(instId, termId) {
+  const c = conexoes.find(c =>
+    (c.a.instId === instId && c.a.termId === termId) ||
+    (c.b.instId === instId && c.b.termId === termId)
+  );
+  if (!c) return null;
+  return c.a.instId === instId
+    ? { instId: c.b.instId, termId: c.b.termId }
+    : { instId: c.a.instId, termId: c.a.termId };
+}
+
+function checkPower(inst) {
+  const tipo = inst.tipo;
+  const def = COMPONENTES[tipo];
+  if (!def) return false;
+  const ts = def.terminais || [];
+
+  // AC-powered devices: terminal ac-bivolt deve estar conectado a saída AC ativa
+  const acTerm = ts.find(t => t.tipo === 'ac-bivolt');
+  if (acTerm) {
+    const other = getConnOther(inst.id, acTerm.id);
+    if (other && isTerminalLive(other.instId, other.termId)) return true;
+    // Nobreak também pode ser alimentado pela bateria externa
+    if (tipo === 'nobreak-12v') {
+      const bp = getConnOther(inst.id, 'bat-pos');
+      const bn = getConnOther(inst.id, 'bat-neg');
+      if (bp && bn) {
+        const bpi = instancias.find(i => i.id === bp.instId);
+        const bni = instancias.find(i => i.id === bn.instId);
+        if (bpi && bpi._powered && bni && bni._powered) return true;
+      }
+    }
+    return false;
+  }
+
+  // Botão de Saída Modo 2: alimentado via pwr-in (sem GND necessário)
+  if (tipo === 'botao-saida') {
+    const other = getConnOther(inst.id, 'pwr-in');
+    return other ? isTerminalLive(other.instId, other.termId) : false;
+  }
+
+  // Fechaduras: terminal COM conectado a saída ativa
+  if (tipo === 'fechadura-na' || tipo === 'fechadura-nf') {
+    const other = getConnOther(inst.id, 'com');
+    return other ? isTerminalLive(other.instId, other.termId) : false;
+  }
+
+  // PoE: terminal rj45-poe conectado a saída PoE ativa
+  const poePowered = ts.filter(t => t.tipo === 'rj45-poe').some(pt => {
+    const other = getConnOther(inst.id, pt.id);
+    return other && isTerminalLive(other.instId, other.termId);
+  });
+  if (poePowered) return true;
+
+  // 12V DC: precisa de +12V E GND ambos conectados a fontes ativas
+  const posTerms = ts.filter(t => t.tipo === '12v-positivo');
+  const negTerms = ts.filter(t => t.tipo === '12v-negativo' || t.tipo === 'gnd');
+  if (posTerms.length > 0 && negTerms.length > 0) {
+    const hasPower = posTerms.some(pt => {
+      const other = getConnOther(inst.id, pt.id);
+      return other && isTerminalLive(other.instId, other.termId);
+    });
+    const hasGND = negTerms.some(nt => {
+      const other = getConnOther(inst.id, nt.id);
+      if (!other) return false;
+      const oi = instancias.find(i => i.id === other.instId);
+      return oi && oi._powered;
+    });
+    if (hasPower && hasGND) return true;
+  }
+
+  return false;
+}
+
+function atualizarEstadoVisual(inst) {
+  const tipo = inst.tipo;
+  const powered = !!inst._powered;
+
+  const pwrBg = document.getElementById('pwrbg-' + inst.id);
+  const pwrTxt = document.getElementById('pwrtxt-' + inst.id);
+  if (pwrBg) pwrBg.setAttribute('fill', powered ? '#0d2f17' : '#1a1e24');
+  if (pwrBg) pwrBg.setAttribute('stroke', powered ? '#2ea043' : '#30363d');
+  if (pwrTxt) { pwrTxt.textContent = powered ? 'ON' : 'OFF'; pwrTxt.setAttribute('fill', powered ? '#3fb950' : '#444'); }
+
+  const iconEl = document.getElementById('icon-' + inst.id);
+  if (iconEl) iconEl.style.opacity = powered ? '1' : '0.3';
+
+  // Eletroímã NF: energizado = FECHADO, sem energia = ABERTO
+  if (tipo === 'eletroima') {
+    const badge = document.getElementById('magstate-' + inst.id);
+    if (badge) {
+      badge.textContent = powered ? 'FECHADO' : 'ABERTO';
+      badge.setAttribute('fill', powered ? '#f85149' : '#3fb950');
+    }
+  }
+
+  // Fechaduras: mudar ícone e badge conforme estado real
+  if (tipo === 'fechadura-nf' || tipo === 'fechadura-na') {
+    const def = COMPONENTES[tipo];
+    // _pulsed: pulso momentâneo inverte o estado padrão (NF abre, NA fecha)
+    let isAberta;
+    if (inst._pulsed) {
+      isAberta = (tipo === 'fechadura-nf'); // NF pulsada = ABERTA; NA pulsada = FECHADA
+    } else {
+      isAberta = (tipo === 'fechadura-nf') ? powered : !powered;
+    }
+    const iconKey = isAberta ? 'fechadura-open' : 'fechadura-closed';
+    if (iconEl && ICONS[iconKey]) {
+      iconEl.innerHTML = ICONS[iconKey].replace(/{C}/g, def.cor);
+    }
+    const badge = document.getElementById('lockstate-' + inst.id);
+    if (badge) {
+      badge.textContent = isAberta ? 'ABERTA' : 'FECHADA';
+      badge.setAttribute('fill', isAberta ? '#3fb950' : '#f85149');
+    }
+  }
+}
+
+function simular() {
+  // Reset: todos desligados
+  instancias.forEach(i => { i._powered = false; });
+
+  // Fontes primárias: sempre ligadas
+  instancias.forEach(i => {
+    if (TIPOS_SEMPRE_LIGADOS.includes(i.tipo)) {
+      i._powered = true;
+    }
+  });
+
+  // Propagação iterativa: até 10 ciclos para cobrir cadeias longas
+  for (let iter = 0; iter < 10; iter++) {
+    let changed = false;
+    instancias.forEach(inst => {
+      if (inst._powered) return;
+      if (checkPower(inst)) {
+        inst._powered = true;
+        changed = true;
+      }
+    });
+    if (!changed) break;
+  }
+
+  // Atualizar visual de todos os componentes
+  instancias.forEach(atualizarEstadoVisual);
+}
+
+
+// ============================================================
+// DISPARO DE PULSO — simula acionamento de controlador/botão
+// ============================================================
+function dispararControle(instId) {
+  const inst = instancias.find(i => i.id === instId);
+  if (!inst || !inst._powered || inst._triggered) return;
+
+  // Detectar Modo 2: botao-saida com pwr-out conectado a uma fechadura
+  const isMode2 = inst.tipo === 'botao-saida' && conexoes.some(c =>
+    (c.a.instId === instId && c.a.termId === 'pwr-out') ||
+    (c.b.instId === instId && c.b.termId === 'pwr-out')
+  );
+
+  inst._triggered = true;
+
+  // Badge do acionador → ⚡ durante o pulso
+  const pwrTxt = document.getElementById('pwrtxt-' + instId);
+  const pwrBg  = document.getElementById('pwrbg-'  + instId);
+  if (pwrTxt) { pwrTxt.textContent = '⚡'; pwrTxt.setAttribute('fill','#58a6ff'); }
+  if (pwrBg)  { pwrBg.setAttribute('fill','#0d2b4a'); pwrBg.setAttribute('stroke','#388bfd'); }
+
+  const btnDisparo = document.getElementById('btn-disparo-' + instId);
+  if (btnDisparo) btnDisparo.disabled = true;
+
+  if (isMode2) {
+    // Modo 2: botao-saida em série com a fechadura — simular() propaga energia
+    simular();
+    setTimeout(() => {
+      inst._triggered = false;
+      simular();
+      if (pwrTxt) { pwrTxt.textContent = 'ON'; pwrTxt.setAttribute('fill','#3fb950'); }
+      if (pwrBg)  { pwrBg.setAttribute('fill','#0d2f17'); pwrBg.setAttribute('stroke','#2ea043'); }
+      if (btnDisparo) btnDisparo.disabled = false;
+    }, 1500);
+    return;
+  }
+
+  // Modo 1: pulso via terminais de relé / BTN do controlador
+  const RELAY_TERMS = ['rele-com','rele-na','rele-nf','com','no','no1','com1'];
+  const connectedIds = new Set();
+  conexoes.forEach(c => {
+    if (c.a.instId === instId && RELAY_TERMS.includes(c.a.termId)) connectedIds.add(c.b.instId);
+    if (c.b.instId === instId && RELAY_TERMS.includes(c.b.termId)) connectedIds.add(c.a.instId);
+  });
+
+  const alvos = [];
+  connectedIds.forEach(id => {
+    const ci = instancias.find(i => i.id === id);
+    if (!ci) return;
+    if (ci.tipo === 'fechadura-na' || ci.tipo === 'fechadura-nf') {
+      alvos.push(ci);
+    } else if (ci.tipo === 'rele-12v' || ci.tipo.startsWith('controle-facial')) {
+      // Seguir através de rele-12v ou controle-facial até a fechadura
+      const RELAY_OUT = ['rele-com','rele-na','rele-nf','com','no'];
+      conexoes.forEach(c => {
+        const isFrom = c.a.instId === id && RELAY_OUT.includes(c.a.termId);
+        const isDst  = c.b.instId === id && RELAY_OUT.includes(c.b.termId);
+        const otherId = isFrom ? c.b.instId : isDst ? c.a.instId : null;
+        if (!otherId) return;
+        const oi = instancias.find(x => x.id === otherId);
+        if (oi && (oi.tipo === 'fechadura-na' || oi.tipo === 'fechadura-nf')) alvos.push(oi);
+      });
+    }
+  });
+
+  // Marcar controlador como _pulsed para abrir o NF na simulação
+  // Isso permite que eletroímãs e outros componentes via rele-nf percam energia
+  inst._pulsed = true;
+  alvos.forEach(f => { f._pulsed = true; atualizarEstadoVisual(f); });
+  simular(); // reavalia propagação: NF aberto → eletroímã ABERTO
+
+  setTimeout(() => {
+    inst._triggered = false;
+    delete inst._pulsed;
+    alvos.forEach(f => { delete f._pulsed; atualizarEstadoVisual(f); });
+    simular(); // reavalia propagação: NF fecha → eletroímã FECHADO
+    if (pwrTxt) { pwrTxt.textContent = 'ON'; pwrTxt.setAttribute('fill','#3fb950'); }
+    if (pwrBg)  { pwrBg.setAttribute('fill','#0d2f17'); pwrBg.setAttribute('stroke','#2ea043'); }
+    if (btnDisparo) btnDisparo.disabled = false;
+  }, 1500);
+}
+
+</script>
+
+<!-- MODAL BACKLOG -->
+<div class="modal-overlay" id="modalBacklog">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeBacklog()">✕</button>
+    <h2>📋 Synapse IoT Builder — Backlog & Changelog</h2>
+
+    <div class="bl-entry">
+      <div class="bl-version">v1.0 — Beta <span class="bl-tag new">new</span></div>
+      <div class="bl-date">Set 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag fix">fix</span> Compatibilidade GPIO (entrada-digital) com Botão de Saída (pulso-no/pulso-com)</li>
+        <li><span class="bl-tag new">new</span> Componente Diodo Flyback (1N4007): proteção back-EMF para relés com cargas indutivas (eletroímãs, bobinas)</li>
+        <li><span class="bl-tag new">new</span> Eletroímã NF: badge dinâmico FECHADO/ABERTO conforme estado de energia (energizado=FECHADO, sem energia=ABERTO)</li>
+        <li><span class="bl-tag new">new</span> Cenário c6: Lab IoT POC — CFTV + Duplo Controle de Acesso (Hikvision DS-K1T344MX-E1 + iDFace Max, câmeras TWG dome e bullet, fechadura NF e eletroímã com nobreak)</li>
+        <li><span class="bl-tag change">change</span> URL migrada de /ferramentas/simulador/ para /ferramentas/synapse/ (redirect automático mantido)</li>
+      </ul>
+    </div>
+
+    <div class="bl-entry">
+      <div class="bl-version">v0.9 — Beta <span class="bl-tag new">new</span></div>
+      <div class="bl-date">Set 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag new">new</span> Botão de Saída: suporte a Modo 2 (bypass direto) com terminais 12V IN / 12V OUT em série com a fechadura</li>
+        <li><span class="bl-tag new">new</span> Painel de info detecta e exibe o modo de operação ativo (Modo 1 via controlador / Modo 2 bypass direto)</li>
+        <li><span class="bl-tag fix">fix</span> ⚡ Simular Acionamento no Botão de Saída agora segue o controlador intermediário para acionar a fechadura</li>
+      </ul>
+    </div>
+
+    <div class="bl-entry">
+      <div class="bl-version">v0.8 — Beta</div>
+      <div class="bl-date">Set 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag new">new</span> Motor de simulação de energia: dispositivos ligam ao receber energia corretamente</li>
+        <li><span class="bl-tag new">new</span> LED de estado (verde=ligado, cinza=desligado) em cada componente</li>
+        <li><span class="bl-tag new">new</span> Fechaduras NF/NA mudam de estado real: NF abre com energia, NA fecha com energia</li>
+        <li><span class="bl-tag fix">fix</span> isPoeAt: detecção de 802.3at baseada na câmera (consumidora), não no switch</li>
+        <li><span class="bl-tag fix">fix</span> Pares 1+4 exibidos como LIVRE em conexões 802.3af (corrente phantom nos pares 2+3)</li>
+        <li><span class="bl-tag new">new</span> Painel de informação de cabo UTP — clique em qualquer fio para ver mapa T568B dos pares ativos</li>
+        <li><span class="bl-tag new">new</span> Detecção automática do padrão PoE (802.3af / 802.3at) e identificação dos pares TX/RX/PoE+/PoE−</li>
+        <li><span class="bl-tag new">new</span> Painel de cabo DC para conexões 12V com instruções de polaridade</li>
+        <li><span class="bl-tag change">change</span> Ícones SVG redesenhados para refletir a forma física real de cada câmera</li>
+        <li><span class="bl-tag new">new</span> Dome: silhueta de hemisfério com lente central e base de fixação</li>
+        <li><span class="bl-tag new">new</span> Bullet: corpo cilíndrico horizontal com lente frontal e suporte superior</li>
+        <li><span class="bl-tag new">new</span> PTZ: grande domo com anel IR, lente central e base giratória</li>
+        <li><span class="bl-tag new">new</span> Componentes de câmera com variantes PoE e 12V DC (6 tipos no total)</li>
+        <li><span class="bl-tag change">change</span> Sidebar CFTV reorganizada em seções PoE e 12V DC</li>
+      </ul>
+    </div>
+
+    <div class="bl-entry">
+      <div class="bl-version">v0.3 — Beta</div>
+      <div class="bl-date">Set 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag new">new</span> Botão de Backlog com histórico de versões (administrador/master)</li>
+      </ul>
+    </div>
+
+    <div class="bl-entry">
+      <div class="bl-version">v0.2 — Beta</div>
+      <div class="bl-date">Ago 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag new">new</span> Cenários pré-configurados para estudo (CFTV, Controle de Acesso, Alarme)</li>
+        <li><span class="bl-tag new">new</span> Validação de circuito com detecção de erros e avisos</li>
+        <li><span class="bl-tag new">new</span> Salvar e carregar projetos no LocalStorage</li>
+        <li><span class="bl-tag fix">fix</span> Conexão entre terminais incompatíveis agora exibe erro</li>
+      </ul>
+    </div>
+
+    <div class="bl-entry">
+      <div class="bl-version">v0.1 — Lançamento Beta</div>
+      <div class="bl-date">Jul 2026</div>
+      <ul class="bl-items">
+        <li><span class="bl-tag new">new</span> Canvas SVG com drag-and-drop de componentes</li>
+        <li><span class="bl-tag new">new</span> Guia Cabeamento UTP: painel visual de referência com padrão de cores IEEE 802.3, esquema NA/NF e tabela de distâncias por bitola</li>
+        <li><span class="bl-tag new">new</span> Controlador ControlID: MAE/SecBox (incluso no iDFace MAX) — relé, REX, sensor de porta, Wiegand, link RS-485</li>
+        <li><span class="bl-tag new">new</span> Controle Facial Hikvision: DS-K1T344MX-E1 com terminais completos (relé COM/NA/NF, Wiegand W0/W1, REX, sensor de porta, RS-485)</li>
+        <li><span class="bl-tag change">change</span> Controle Facial ControlID (iDFace MAX): terminais atualizados para iDFace MAX (COM/NA/NF + GPIO1/2/3 + RS-485 A/B)</li>
+        <li><span class="bl-tag new">new</span> WAN: novo elemento nuvem na seção Rede (saída WAN → porta WAN do roteador)</li>
+        <li><span class="bl-tag change">change</span> Roteador: AC movido da base para lado esquerdo; WAN/AC redistribuídos (posY .3/.7)</li>
+        <li><span class="bl-tag new">new</span> Roteador: novo elemento na seção Rede (WAN esquerda, LAN 1/2 direita, AC base)</li>
+        <li><span class="bl-tag change">change</span> Bateria 12V: BAT+/BAT- movidos da posição superior (T) para lado direito (D)</li>
+        <li><span class="bl-tag change">change</span> Fonte Nobreak 12V: BAT+/BAT- revertidos para lado esquerdo (Borne 3 → lado E)</li>
+        <li><span class="bl-tag change">change</span> Fonte Nobreak 12V: BAT+/BAT- movidos para lado direito (Borne 3 → lado D), AC centralizado à esquerda</li>
+        <li><span class="bl-tag change">change</span> Fonte Nobreak 12V (IPEC A2070): renomeado + terminais completos (NA, NF, BOT, INT, REC+/-, BAT+/-, AC, +12V, GND)</li>
+        <li><span class="bl-tag new">new</span> Login obrigatório: Synapse redireciona para login se sessão inativa</li>
+        <li><span class="bl-tag new">new</span> Sidebar de componentes (alimentação, câmeras, fechaduras, switches, nobreaks)</li>
+        <li><span class="bl-tag new">new</span> Conexão por terminais coloridos com verificação de compatibilidade</li>
+        <li><span class="bl-tag new">new</span> Painel direito com informações do componente, dicas e projetos</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

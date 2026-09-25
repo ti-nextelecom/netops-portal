@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPON Diagnóstico — NetOps NexTelecom</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#c9d1d9;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px}
+.navbar{background:#161b22;border-bottom:1px solid #30363d;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.navbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#c9d1d9;font-weight:700;font-size:15px}
+.navbar-brand span{color:#3fb950}
+.nav-back{color:#8b949e;text-decoration:none;font-size:13px}
+.nav-back:hover{color:#c9d1d9}
+.page-header{background:linear-gradient(135deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid #30363d;padding:28px 24px 20px}
+.page-header h1{font-size:20px;font-weight:700;color:#e6edf3;margin-bottom:4px}
+.page-header p{color:#8b949e;font-size:13px}
+.content{max-width:980px;margin:0 auto;padding:24px}
+.search-box{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;margin-bottom:24px}
+.search-row{display:flex;gap:10px;align-items:flex-end}
+.inp-group{flex:1}
+.inp-label{font-size:12px;color:#8b949e;margin-bottom:6px;font-weight:500}
+.inp{width:100%;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6edf3;font-size:14px;padding:10px 14px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:#388bfd}
+.inp::placeholder{color:#484f58}
+.btn{background:#238636;color:#fff;border:none;border-radius:6px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn:hover{background:#2ea043}
+.btn:disabled{background:#21262d;color:#484f58;cursor:not-allowed}
+.hint{font-size:11px;color:#6e7681;margin-top:8px}
+.status-bar{display:none;align-items:center;gap:10px;padding:12px 16px;background:#161b22;border:1px solid #30363d;border-radius:8px;margin-bottom:16px;font-size:13px}
+.spinner{width:16px;height:16px;border:2px solid #30363d;border-top-color:#58a6ff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.warn-box{display:none;background:#2d1f00;border:1px solid #9e6a03;border-radius:8px;padding:12px 16px;color:#e3b341;font-size:13px;margin-bottom:16px}
+.err-box{display:none;background:#2d0f0f;border:1px solid #7d2121;border-radius:8px;padding:12px 16px;color:#f85149;font-size:13px;margin-bottom:16px}
+.results{display:none}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px}
+.section-title{font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #30363d}
+.info-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #21262d}
+.info-row:last-child{border-bottom:none}
+.info-lbl{color:#8b949e;font-size:12px;min-width:150px;flex-shrink:0;padding-top:1px}
+.info-val{color:#e6edf3;font-size:13px;word-break:break-all}
+.badge{display:inline-block;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700}
+.badge-ativo{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+.badge-offline{background:#2d0f0f;color:#f85149;border:1px solid #7d2121}
+.badge-warn{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+.badge-tag{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd;border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700}
+.signal-ok{color:#3fb950;font-weight:600}
+.signal-warn{color:#e3b341;font-weight:600}
+.signal-bad{color:#f85149;font-weight:600}
+.btn-ping{background:transparent;border:1px solid #30363d;border-radius:4px;color:#8b949e;cursor:pointer;font-size:13px;padding:2px 6px;transition:all .15s}
+.btn-ping:hover{background:#21262d;border-color:#58a6ff;color:#58a6ff}
+.btn-ping:disabled{opacity:.4;cursor:not-allowed}
+.ping-stable{color:#3fb950}.ping-unstable{color:#e3b341}.ping-very-unstable,.ping-unreachable{color:#f85149}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.metric-card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:14px 12px;text-align:center}
+.metric-val{font-size:22px;font-weight:700;color:#e6edf3;margin-bottom:4px}
+.metric-lbl{font-size:11px;color:#8b949e}
+.data-table{width:100%;border-collapse:collapse;background:#161b22;border:1px solid #30363d;border-radius:8px;overflow:hidden}
+.data-table th{background:#1c2128;color:#8b949e;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 12px;text-align:left;border-bottom:1px solid #30363d}
+.data-table td{padding:8px 12px;border-bottom:1px solid #21262d;font-size:12px;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#1c2128}
+.tag-up{background:#0d2f17;color:#3fb950;border:1px solid #2ea043;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.tag-down{background:#2d0f0f;color:#f85149;border:1px solid #7d2121;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.tag-sem-energia{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.log-entry{display:flex;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid #21262d;font-size:12px}
+.log-entry:last-child{border-bottom:none}
+.log-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.log-dot.online{background:#3fb950}
+.log-dot.offline{background:#f85149}
+.log-dot.energia{background:#e3b341}
+.log-time{color:#8b949e;min-width:130px;font-family:monospace}
+.log-status{font-weight:600}
+.btn-secondary{background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-secondary:hover{background:#2d3139;border-color:#484f58}
+.btn-secondary:disabled{opacity:.5;cursor:not-allowed}
+.overlap-badge{background:#3d1f00;color:#f0883e;border:1px solid #9e4a03;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.ch-mine{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+.ch-rec{background:#0d2f17;color:#3fb950;border:1px solid #2ea043;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700}
+.vizinhos-section{display:none;margin-bottom:16px}
+.scan-loading{display:none;align-items:center;gap:8px;font-size:13px;color:#8b949e;margin-top:10px}
+.btn-backlog{background:transparent;border:1px solid #30363d;color:#8b949e;padding:6px 14px;font-size:13px;border-radius:6px;cursor:pointer;display:none}
+.btn-backlog:hover{background:#21262d;color:#e6edf3;border-color:#8b949e}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#161b22;border:1px solid #30363d;border-radius:12px;width:100%;max-width:680px;max-height:80vh;overflow:hidden;display:flex;flex-direction:column;margin:16px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid #30363d}
+.modal-header h2{font-size:16px;font-weight:700;color:#e6edf3}
+.modal-close{background:none;border:none;color:#8b949e;font-size:20px;cursor:pointer;padding:4px 8px;border-radius:4px}
+.modal-close:hover{color:#e6edf3;background:#21262d}
+.modal-body{overflow-y:auto;padding:16px 24px}
+.bl-entry{border-left:3px solid #30363d;padding:10px 16px;margin-bottom:12px;background:#0d1117;border-radius:0 6px 6px 0}
+.bl-entry:last-child{margin-bottom:0}
+.bl-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.bl-date{font-size:11px;color:#8b949e;font-family:monospace}
+.bl-type{font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px}
+.bl-type.fix{background:#2d1f00;color:#e3b341;border:1px solid #9e6a03}
+.bl-type.feature{background:#0d2b4a;color:#58a6ff;border:1px solid #388bfd}
+.bl-type.deploy{background:#0d2f17;color:#3fb950;border:1px solid #2ea043}
+.bl-type.melhoria{background:#1a1442;color:#bc8cff;border:1px solid #8957e5}
+.bl-title{font-size:14px;font-weight:600;color:#e6edf3;margin-bottom:3px}
+.bl-desc{font-size:12px;color:#8b949e;line-height:1.5}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/" class="navbar-brand"><span>Nex</span>Telecom NetOps</a>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a href="/" class="nav-back">← Início</a>
+    <button class="btn-backlog" id="btnBacklog" onclick="document.getElementById('modalBacklog').classList.add('open')">📋 Backlog</button>
+  </div>
+</nav>
+
+<!-- Modal Backlog -->
+<div class="modal-overlay" id="modalBacklog" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>📋 Backlog — GPON Diagnóstico</h2>
+      <button class="modal-close" onclick="document.getElementById('modalBacklog').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="bl-entry" style="border-left-color:#58a6ff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type feature">Feature</span><span style="background:#e3b341;color:#000;border-radius:3px;padding:1px 6px;font-size:11px;margin-left:6px">⚠ Em debug</span></div>
+        <div class="bl-title">Ping de host interno via ONT</div>
+        <div class="bl-desc">Botão 📶 por dispositivo: inicia ping direto via ONT (interface LAN, TR-069) para medir latência/perda LAN. Exibe avg/min/max/jitter/loss com classificação de qualidade. Rate limit do OLT-CLOUD: 30s após conclusão do ping anterior. <strong>Status debug</strong>: ping funciona quando a ONT não tem ping pendente. Cenário identificado: se ping anterior ficou em "Waiting" sem concluir, novo ping bloqueia com "Wait 30s". Fix planejado: pré-checar estado antes de iniciar + cooldown dinâmico.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">OLT_MAP — mapeamento de OLTs corrigido</div>
+        <div class="bl-desc">Mapeamento estava invertido: 30XXX=PQS (era MUSSURUNGA), 31XXX=MUSSURUNGA (era PQS). Corrigido em GPON Diagnóstico e CGNAT Diagnóstico.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">Detecção de banda — Conexão "Other" tratada como WiFi</div>
+        <div class="bl-desc">Dispositivos com Conexão="Other" (ex: iPhone, Samsung com MAC aleatório) apareciam como "Ethernet". Corrigido: Conexão "Other" é tratada como WiFi na exibição de banda.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">RSSI WiFi — limiares e cores separados do sinal óptico</div>
+        <div class="bl-desc">Limiares RSSI WiFi separados dos limiares do sinal óptico GPON. Novos limiares WiFi: ≥ -70 dBm → Verde (Bom) | -71 a -77 dBm → Amarelo (Regular) | ≤ -78 dBm → Vermelho (Ruim).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Dispositivos Conectados — RSSI e Banda</div>
+        <div class="bl-desc">Tabela enriquecida com dados do grupo "Dispositivos WiFi" do ACS (MAC, Padrão, RSSI). Banda exibe padrão WiFi (ac, ax, n, etc.). RSSI com código de cor (verde/amarelo/vermelho).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">IP WAN — extraído da sessão PPPoE real</div>
+        <div class="bl-desc">Campo "IP WAN (Internet)" agora lido da tabela "WAN PPPoE" do ACS (IP da sessão PPPoE conectada). Fallback: IP da tabela BNG (display access-user username). ONTs que não reportam ExternalIPAddress agora exibem o IP corretamente.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">BNG — sessão PPPoE não exibia dados</div>
+        <div class="bl-desc">display access-user username no NE40E retorna formato tabela (não key-value). Corrigido: regex parseia a tabela, extrai IP → chama display access-user ip-address para obter todos os detalhes da sessão (plano, velocidade, interface, uptime).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#e3b341">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type fix">Fix</span></div>
+        <div class="bl-title">WiFi Vizinhos — scan não retornava dados</div>
+        <div class="bl-desc">Endpoint corrigido: dados em chart_data["2.4GHz"].networks e ["5GHz"].networks (não network_list/results). Status "Complete" (capital C) detectado via .toLowerCase(). signal_dbm e channel são strings → parseInt(). Canal recomendado calculado localmente (API retorna null).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Memória ONU — uso de RAM</div>
+        <div class="bl-desc">Novo campo "Memória" exibe % de uso + MB (usado/total) via Device.DeviceInfo.MemoryStatus.Total e .Free. Código de cor: verde &lt;70%, amarelo 70-85%, vermelho &gt;85%.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#bc8cff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type melhoria">Melhoria</span></div>
+        <div class="bl-title">Largura de canal WiFi</div>
+        <div class="bl-desc">Novo campo "Largura canal" nas bandas 2.4GHz e 5.8GHz via Device.WiFi.Radio.1/2.OperatingChannelBandwidth (ex: 20MHz, 40MHz, 80MHz). Depende do ONT reportar o campo.</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#58a6ff">
+        <div class="bl-meta"><span class="bl-date">17/09/2026</span><span class="bl-type feature">Feature</span></div>
+        <div class="bl-title">Análise de Canal WiFi — scan de redes vizinhas</div>
+        <div class="bl-desc">Botão "Escanear redes vizinhas" dispara scan TR-069 neighboring_wifi na ONT via OLT-CLOUD. Exibe todas as redes detectadas com canal, largura, sinal e banda. Identifica sobreposição com o canal atual e recomenda canal sem interferência (1, 6 ou 11 para 2.4GHz).</div>
+      </div>
+      <div class="bl-entry" style="border-left-color:#3fb950">
+        <div class="bl-meta"><span class="bl-date">set/2026</span><span class="bl-type deploy">Deploy</span></div>
+        <div class="bl-title">Deploy inicial — GPON Diagnóstico</div>
+        <div class="bl-desc">Ferramenta lançada com sinal óptico (RX ONU/TX ONU/RX OLT), temperatura, posição GPON (OLT/Slot/PON/ONU), histórico de quedas, status WiFi 2.4/5.8GHz e dispositivos conectados via OLT-CLOUD + BNG NE40E.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-header">
+  <h1>📡 GPON Diagnóstico</h1>
+  <p>Informe o login PPPoE do assinante para verificar sinal óptico, temperatura, histórico de quedas e status Wi-Fi via OLT-CLOUD.</p>
+</div>
+
+<div class="content">
+
+  <div class="search-box">
+    <div class="search-row">
+      <div class="inp-group">
+        <div class="inp-label">Login PPPoE</div>
+        <input class="inp" id="loginInput" type="text" placeholder="cliente@nextelecom.net.br" autocomplete="off" spellcheck="false">
+      </div>
+      <button class="btn" id="btnDiag" onclick="runDiag()">Diagnosticar</button>
+    </div>
+    <div class="hint">Login PPPoE do assinante (ex: joao.silva@nextelecom.net.br)</div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="spinner"></div>
+    <span id="statusMsg">Consultando BNG e OLT-CLOUD…</span>
+  </div>
+
+  <div class="warn-box" id="warnBox"></div>
+  <div class="err-box" id="errBox"></div>
+
+  <div class="results" id="results">
+
+    <!-- Sinal Óptico -->
+    <div class="metric-grid" id="metricGrid">
+      <div class="metric-card">
+        <div class="metric-val" id="mRxOnu">—</div>
+        <div class="metric-lbl">RX ONU (dBm)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="mTxOnu">—</div>
+        <div class="metric-lbl">TX ONU (dBm)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="mRxOlt">—</div>
+        <div class="metric-lbl">RX OLT (dBm)</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-val" id="mTemp">—</div>
+        <div class="metric-lbl">Temperatura</div>
+      </div>
+    </div>
+
+    <!-- ONU Info + BNG Sessão -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">ONU / Equipamento</div>
+        <div class="info-row"><span class="info-lbl">Modelo</span><span class="info-val" id="onuModel">—</span></div>
+        <div class="info-row"><span class="info-lbl">Serial GPON</span><span class="info-val" id="onuGpon">—</span></div>
+        <div class="info-row"><span class="info-lbl">MAC</span><span class="info-val" id="onuMac">—</span></div>
+        <div class="info-row"><span class="info-lbl">Firmware</span><span class="info-val" id="onuFw">—</span></div>
+        <div class="info-row"><span class="info-lbl">IP Gerência</span><span class="info-val" id="onuIp">—</span></div>
+        <div class="info-row"><span class="info-lbl">Uptime ONU</span><span class="info-val" id="onuUptime">—</span></div>
+        <div class="info-row"><span class="info-lbl">CPU</span><span class="info-val" id="onuCpu">—</span></div>
+        <div class="info-row"><span class="info-lbl">Memória</span><span class="info-val" id="onuMem">—</span></div>
+        <div class="info-row"><span class="info-lbl">Status TR-069</span><span class="info-val" id="onuStatus">—</span></div>
+      </div>
+      <div class="card">
+        <div class="section-title">Posição GPON + BNG</div>
+        <div class="info-row"><span class="info-lbl">OLT</span><span class="info-val" id="gponOlt">—</span></div>
+        <div class="info-row"><span class="info-lbl">Slot / PON / ONU</span><span class="info-val" id="gponPos">—</span></div>
+        <div class="info-row"><span class="info-lbl">Distância fibra</span><span class="info-val" id="gponDist">—</span></div>
+        <div class="info-row"><span class="info-lbl">Última atualização sinal</span><span class="info-val" id="gponSigUpd">—</span></div>
+        <div class="info-row"><span class="info-lbl">Última queda</span><span class="info-val" id="gponLastDown">—</span></div>
+        <div class="info-row"><span class="info-lbl">BNG — Interface</span><span class="info-val" id="bngIface">—</span></div>
+        <div class="info-row"><span class="info-lbl">Vinculado a OLT</span><span class="info-val" id="bngOlt">—</span></div>
+        <div class="info-row"><span class="info-lbl">IP WAN (Internet)</span><span class="info-val" id="bngWanIp">—</span></div>
+        <div class="info-row"><span class="info-lbl">BNG — Plano</span><span class="info-val" id="bngPlano">—</span></div>
+        <div class="info-row"><span class="info-lbl">BNG — Velocidade atual</span><span class="info-val" id="bngVeloc">—</span></div>
+      </div>
+    </div>
+
+    <!-- Wi-Fi -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="section-title">WiFi 2.4 GHz</div>
+        <div class="info-row"><span class="info-lbl">SSID</span><span class="info-val" id="w24ssid">—</span></div>
+        <div class="info-row"><span class="info-lbl">Status</span><span class="info-val" id="w24status">—</span></div>
+        <div class="info-row"><span class="info-lbl">Canal</span><span class="info-val" id="w24ch">—</span></div>
+        <div class="info-row"><span class="info-lbl">Largura canal</span><span class="info-val" id="w24width">—</span></div>
+        <div class="info-row"><span class="info-lbl">Padrão</span><span class="info-val" id="w24std">—</span></div>
+        <div class="info-row"><span class="info-lbl">Potência TX</span><span class="info-val" id="w24pwr">—</span></div>
+        <div class="info-row"><span class="info-lbl">Dispositivos conectados</span><span class="info-val" id="w24devs">—</span></div>
+      </div>
+      <div class="card">
+        <div class="section-title">WiFi 5.8 GHz</div>
+        <div class="info-row"><span class="info-lbl">SSID</span><span class="info-val" id="w58ssid">—</span></div>
+        <div class="info-row"><span class="info-lbl">Status</span><span class="info-val" id="w58status">—</span></div>
+        <div class="info-row"><span class="info-lbl">Canal</span><span class="info-val" id="w58ch">—</span></div>
+        <div class="info-row"><span class="info-lbl">Largura canal</span><span class="info-val" id="w58width">—</span></div>
+        <div class="info-row"><span class="info-lbl">Padrão</span><span class="info-val" id="w58std">—</span></div>
+        <div class="info-row"><span class="info-lbl">Potência TX</span><span class="info-val" id="w58pwr">—</span></div>
+        <div class="info-row"><span class="info-lbl">Dispositivos conectados</span><span class="info-val" id="w58devs">—</span></div>
+      </div>
+    </div>
+
+    <!-- Dispositivos Conectados -->
+    <div class="card" id="connCard" style="margin-bottom:16px">
+      <div class="section-title">Dispositivos Conectados</div>
+      <table class="data-table">
+        <thead><tr><th>Dispositivo</th><th>MAC</th><th>IP Local</th><th>Banda</th><th>RSSI</th><th>Ping</th></tr></thead>
+        <tbody id="connTable"><tr><td colspan="6" style="color:#484f58;text-align:center">—</td></tr></tbody>
+      </table>
+      <div id="pingResult" style="display:none;margin-top:10px;padding:10px 14px;border-radius:6px;font-size:12px;border:1px solid #30363d;background:#0d1117"></div>
+    </div>
+
+    <!-- WiFi Vizinhos -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid #30363d">
+        <span style="font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:1px">Análise de Canal WiFi</span>
+        <button class="btn-secondary" id="btnVizinhos" onclick="runWifiVizinhos()">🔍 Escanear redes vizinhas</button>
+      </div>
+      <div class="scan-loading" id="scanLoading"><div class="spinner"></div><span>Aguardando scan TR-069 (pode levar até 60s)…</span></div>
+      <div id="vizinhosInfo" style="display:none;margin-bottom:10px"></div>
+      <div class="vizinhos-section" id="vizinhosSection">
+        <table class="data-table">
+          <thead><tr><th>SSID</th><th>BSSID</th><th>Canal</th><th>Largura</th><th>Sinal</th><th>Banda</th><th>Status</th></tr></thead>
+          <tbody id="vizinhosTable"></tbody>
+        </table>
+      </div>
+      <div id="vizinhosEmpty" style="color:#484f58;font-size:12px;display:none">Nenhuma rede encontrada no scan.</div>
+    </div>
+
+    <!-- Histórico de Quedas -->
+    <div class="card" id="logsCard" style="margin-bottom:16px">
+      <div class="section-title">Histórico de Status (últimas ocorrências)</div>
+      <div id="logsContainer"><span style="color:#484f58;font-size:12px">—</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('netops_token');
+if (!token) window.location.href = '/login';
+
+const OLT_MAP = { '0':'OLT-PQS','1':'OLT-MUSSURUNGA','2':'OLT-LIBERDADE','3':'OLT-ITINGA-1','4':'OLT-ITINGA-2','5':'OLT-LAURO' };
+function getOltLabel(iface) {
+  const m = iface && iface.match(/1\.3(\d)/);
+  return m ? (OLT_MAP[m[1]] || null) : null;
+}
+
+function fmtUptime(s) {
+  if (!s || s < 0) return '—';
+  const d = Math.floor(s/86400), h = Math.floor((s%86400)/3600), m = Math.floor((s%3600)/60);
+  return d > 0 ? `${d}d ${h}h ${m}m` : (h > 0 ? `${h}h ${m}m` : `${m}m`);
+}
+
+function signalClass(dbm) {
+  if (dbm === null || dbm === undefined) return '';
+  if (dbm >= -25) return 'signal-ok';
+  if (dbm >= -28) return 'signal-warn';
+  return 'signal-bad';
+}
+// WiFi RSSI: ≥ -70 Bom | -71 a -77 Regular | ≤ -78 Ruim
+function wifiSignalClass(dbm) {
+  if (dbm === null || dbm === undefined) return '';
+  if (dbm >= -70) return 'signal-ok';
+  if (dbm > -78)  return 'signal-warn';
+  return 'signal-bad';
+}
+function wifiSignalLabel(dbm) {
+  if (dbm === null || dbm === undefined) return '';
+  if (dbm >= -70) return 'Bom';
+  if (dbm > -78)  return 'Regular';
+  return 'Ruim';
+}
+
+function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; }
+function setHTML(id, val) { const el = document.getElementById(id); if (el) el.innerHTML = val ?? '—'; }
+
+document.getElementById('loginInput').addEventListener('keydown', e => { if (e.key === 'Enter') runDiag(); });
+
+async function runDiag() {
+  const login = document.getElementById('loginInput').value.trim();
+  if (!login) return;
+
+  document.getElementById('statusBar').style.display = 'flex';
+  document.getElementById('statusMsg').textContent = 'Consultando BNG e OLT-CLOUD…';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('warnBox').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('btnDiag').disabled = true;
+
+  try {
+    const r = await fetch(`${API}/api/gpon/diagnostico`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ login }),
+    });
+    if (r.status === 401) { window.location.href = '/login'; return; }
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.error || 'Erro desconhecido');
+    renderResultado(data.resultado);
+  } catch(e) {
+    document.getElementById('errBox').textContent = 'Erro: ' + e.message;
+    document.getElementById('errBox').style.display = 'block';
+  } finally {
+    document.getElementById('statusBar').style.display = 'none';
+    document.getElementById('btnDiag').disabled = false;
+  }
+}
+
+function renderResultado(r) {
+  document.getElementById('results').style.display = 'block';
+
+  // Erros não-fatais
+  if (r.erros && r.erros.length) {
+    document.getElementById('warnBox').textContent = '⚠ ' + r.erros.join(' | ');
+    document.getElementById('warnBox').style.display = 'block';
+  }
+
+  // Sinal óptico
+  const ftth = r.ftth;
+  if (ftth) {
+    const rx = ftth.device_rx;
+    const el = document.getElementById('mRxOnu');
+    el.textContent = rx !== null && rx !== undefined ? rx + ' dBm' : '—';
+    el.className = 'metric-val ' + signalClass(rx);
+    set('mTxOnu', ftth.device_tx !== null ? ftth.device_tx + ' dBm' : '—');
+    set('mRxOlt', ftth.olt_rx !== null ? ftth.olt_rx + ' dBm' : '—');
+    const tempEl = document.getElementById('mTemp');
+    tempEl.textContent = ftth.temperature !== null ? ftth.temperature + ' °C' : '—';
+    tempEl.className = 'metric-val ' + (ftth.temperature > 75 ? 'signal-bad' : ftth.temperature > 60 ? 'signal-warn' : 'signal-ok');
+  }
+
+  // ONU info
+  const oc = r.olt_cloud;
+  if (oc) {
+    window._lastSerial = oc.serial || null;
+    set('onuModel', [oc.vendor, oc.model].filter(Boolean).join(' ') || '—');
+    set('onuGpon', oc.gpon_serial || '—');
+    set('onuMac', oc.mac || '—');
+    set('onuFw', oc.firmware || '—');
+    set('onuIp', oc.ip_mgmt || '—');
+    set('onuUptime', oc.uptime_s ? fmtUptime(oc.uptime_s) : '—');
+    set('onuCpu', oc.cpu !== null && oc.cpu !== undefined ? oc.cpu + '%' : '—');
+    if (oc.mem_total_kb) {
+      const used = oc.mem_total_kb - (oc.mem_free_kb || 0);
+      const pct = Math.round(used / oc.mem_total_kb * 100);
+      const usedMb = Math.round(used / 1024);
+      const totalMb = Math.round(oc.mem_total_kb / 1024);
+      const cls = pct > 85 ? 'signal-bad' : pct > 70 ? 'signal-warn' : 'signal-ok';
+      setHTML('onuMem', `<span class="${cls}">${pct}%</span> <span style="color:#8b949e;font-size:11px">(${usedMb}/${totalMb} MB)</span>`);
+    }
+    setHTML('onuStatus', oc.online
+      ? '<span class="badge badge-ativo">Online</span>'
+      : '<span class="badge badge-offline">Offline</span>');
+    set('bngWanIp', oc.wan_ip || '—');
+  }
+
+  // Posição GPON + BNG
+  if (ftth) {
+    set('gponOlt', ftth.olt || '—');
+    set('gponPos', ftth.slot_pon_onu || '—');
+    set('gponDist', ftth.distance ? ftth.distance + ' m' : '—');
+    set('gponSigUpd', ftth.last_signal_update || '—');
+    set('gponLastDown', ftth.last_disconnection || '—');
+  }
+  const bng = r.bng;
+  if (bng && !bng.sem_sessao && !bng.erro) {
+    const ifaceRaw = bng.interface || '—';
+    set('bngIface', ifaceRaw);
+    const oltLbl = getOltLabel(ifaceRaw);
+    setHTML('bngOlt', oltLbl
+      ? `<span class="badge-tag">${oltLbl}</span>`
+      : '—');
+    const dl = bng.download_cir_kbps ? Math.round(bng.download_cir_kbps/1000) : null;
+    const ul = bng.upload_cir_kbps ? Math.round(bng.upload_cir_kbps/1000) : null;
+    set('bngPlano', dl && ul ? `↓ ${dl} Mbps  ↑ ${ul} Mbps` : '—');
+    const dlRt = bng.download_rt_kbmin != null ? (bng.download_rt_kbmin*8/60/1000).toFixed(2) : null;
+    const ulRt = bng.upload_rt_kbmin != null ? (bng.upload_rt_kbmin*8/60/1000).toFixed(2) : null;
+    set('bngVeloc', dlRt && ulRt ? `↓ ${dlRt} Mbps  ↑ ${ulRt} Mbps` : '—');
+  }
+
+  // WiFi
+  const wifi = r.wifi;
+  if (wifi) {
+    const w24 = wifi.band24 || {};
+    set('w24ssid', w24.ssid || '—');
+    setHTML('w24status', w24.status === 'Up'
+      ? '<span class="tag-up">Up</span>'
+      : w24.status ? `<span class="tag-down">${w24.status}</span>` : '—');
+    set('w24ch', w24.channel || '—');
+    set('w24width', w24.channel_width || '—');
+    set('w24std', w24.standard || '—');
+    const pwr24 = {'25':'Baixa','50':'Média','100':'Alta'};
+    set('w24pwr', pwr24[w24.power] || (w24.power ? w24.power+'%' : '—'));
+    set('w24devs', wifi.devices24 ? wifi.devices24.length + ' dispositivo(s)' : '—');
+
+    const w58 = wifi.band58 || {};
+    set('w58ssid', w58.ssid || '—');
+    setHTML('w58status', w58.status === 'Up'
+      ? '<span class="tag-up">Up</span>'
+      : w58.status ? `<span class="tag-down">${w58.status}</span>` : '—');
+    set('w58ch', w58.channel || '—');
+    set('w58width', w58.channel_width || '—');
+    set('w58std', w58.standard || '—');
+    set('w58pwr', pwr24[w58.power] || (w58.power ? w58.power+'%' : '—'));
+    set('w58devs', wifi.devices58 ? wifi.devices58.length + ' dispositivo(s)' : '—');
+
+    // Tabela de dispositivos conectados
+    // Enriquecer com RSSI e Padrão do grupo "Dispositivos WiFi" (MAC, Padrão, RSSI)
+    const rssiMap = {};
+    (wifi.devicesWifi || []).forEach(d => {
+      if (d.MAC) rssiMap[d.MAC.toLowerCase()] = { rssi: d['RSSI'], padrao: d['Padrão'] || '' };
+    });
+
+    const tbody = document.getElementById('connTable');
+    const allDevs = wifi.connected || [];
+    if (allDevs.length) {
+      tbody.innerHTML = allDevs.map(d => {
+        const macKey = (d.MAC || '').toLowerCase();
+        const ri = rssiMap[macKey] || {};
+        const rssiVal = ri.rssi !== undefined && ri.rssi !== null ? parseInt(ri.rssi) : null;
+        const rssiDisp = rssiVal !== null && !isNaN(rssiVal)
+          ? `<span class="${wifiSignalClass(rssiVal)}" title="${wifiSignalLabel(rssiVal)}">${rssiVal} dBm</span>`
+          : '—';
+        const conexao = d['Conexão'] || '';
+        let bandaDisp = '—';
+        if (ri.padrao) bandaDisp = `WiFi ${ri.padrao}`;
+        else if (conexao === 'Wi-Fi' || conexao === 'Other') bandaDisp = 'WiFi';
+        else if (conexao === 'Ethernet') bandaDisp = 'Ethernet';
+        const ip = d.IP || '';
+        const cid = ip ? 'pc-' + ip.replace(/\./g,'-') : '';
+        const pingTd = ip
+          ? `<td id="${cid}" style="text-align:center"><button class="btn-ping" onclick="pingDevice('${ip}','${cid}')">📶</button></td>`
+          : '<td style="text-align:center;color:#484f58">—</td>';
+        return `<tr>
+          <td>${d.Dispositivo || '—'}</td>
+          <td style="font-family:monospace;font-size:11px">${d.MAC || '—'}</td>
+          <td>${ip || '—'}</td>
+          <td>${bandaDisp}</td>
+          <td>${rssiDisp}</td>
+          ${pingTd}
+        </tr>`;
+      }).join('');
+    } else {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:#484f58;text-align:center">Nenhum dispositivo conectado</td></tr>';
+    }
+  }
+
+  // Resetar vizinhos ao fazer nova consulta
+  document.getElementById('vizinhosSection').style.display = 'none';
+  document.getElementById('vizinhosInfo').style.display = 'none';
+  document.getElementById('vizinhosEmpty').style.display = 'none';
+  window._wifiCtx = {
+    ch24: parseInt((r.wifi && r.wifi.band24 && r.wifi.band24.channel) || '0') || null,
+    ch58: parseInt((r.wifi && r.wifi.band58 && r.wifi.band58.channel) || '0') || null,
+    login: r.login,
+  };
+
+  // Histórico de quedas
+  const logs = r.logs || [];
+  const logsEl = document.getElementById('logsContainer');
+  if (logs.length) {
+    logsEl.innerHTML = logs.slice(0, 20).map(l => {
+      const isOnline = l.status === 'Online';
+      const isEnergy = l.status && l.status.toLowerCase().includes('energia');
+      const dotClass = isOnline ? 'online' : (isEnergy ? 'energia' : 'offline');
+      const tagClass = isOnline ? 'tag-up' : (isEnergy ? 'tag-sem-energia' : 'tag-down');
+      return `<div class="log-entry">
+        <div class="log-dot ${dotClass}"></div>
+        <span class="log-time">${l.date || '—'}</span>
+        <span class="log-status"><span class="${tagClass}">${l.status || '—'}</span></span>
+      </div>`;
+    }).join('');
+  } else {
+    logsEl.innerHTML = '<span style="color:#484f58;font-size:12px">Sem histórico disponível</span>';
+  }
+}
+
+function overlap24(ch1, ch2) { return ch1 && ch2 ? Math.abs(ch1 - ch2) < 5 : false; }
+function overlap58(ch1, ch2) { return ch1 && ch2 ? Math.abs(ch1 - ch2) < 4 : false; }
+
+function bestChannel24(neighborChannels) {
+  const candidates = [1, 6, 11];
+  const scores = candidates.map(c => ({ ch: c, cnt: neighborChannels.filter(n => overlap24(c, n)).length }));
+  return scores.sort((a, b) => a.cnt - b.cnt)[0];
+}
+
+async function runWifiVizinhos() {
+  if (!window._wifiCtx || !window._wifiCtx.login) return;
+  const btn = document.getElementById('btnVizinhos');
+  const loading = document.getElementById('scanLoading');
+  btn.disabled = true;
+  loading.style.display = 'flex';
+  document.getElementById('vizinhosSection').style.display = 'none';
+  document.getElementById('vizinhosInfo').style.display = 'none';
+  document.getElementById('vizinhosEmpty').style.display = 'none';
+  try {
+    const resp = await fetch(`${API}/api/gpon/wifi-vizinhos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ login: window._wifiCtx.login }),
+    });
+    if (resp.status === 401) { window.location.href = '/login'; return; }
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.error || 'Erro no scan');
+    const nets = data.networks || [];
+    if (!nets.length) { document.getElementById('vizinhosEmpty').style.display = 'block'; return; }
+
+    const ctx = window._wifiCtx;
+    // Usar canal do scan (mais preciso) ou fallback para ctx
+    const ch24 = data.current_channel_24 || ctx.ch24;
+    const ch58 = data.current_channel_5 || ctx.ch58;
+    const chRec24 = data.channel_rec_24;
+    const counts = data.counts || {};
+
+    const nets24 = nets.filter(n => n.band === '2.4GHz');
+    const neighborChs24 = nets24.map(n => n.channel).filter(c => c && c !== ch24);
+
+    // Info box
+    const infoEl = document.getElementById('vizinhosInfo');
+    const parts = [];
+    const countLine = `${counts.nets24 || 0} redes 2.4GHz · ${counts.nets58 || 0} redes 5GHz encontradas`;
+    parts.push(`<span style="color:#8b949e">${countLine}</span>`);
+    if (ch24) {
+      const overlapping = neighborChs24.filter(c => overlap24(c, ch24));
+      if (overlapping.length > 0) {
+        parts.push(`⚠ Canal 2.4GHz atual (<b>${ch24}</b>) tem sobreposição com ${overlapping.length} rede(s) vizinha(s).${chRec24 ? ` Canal recomendado: <span class="ch-rec">${chRec24}</span>` : ''}`);
+      } else {
+        parts.push(`✓ Canal 2.4GHz atual (<b>${ch24}</b>) sem sobreposição com vizinhos.`);
+      }
+    }
+    infoEl.innerHTML = `<div style="padding:10px 14px;background:#1c2128;border:1px solid #30363d;border-radius:6px;font-size:13px">${parts.join('<br>')}</div>`;
+    infoEl.style.display = 'block';
+
+    // Tabela
+    const tbody = document.getElementById('vizinhosTable');
+    tbody.innerHTML = nets.map(n => {
+      const isMine24 = n.band === '2.4GHz' && n.channel === ch24;
+      const isMine58 = n.band === '5GHz' && n.channel === ch58;
+      const isOverlap = (n.band === '2.4GHz' && ch24 && !isMine24 && overlap24(n.channel, ch24))
+                     || (n.band === '5GHz'  && ch58 && !isMine58 && overlap58(n.channel, ch58));
+      const statusHtml = isMine24 || isMine58
+        ? '<span class="ch-mine">Meu canal</span>'
+        : isOverlap ? '<span class="overlap-badge">Sobreposição</span>' : '<span style="color:#484f58">OK</span>';
+      const sigVal = n.signal || null;
+      const sigHtml = sigVal ? `<span class="${wifiSignalClass(sigVal)}" title="${wifiSignalLabel(sigVal)}">${sigVal} dBm</span>` : '—';
+      return `<tr>
+        <td>${n.ssid}</td>
+        <td style="font-family:monospace;font-size:11px">${n.bssid}</td>
+        <td>${n.channel || '—'}</td>
+        <td>${n.channel_width || '—'}</td>
+        <td>${sigHtml}</td>
+        <td><span style="color:#8b949e;font-size:11px">${n.band}</span></td>
+        <td>${statusHtml}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('vizinhosSection').style.display = 'block';
+  } catch(e) {
+    const infoEl = document.getElementById('vizinhosInfo');
+    infoEl.innerHTML = `<div style="padding:10px 14px;background:#2d0f0f;border:1px solid #7d2121;border-radius:6px;font-size:13px;color:#f85149">Erro no scan: ${e.message}</div>`;
+    infoEl.style.display = 'block';
+  } finally {
+    loading.style.display = 'none';
+    btn.disabled = false;
+  }
+}
+
+// Backlog: visível só para master/administrador
+try {
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  if (payload.role === 'master' || payload.role === 'administrador') {
+    document.getElementById('btnBacklog').style.display = 'inline-block';
+  }
+} catch(e) {}
+document.addEventListener('keydown', e => { if(e.key==='Escape') document.getElementById('modalBacklog').classList.remove('open'); });
+
+let _pingCooldown = null;
+let _pingProgress = null;
+
+function _allPingBtns() { return document.querySelectorAll('.btn-ping'); }
+
+function startPingCooldown(secs, skipBtn) {
+  if (_pingCooldown) clearInterval(_pingCooldown);
+  let rem = secs;
+  function tick() {
+    _allPingBtns().forEach(b => {
+      if (b === skipBtn && rem > 0) { b.disabled = true; return; } // mantém texto de resultado
+      b.disabled = rem > 0;
+      b.textContent = rem > 0 ? '(' + rem + 's)' : '📶';
+      b.style.color = '';
+    });
+  }
+  tick();
+  _pingCooldown = setInterval(() => {
+    rem--;
+    tick();
+    if (rem <= 0) { clearInterval(_pingCooldown); _pingCooldown = null; }
+  }, 1000);
+}
+
+async function pingDevice(ip, cid) {
+  const serial = window._lastSerial;
+  if (!serial) { alert('Execute o diagnóstico primeiro.'); return; }
+
+  if (_pingProgress) { clearInterval(_pingProgress); _pingProgress = null; }
+
+  // Desabilitar todos os botões sem remover do DOM
+  _allPingBtns().forEach(b => { b.disabled = true; b.style.color = ''; });
+
+  // Progresso animado no botão clicado (não substitui o elemento)
+  const clickedBtn = document.querySelector('#' + cid + ' .btn-ping');
+  let step = 1;
+  if (clickedBtn) { clickedBtn.textContent = '⏳1/10'; clickedBtn.style.color = '#58a6ff'; }
+  _pingProgress = setInterval(() => {
+    if (step < 10) { step++; if (clickedBtn) clickedBtn.textContent = '⏳' + step + '/10'; }
+  }, 3000);
+
+  const resultEl = document.getElementById('pingResult');
+  if (resultEl) { resultEl.style.display = 'none'; }
+
+  try {
+    const r = await fetch(API + '/api/gpon/ping-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ serial, ip }),
+    });
+    clearInterval(_pingProgress); _pingProgress = null;
+    const d = await r.json();
+
+    if (!d.ok) {
+      if (r.status === 429 || d.error === 'rate_limit') {
+        startPingCooldown(40);
+      } else {
+        _allPingBtns().forEach(b => { b.disabled = false; b.textContent = '📶'; b.style.color = ''; });
+        if (resultEl) { resultEl.style.display = 'block'; resultEl.innerHTML = `<span class="signal-bad">❌ Erro: ${d.error || d.message || 'falha'}</span>`; }
+      }
+      return;
+    }
+
+    // Mostrar resultado breve no botão clicado durante o cooldown
+    if (clickedBtn) {
+      if (d.quality === 'unreachable') {
+        clickedBtn.textContent = '❌0ms'; clickedBtn.style.color = '#f85149';
+      } else {
+        const col = d.quality === 'stable' ? '#3fb950' : d.quality === 'unstable' ? '#e3b341' : '#f85149';
+        clickedBtn.textContent = d.avg_ms + 'ms'; clickedBtn.style.color = col;
+      }
+    }
+
+    // Detalhes no painel abaixo da tabela
+    if (resultEl) {
+      resultEl.style.display = 'block';
+      const dev = document.querySelector('#' + cid)?.closest('tr')?.querySelector('td:first-child')?.textContent || ip;
+      if (d.quality === 'unreachable') {
+        resultEl.innerHTML = `<strong>📶 ${ip}</strong> (${dev}) — <span class="signal-bad">❌ Sem resposta (dispositivo não respondeu ao ICMP)</span>`;
+      } else {
+        const qLabel = {stable:'✅ Estável',unstable:'⚠️ Instável',very_unstable:'🔴 Muito Instável'}[d.quality] || d.quality;
+        resultEl.innerHTML = `<strong>📶 ${ip}</strong> (${dev}) — ${qLabel}<br>` +
+          `<span style="color:#8b949e;font-size:12px;font-family:monospace">` +
+          `min <strong style="color:#e6edf3">${d.min_ms}ms</strong> &nbsp; ` +
+          `avg <strong style="color:#e6edf3">${d.avg_ms}ms</strong> &nbsp; ` +
+          `max <strong style="color:#e6edf3">${d.max_ms}ms</strong> &nbsp; ` +
+          `jitter <strong style="color:#e6edf3">${d.jitter_ms}ms</strong> &nbsp; ` +
+          `perda <strong style="color:#e6edf3">${d.loss_pct}%</strong> &nbsp; ` +
+          `(${d.success}/${d.total} pacotes)</span>`;
+      }
+    }
+
+    startPingCooldown(40, clickedBtn); // skipBtn = clicked: mantém resultado no botão durante cooldown
+  } catch(e) {
+    clearInterval(_pingProgress); _pingProgress = null;
+    _allPingBtns().forEach(b => { b.disabled = false; b.textContent = '📶'; b.style.color = ''; });
+    if (resultEl) { resultEl.style.display = 'block'; resultEl.innerHTML = `<span class="signal-bad">❌ ${e.message}</span>`; }
+  }
+}
+</script>
+</body>
+</html>
