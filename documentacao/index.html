@@ -687,6 +687,94 @@ async function loadStats() {
 }
 
 // TAB SWITCHING
+
+// CATALOG MANAGEMENT
+async function newDevice() {
+  resetDeviceModal();
+  await populateCatalogSelects();
+  openModal('modalDevice');
+}
+
+async function loadCatalogo() {
+  await Promise.all([
+    loadCatSection('manufacturers'),
+    loadCatSection('models'),
+    loadCatSection('roles'),
+    loadCatSection('sites'),
+    loadCatSection('owners')
+  ]);
+  const mfgData = await apiFetch('/doc/catalog/manufacturers');
+  const mfgSel = document.getElementById('newModelManuf');
+  if (mfgSel && mfgData?.items) {
+    mfgSel.innerHTML = '<option value="">Fabricante...</option>' + mfgData.items.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  }
+}
+
+async function loadCatSection(entity) {
+  const d = await apiFetch('/doc/catalog/' + entity);
+  const el = document.getElementById('cat-' + entity + '-list');
+  if (!el || !d?.ok) return;
+  el.innerHTML = d.items.length === 0
+    ? '<div style="color:#475569;font-size:12px;padding:4px">Nenhum item</div>'
+    : d.items.map(item => `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #1e2635"><span style="font-size:13px;color:#e2e8f0">${item.name||item.model}${item.manufacturer_name ? ` <span style="color:#64748b;font-size:11px">(${item.manufacturer_name})</span>` : ''}</span><button class="btn btn-danger btn-sm" style="padding:2px 8px;font-size:11px" onclick="deleteCatItem('${entity}',${item.id})">\u2715</button></div>`).join('');
+}
+
+async function addCatItem(entity, inputId) {
+  const input = document.getElementById(inputId);
+  const name = (input?.value||'').trim();
+  if (!name) return;
+  await apiFetch('/doc/catalog/' + entity, { method:'POST', body: JSON.stringify({ name }) });
+  input.value = '';
+  await loadCatSection(entity);
+  await populateCatalogSelects();
+}
+
+async function addCatModel() {
+  const mfgId = document.getElementById('newModelManuf')?.value;
+  const model = (document.getElementById('newModel')?.value||'').trim();
+  if (!model) return;
+  await apiFetch('/doc/catalog/models', { method:'POST', body: JSON.stringify({ manufacturer_id: mfgId||null, model }) });
+  document.getElementById('newModel').value = '';
+  await loadCatSection('models');
+  await populateCatalogSelects();
+}
+
+async function deleteCatItem(entity, id) {
+  showDeleteConfirm('Remover este item do catálogo?', async () => {
+    await apiFetch('/doc/catalog/' + entity + '/' + id, { method:'DELETE' });
+    await loadCatSection(entity);
+    await populateCatalogSelects();
+  });
+}
+
+async function populateCatalogSelects() {
+  const [mfgs, models, roles, sites, owners] = await Promise.all([
+    apiFetch('/doc/catalog/manufacturers'),
+    apiFetch('/doc/catalog/models'),
+    apiFetch('/doc/catalog/roles'),
+    apiFetch('/doc/catalog/sites'),
+    apiFetch('/doc/catalog/owners')
+  ]);
+  const fill = (id, items, valF, lblF) => {
+    const el = document.getElementById(id); if (!el) return;
+    el.innerHTML = '<option value=""></option>' + (items||[]).map(i => `<option value="${i[valF]}">${i[lblF]||i[valF]}</option>`).join('');
+  };
+  fill('devRole', roles?.items, 'name', 'name');
+  fill('devSite', sites?.items, 'name', 'name');
+  fill('devOwner', owners?.items, 'name', 'name');
+  fill('devManuf', mfgs?.items, 'name', 'name');
+  window._catModels = models?.items || [];
+  loadModelOptions();
+}
+
+function loadModelOptions() {
+  const manuf = document.getElementById('devManuf')?.value || '';
+  const all = window._catModels || [];
+  const filtered = manuf ? all.filter(m => m.manufacturer_name === manuf) : all;
+  const modEl = document.getElementById('devModel'); if (!modEl) return;
+  modEl.innerHTML = '<option value=""></option>' + filtered.map(i => `<option value="${i.model}">${i.model}</option>`).join('');
+}
+
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -796,7 +884,9 @@ async function syncNetbox() {
   }
 }
 
-function editDevice(d) {
+async function editDevice(d) {
+  resetDeviceModal();
+  await populateCatalogSelects();
   document.getElementById('modalDeviceTitle').textContent = 'Editar Dispositivo';
   document.getElementById('devId').value = d.id;
   document.getElementById('devName').value = d.name || '';
@@ -804,6 +894,7 @@ function editDevice(d) {
   document.getElementById('devRole').value = d.role || '';
   document.getElementById('devStatus').value = d.status || 'active';
   document.getElementById('devManuf').value = d.manufacturer || '';
+  loadModelOptions();
   document.getElementById('devModel').value = d.model || '';
   document.getElementById('devSite').value = d.site_name || '';
   document.getElementById('devMgmtIp').value = d.management_ip || '';
