@@ -777,6 +777,7 @@ async function deleteCatItem(entity, id) {
   showDeleteConfirm('Remover este item do catálogo?', async () => {
     await apiFetch('/doc/catalog/' + entity + '/' + id, { method:'DELETE' });
     await loadCatSection(entity);
+    if (entity === 'manufacturers') await populateCatModelManuf();
     await populateCatalogSelects();
   });
 }
