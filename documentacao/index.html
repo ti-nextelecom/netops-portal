@@ -233,6 +233,7 @@ select.form-control option{background:#1a2235}
     <button class="tab-btn" onclick="switchTab('ipv6')" id="tab-ipv6">Prefixos IPv6</button>
     <button class="tab-btn" onclick="switchTab('asn')" id="tab-asn">ASN</button>
     <button class="tab-btn" onclick="switchTab('pops')" id="tab-pops">POPs</button>
+    <button class="tab-btn" onclick="switchTab('changelog')" id="tab-changelog">📋 Changelog</button>
   </div>
 
   <!-- TAB: DISPOSITIVOS -->
@@ -352,6 +353,61 @@ select.form-control option{background:#1a2235}
         <thead><tr><th>POP</th><th>Localização</th><th>Descrição</th><th>Dispositivos</th><th></th></tr></thead>
         <tbody id="popTbody"></tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- TAB: CHANGELOG -->
+  <div class="tab-content" id="content-changelog">
+    <div class="toolbar" style="justify-content:space-between">
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="form-control" id="clEntityFilter" style="width:160px" onchange="loadChangelog()">
+          <option value="">Todas entidades</option>
+          <option value="device">Dispositivos</option>
+          <option value="vlan">VLANs</option>
+          <option value="subnet">Prefixos</option>
+          <option value="asn">ASN</option>
+          <option value="asn_prefix">Prefixos ASN</option>
+          <option value="pop">POPs</option>
+        </select>
+        <select class="form-control" id="clActionFilter" style="width:140px" onchange="loadChangelog()">
+          <option value="">Todas ações</option>
+          <option value="create">Criação</option>
+          <option value="update">Atualização</option>
+          <option value="delete">Exclusão</option>
+        </select>
+      </div>
+      <span id="clCount" style="font-size:12px;color:#64748b"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>Nome/ID</th><th>Detalhes</th></tr></thead>
+        <tbody id="changelogTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="modalDeleteConfirm">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head">
+      <h3>Confirmar Exclusão</h3>
+      <button class="modal-close" onclick="closeModal('modalDeleteConfirm')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div>
+          <div style="font-weight:600;color:#fff;margin-bottom:4px">Tem certeza?</div>
+          <div id="deleteConfirmMsg" style="font-size:13px;color:#94a3b8">Esta ação não pode ser desfeita.</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalDeleteConfirm')">Cancelar</button>
+      <button class="btn btn-danger" id="btnDeleteConfirm" onclick="execDeleteConfirm()">Excluir</button>
     </div>
   </div>
 </div>
@@ -587,6 +643,7 @@ function switchTab(name) {
   else if (name === 'ipv6') loadSubnets(6);
   else if (name === 'asn') loadAsn();
   else if (name === 'pops') loadPops();
+  else if (name === 'changelog') loadChangelog();
 }
 
 // GLOBAL SEARCH
@@ -728,9 +785,10 @@ function resetDeviceModal() {
 }
 
 async function deleteDevice(id) {
-  if (!confirm('Excluir este dispositivo?')) return;
-  const r = await apiFetch('/doc/devices/' + id, { method: 'DELETE' });
-  if (r && r.ok) { loadDevices(); loadStats(); }
+  showDeleteConfirm('Excluir este dispositivo? Esta ação não pode ser desfeita.', async () => {
+    const r = await apiFetch('/doc/devices/' + id, { method: 'DELETE' });
+    if (r && r.ok) { loadDevices(); loadStats(); }
+  });
 }
 
 // VLANs
@@ -780,9 +838,10 @@ async function saveVlan() {
 }
 
 async function deleteVlan(id) {
-  if (!confirm('Excluir esta VLAN?')) return;
-  const r = await apiFetch('/doc/vlans/' + id, { method: 'DELETE' });
-  if (r && r.ok) { loadVlans(); loadStats(); }
+  showDeleteConfirm('Excluir esta VLAN? Esta ação não pode ser desfeita.', async () => {
+    const r = await apiFetch('/doc/vlans/' + id, { method: 'DELETE' });
+    if (r && r.ok) { loadVlans(); loadStats(); }
+  });
 }
 
 // SUBNETS
@@ -851,9 +910,10 @@ async function saveSubnet() {
 }
 
 async function deleteSubnet(id) {
-  if (!confirm('Excluir este prefixo?')) return;
-  const r = await apiFetch('/doc/subnets/' + id, { method: 'DELETE' });
-  if (r && r.ok) { const family = document.getElementById('content-ipv4').classList.contains('active') ? 4 : 6; loadSubnets(family); loadStats(); }
+  showDeleteConfirm('Excluir este prefixo? Esta ação não pode ser desfeita.', async () => {
+    const r = await apiFetch('/doc/subnets/' + id, { method: 'DELETE' });
+    if (r && r.ok) { const family = document.getElementById('content-ipv4').classList.contains('active') ? 4 : 6; loadSubnets(family); loadStats(); }
+  });
 }
 
 // ASN
@@ -936,9 +996,10 @@ async function saveAsnPrefix() {
 }
 
 async function deleteAsnPrefix(id) {
-  if (!confirm('Remover este prefixo do ASN?')) return;
-  const r = await apiFetch('/doc/asn/prefixes/' + id, { method: 'DELETE' });
-  if (r && r.ok) loadAsn();
+  showDeleteConfirm('Remover este prefixo do ASN? Esta ação não pode ser desfeita.', async () => {
+    const r = await apiFetch('/doc/asn/prefixes/' + id, { method: 'DELETE' });
+    if (r && r.ok) loadAsn();
+  });
 }
 
 // POPs
@@ -979,9 +1040,10 @@ async function savePop() {
 }
 
 async function deletePop(id) {
-  if (!confirm('Excluir este POP?')) return;
-  const r = await apiFetch('/doc/pops/' + id, { method: 'DELETE' });
-  if (r && r.ok) { loadPops(); loadStats(); }
+  showDeleteConfirm('Excluir este POP? Esta ação não pode ser desfeita.', async () => {
+    const r = await apiFetch('/doc/pops/' + id, { method: 'DELETE' });
+    if (r && r.ok) { loadPops(); loadStats(); }
+  });
 }
 
 // SELECT POPULATORS
@@ -1024,6 +1086,59 @@ function showAlert(id, msg, type) {
   if (!el) return;
   el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+// DELETE CONFIRM MODAL
+let _deleteCallback = null;
+function showDeleteConfirm(msg, callback) {
+  _deleteCallback = callback;
+  document.getElementById('deleteConfirmMsg').textContent = msg;
+  openModal('modalDeleteConfirm');
+}
+async function execDeleteConfirm() {
+  closeModal('modalDeleteConfirm');
+  if (_deleteCallback) { await _deleteCallback(); _deleteCallback = null; }
+}
+
+// CHANGELOG
+async function loadChangelog() {
+  const entityType = document.getElementById('clEntityFilter')?.value || '';
+  const action = document.getElementById('clActionFilter')?.value || '';
+  const params = new URLSearchParams({ limit: '200' });
+  if (entityType) params.set('entity_type', entityType);
+  if (action) params.set('action', action);
+  const d = await apiFetch('/doc/changelog?' + params.toString());
+  if (!d || !d.ok) return;
+  const tbody = document.getElementById('changelogTbody');
+  const countEl = document.getElementById('clCount');
+  if (countEl) countEl.textContent = `${d.changelog.length} registros`;
+  const actionColor = { create: '#22c55e', update: '#f59e0b', delete: '#ef4444' };
+  const actionLabel = { create: 'Criação', update: 'Atualização', delete: 'Exclusão' };
+  const entityLabel = { device: 'Dispositivo', vlan: 'VLAN', subnet: 'Prefixo', asn: 'ASN', asn_prefix: 'Prefixo ASN', pop: 'POP' };
+  if (!d.changelog.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><p>Nenhuma alteração registrada</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = d.changelog.map(c => {
+    const dt = new Date(c.created_at);
+    const dtStr = dt.toLocaleString('pt-BR', { timeZone: 'America/Fortaleza', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const color = actionColor[c.action] || '#94a3b8';
+    const label = actionLabel[c.action] || c.action;
+    const eLabel = entityLabel[c.entity_type] || c.entity_type;
+    let details = '';
+    if (c.details && typeof c.details === 'object') {
+      const keys = Object.keys(c.details).filter(k => !['id','created_at','updated_at','source','external_id'].includes(k));
+      details = keys.slice(0,4).map(k => `<span style="font-size:10px;color:#64748b">${k}:</span><span style="font-size:10px;color:#94a3b8;margin-left:3px">${String(c.details[k]||'').slice(0,30)}</span>`).join(' ');
+    }
+    return `<tr>
+      <td style="font-size:12px;white-space:nowrap;color:#64748b">${dtStr}</td>
+      <td style="font-size:13px;color:#e2e8f0">${c.user_name||'—'}</td>
+      <td><span style="font-size:11px;font-weight:600;color:${color};background:${color}18;padding:2px 8px;border-radius:12px">${label}</span></td>
+      <td style="font-size:12px;color:#94a3b8">${eLabel}</td>
+      <td style="font-size:12px;color:#e2e8f0;font-family:monospace">${c.entity_name||c.entity_id||'—'}</td>
+      <td style="max-width:260px;overflow:hidden">${details}</td>
+    </tr>`;
+  }).join('');
 }
 
 // INIT
