@@ -393,7 +393,8 @@ select.form-control option{background:#1a2235}
       <button class="tab-btn active" onclick="switchCatTab('manufacturers')" id="cattab-manufacturers">Fabricantes<span class="cat-info" data-tip="Fabricantes de equipamentos (ex: HUAWEI, MIKROTIK). Padroniza o campo Fabricante nos dispositivos." onclick="event.stopPropagation()">i</span></button>
       <button class="tab-btn" onclick="switchCatTab('models')" id="cattab-models">Modelos<span class="cat-info" data-tip="Modelos vinculados a um fabricante (ex: MA5800-X7, CCR1036). Padroniza o campo Modelo nos dispositivos." onclick="event.stopPropagation()">i</span></button>
       <button class="tab-btn" onclick="switchCatTab('roles')" id="cattab-roles">Roles / Tipo<span class="cat-info" data-tip="Função do dispositivo na rede (ex: OLT, SWITCH, ROTEADOR). Define o tipo de equipamento." onclick="event.stopPropagation()">i</span></button>
-      <button class="tab-btn" onclick="switchCatTab('sites')" id="cattab-sites">Sites<span class="cat-info" data-tip="Localização física do equipamento. Pode ser POP próprio, sede de cliente ou parceiro." onclick="event.stopPropagation()">i</span></button>
+      <button class="tab-btn" onclick="switchCatTab('sites')" id="cattab-sites">Sites<span class="cat-info" data-tip="Local com equipamentos de rede para distribuição interna (escritório, prédio, campus)." onclick="event.stopPropagation()">i</span></button>
+      <button class="tab-btn" onclick="switchCatTab('pops')" id="cattab-pops">POPs<span class="cat-info" data-tip="Ponto de presença com equipamentos para atendimento de clientes (POP-PQS, POP-Mussurunga, etc)." onclick="event.stopPropagation()">i</span></button>
       <button class="tab-btn" onclick="switchCatTab('owners')" id="cattab-owners">Donos<span class="cat-info" data-tip="Operadora ou empresa responsável pelo equipamento (ex: NEX, GGC, FNA, OCA)." onclick="event.stopPropagation()">i</span></button>
     </div>
 
@@ -442,6 +443,16 @@ select.form-control option{background:#1a2235}
       <div id="cat-sites-list"></div>
     </div>
 
+    <div id="catcontent-pops" class="cat-content">
+      <div class="toolbar" style="margin-bottom:12px">
+        <input class="form-control" id="catSearch-pops" placeholder="Buscar POP..." style="width:220px" oninput="filterCatList('pops')">
+        <div style="display:flex;gap:8px">
+          <input class="form-control" id="newPop" placeholder="ex: POP-PQS, POP-MUSSURUNGA..." style="width:220px">
+          <button class="btn btn-primary btn-sm" onclick="addCatItem('pops','newPop')">+ Adicionar</button>
+        </div>
+      </div>
+      <div id="cat-pops-list"></div>
+    </div>
     <div id="catcontent-owners" class="cat-content">
       <div class="toolbar" style="margin-bottom:12px">
         <input class="form-control" id="catSearch-owners" placeholder="Buscar dono..." style="width:220px" oninput="filterCatList('owners')">
@@ -817,12 +828,13 @@ async function deleteCatItem(entity, id) {
 }
 
 async function populateCatalogSelects() {
-  const [mfgs, models, roles, sites, owners] = await Promise.all([
+  const [mfgs, models, roles, sites, owners, pops] = await Promise.all([
     apiFetch('/doc/catalog/manufacturers'),
     apiFetch('/doc/catalog/models'),
     apiFetch('/doc/catalog/roles'),
     apiFetch('/doc/catalog/sites'),
-    apiFetch('/doc/catalog/owners')
+    apiFetch('/doc/catalog/owners'),
+    apiFetch('/doc/catalog/pops')
   ]);
   const fill = (id, items, valF, lblF) => {
     const el = document.getElementById(id); if (!el) return;
@@ -832,6 +844,7 @@ async function populateCatalogSelects() {
   fill('devSite', sites?.items, 'name', 'name');
   fill('devOwner', owners?.items, 'name', 'name');
   fill('devManuf', mfgs?.items, 'name', 'name');
+  fill('devPop', pops?.items, 'name', 'name');
   window._catModels = models?.items || [];
   loadModelOptions();
 }
@@ -966,10 +979,10 @@ async function editDevice(d) {
   loadModelOptions();
   document.getElementById('devModel').value = d.model || '';
   document.getElementById('devSite').value = d.site_name || '';
+  document.getElementById('devPop').value = d.pop || '';
   document.getElementById('devMgmtIp').value = d.management_ip || '';
   document.getElementById('devOwner').value = d.owner || '';
   document.getElementById('devNotes').value = d.notes || '';
-  populatePopSelect('devPop', d.pop_id);
   openModal('modalDevice');
 }
 
@@ -983,8 +996,8 @@ async function saveDevice() {
     manufacturer: document.getElementById('devManuf').value.trim(),
     model: document.getElementById('devModel').value.trim(),
     site_name: document.getElementById('devSite').value.trim(),
+    pop: document.getElementById('devPop').value.trim() || null,
     management_ip: document.getElementById('devMgmtIp').value.trim(),
-    pop_id: document.getElementById('devPop').value || null,
     owner: (document.getElementById('devOwner')?.value||'').trim().toUpperCase()||null,
       notes: document.getElementById('devNotes').value.trim()
   };
@@ -998,7 +1011,7 @@ async function saveDevice() {
 
 function resetDeviceModal() {
   document.getElementById('modalDeviceTitle').textContent = 'Novo Dispositivo';
-  ['devId','devName','devHostname','devRole','devManuf','devModel','devSite','devMgmtIp','devOwner','devNotes'].forEach(id => document.getElementById(id).value = '');
+  ['devId','devName','devHostname','devRole','devManuf','devModel','devSite','devPop','devMgmtIp','devOwner','devNotes'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('devStatus').value = 'active';
   document.getElementById('devAlert').innerHTML = '';
 }
