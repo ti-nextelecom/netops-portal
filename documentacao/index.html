@@ -3,673 +3,1037 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Documentação de Rede — NetOps NexTelecom</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Documentação de Rede — NetOps</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh}
+body{font-family:'Inter',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
+a{color:inherit;text-decoration:none}
 
-/* ── Navbar ── */
-.navbar{position:sticky;top:0;left:0;right:0;height:60px;z-index:200;background:rgba(15,20,28,0.95);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,102,0,0.15);display:flex;align-items:center;padding:0 1.25rem;gap:0}
-.nav-brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:1rem;flex-shrink:0}
-.nav-logo{width:30px;height:30px;filter:drop-shadow(0 0 6px rgba(255,102,0,.35))}
-.nav-title-text{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.02em;white-space:nowrap}
-.nav-title-text span{color:#FF6600}
-.nav-links{display:flex;align-items:center;gap:2px;flex:1}
+/* NAV */
+.nav{display:flex;align-items:center;height:52px;background:#161b27;border-bottom:1px solid #1e2635;padding:0 18px;gap:8px;position:sticky;top:0;z-index:100}
+.nav-logo{font-weight:700;font-size:14px;color:#fff;letter-spacing:.5px;margin-right:8px}
+.nav-logo span{color:#FF6600}
 .nav-item{position:relative}
-.nav-btn{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:8px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;transition:color .15s,background .15s;white-space:nowrap}
-.nav-btn:hover,.nav-btn.open{color:#fff;background:rgba(255,255,255,0.06)}
-.nav-btn.active-section{color:#FF6600}
-.nav-btn svg{transition:transform .2s}
-.nav-dropdown{display:none;position:absolute;top:calc(100% + 10px);left:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:240px;box-shadow:0 16px 48px rgba(0,0,0,.5);overflow:hidden;z-index:300}
-.nav-dropdown.open{display:block}
-.nav-dd-header{font-size:10px;font-weight:600;color:#929EB0;letter-spacing:.08em;text-transform:uppercase;padding:12px 14px 6px}
-.nav-dd-item{display:flex;align-items:center;gap:10px;padding:9px 14px;text-decoration:none;color:#CBD5E0;font-size:13px;font-weight:500;transition:background .12s,color .12s}
-.nav-dd-item:hover{background:rgba(255,102,0,0.08);color:#fff}
-.nav-dd-item.disabled{opacity:.45;cursor:default;pointer-events:none}
-.nav-dd-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:4px 0}
-.dd-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dd-icon.orange{background:rgba(255,102,0,0.15)}
-.dd-icon.blue{background:rgba(41,120,255,0.15)}
-.dd-icon.purple{background:rgba(112,64,192,0.15)}
-.dd-icon.teal{background:rgba(0,210,200,0.12)}
-.dd-icon.green{background:rgba(74,222,128,0.12)}
-.dd-badge{margin-left:auto;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
-.dd-badge.green{background:rgba(34,197,94,0.15);color:#4ade80}
-.dd-badge.amber{background:rgba(245,158,11,0.12);color:#fbbf24}
-.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
-.user-btn{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;cursor:pointer;font-family:inherit;color:#CBD5E0;font-size:13px;font-weight:500;transition:border-color .15s,background .15s}
-.user-btn:hover{border-color:rgba(255,102,0,0.4);color:#fff}
-.user-avatar{width:24px;height:24px;border-radius:5px;background:linear-gradient(135deg,#FF6600,#FF3500);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
-.user-dropdown{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#1E2A3A;border:1px solid rgba(255,102,0,0.18);border-radius:12px;min-width:200px;box-shadow:0 16px 48px rgba(0,0,0,.5);padding:1rem;z-index:300}
-.user-dropdown.open{display:block}
-.ud-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:2px}
-.ud-role{font-size:11px;color:#929EB0;margin-bottom:1rem}
-.ud-sep{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:0.75rem 0}
-.btn-ud-logout{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;background:rgba(255,80,80,0.08);border:1px solid rgba(255,80,80,0.15);border-radius:7px;color:#ff6b6b;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s}
-.btn-ud-logout:hover{background:rgba(255,80,80,0.15)}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;border:none;background:transparent;color:#94a3b8;font-size:13px;cursor:pointer;transition:all .15s}
+.nav-btn:hover,.nav-btn.active{background:#1e2635;color:#e2e8f0}
+.nav-btn.active-section{background:rgba(255,102,0,.12);color:#FF6600}
+.nav-dropdown{position:absolute;top:calc(100% + 6px);left:0;background:#1a2235;border:1px solid #1e2635;border-radius:8px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none;z-index:200;padding:6px 0}
+.nav-item:hover .nav-dropdown{display:block}
+.nav-dd-header{padding:6px 14px;font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.8px}
+.nav-dd-item{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:13px;color:#94a3b8;cursor:pointer;transition:all .1s}
+.nav-dd-item:hover{background:#1e2635;color:#e2e8f0}
+.dd-icon{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center}
+.dd-icon.orange{background:rgba(255,102,0,.1)}
+.dd-icon.blue{background:rgba(41,120,255,.1)}
+.dd-badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:12px}
+.dd-badge.green{background:rgba(34,197,94,.15);color:#22c55e}
+.nav-right{display:flex;align-items:center;margin-left:auto;gap:12px}
+.nav-user{display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:6px;background:#1e2635;font-size:12px;color:#94a3b8;cursor:pointer}
+.nav-dd-sep{border:none;border-top:1px solid #1e2635;margin:4px 0}
 
-/* ── Page Header ── */
-.page-header{padding:28px 28px 0;display:flex;flex-direction:column;gap:6px}
-.page-title{font-size:22px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
-.page-subtitle{font-size:13px;color:#929EB0}
-.stats-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
-.stat-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:20px;font-size:12px;color:#929EB0;font-weight:500}
-.stat-chip strong{color:#e6edf3}
-.stat-chip.loading{opacity:.5}
+/* LAYOUT */
+.page{max-width:1400px;margin:0 auto;padding:24px 20px}
 
-/* ── Controls ── */
-.controls{padding:20px 28px 0;display:flex;flex-direction:column;gap:12px}
-.search-row{display:flex;gap:10px;align-items:center}
-.search-wrap{position:relative;flex:1;max-width:480px}
-.search-wrap input{width:100%;background:rgba(26,34,46,0.8);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 12px 9px 36px;color:#e6edf3;font-size:13px;font-family:inherit;outline:none;transition:border-color .18s}
-.search-wrap input:focus{border-color:rgba(255,102,0,0.5)}
-.search-wrap input::placeholder{color:#4a5568}
-.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#4a5568;pointer-events:none}
-.btn-refresh{display:flex;align-items:center;gap:5px;padding:8px 14px;background:rgba(255,102,0,0.1);border:1px solid rgba(255,102,0,0.25);border-radius:9px;color:#FF6600;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
-.btn-refresh:hover{background:rgba(255,102,0,0.2)}
-.btn-refresh:disabled{opacity:.4;cursor:not-allowed}
-.site-pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#929EB0;transition:.15s;white-space:nowrap}
-.pill:hover{border-color:rgba(255,102,0,0.3);color:#ccc}
-.pill.active{background:rgba(255,102,0,0.15);border-color:rgba(255,102,0,0.4);color:#FF6600}
+/* HEADER */
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px}
+.page-header p{font-size:13px;color:#64748b}
 
-/* ── Tabs ── */
-.tabs{display:flex;gap:4px;padding:16px 28px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin:0}
-.tab-btn{padding:8px 18px;font-size:13px;font-weight:500;color:#929EB0;background:none;border:none;cursor:pointer;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;display:flex;align-items:center;gap:7px}
-.tab-btn:hover{color:#e6edf3}
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:20px}
+.search-input{width:100%;padding:11px 16px 11px 42px;background:#161b27;border:1px solid #1e2635;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:#FF6600}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#475569}
+.search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#1a2235;border:1px solid #1e2635;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:500;display:none;max-height:400px;overflow-y:auto}
+.search-results.open{display:block}
+.sr-section{padding:8px 0}
+.sr-label{padding:4px 14px;font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.8px}
+.sr-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .1s}
+.sr-item:hover{background:#1e2635}
+.sr-type{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
+.sr-type.device{background:rgba(99,102,241,.2);color:#818cf8}
+.sr-type.vlan{background:rgba(245,158,11,.2);color:#fbbf24}
+.sr-type.subnet{background:rgba(34,197,94,.2);color:#4ade80}
+.sr-type.pop{background:rgba(236,72,153,.2);color:#f472b6}
+.sr-type.asn{background:rgba(6,182,212,.2);color:#22d3ee}
+.sr-main{font-size:13px;color:#e2e8f0}
+.sr-sub{font-size:11px;color:#64748b;margin-left:auto}
+
+/* STATS */
+.stats-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-chip{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#161b27;border:1px solid #1e2635;border-radius:8px;min-width:120px;cursor:pointer;transition:all .15s}
+.stat-chip:hover{border-color:#2d3a4f}
+.stat-chip.active{border-color:#FF6600;background:rgba(255,102,0,.06)}
+.stat-num{font-size:20px;font-weight:700;color:#fff}
+.stat-label{font-size:11px;color:#64748b;margin-top:1px}
+.stat-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid #1e2635;margin-bottom:20px}
+.tab-btn{padding:10px 18px;border:none;background:transparent;color:#64748b;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+.tab-btn:hover{color:#e2e8f0}
 .tab-btn.active{color:#FF6600;border-bottom-color:#FF6600}
-.tab-count{font-size:11px;padding:1px 6px;border-radius:10px;background:rgba(255,255,255,0.08);color:#929EB0}
-.tab-btn.active .tab-count{background:rgba(255,102,0,0.15);color:#FF6600}
+.tab-content{display:none}
+.tab-content.active{display:block}
 
-/* ── Content ── */
-.content{padding:20px 28px 40px}
-.tab-panel{display:none}
-.tab-panel.active{display:block}
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.toolbar-search{flex:1;max-width:320px;padding:8px 12px 8px 36px;background:#161b27;border:1px solid #1e2635;border-radius:6px;color:#e2e8f0;font-size:13px;outline:none;position:relative}
+.toolbar-search-wrap{position:relative}
+.toolbar-search-wrap .s-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#475569}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;border:none;font-size:13px;cursor:pointer;transition:all .15s;font-weight:500}
+.btn-primary{background:#FF6600;color:#fff}
+.btn-primary:hover{background:#e55d00}
+.btn-ghost{background:transparent;color:#94a3b8;border:1px solid #1e2635}
+.btn-ghost:hover{background:#1e2635;color:#e2e8f0}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-danger{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+.btn-success{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.btn-success:hover{background:rgba(34,197,94,.2)}
 
-/* Loading / Error states */
-.state-msg{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;color:#4a5568;text-align:center}
-.state-msg svg{opacity:.3;width:40px;height:40px}
-.state-msg p{font-size:14px}
-.state-msg.error{color:#fc8181}
-.state-msg.error svg{opacity:.5}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border:1px solid #1e2635;border-radius:8px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid #1e2635;background:#161b27}
+.tbl td{padding:10px 14px;border-bottom:1px solid #111827;color:#cbd5e1;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#1a2030}
+.tbl .actions{display:flex;gap:6px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500}
+.badge-green{background:rgba(34,197,94,.15);color:#4ade80}
+.badge-blue{background:rgba(41,120,255,.15);color:#60a5fa}
+.badge-orange{background:rgba(255,102,0,.15);color:#fb923c}
+.badge-gray{background:rgba(71,85,105,.3);color:#94a3b8}
+.badge-red{background:rgba(239,68,68,.15);color:#f87171}
+.badge-cyan{background:rgba(6,182,212,.15);color:#22d3ee}
+.mono{font-family:'Courier New',monospace;font-size:12px;color:#4ade80}
+.empty-state{text-align:center;padding:48px 20px;color:#475569}
+.empty-state svg{margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:14px}
 
-/* ── Device Grid ── */
-.device-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:4px}
-.device-card{background:rgba(26,34,46,0.7);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px 16px;cursor:default;transition:border-color .15s,background .15s}
-.device-card:hover{border-color:rgba(255,102,0,0.25);background:rgba(26,34,46,0.95)}
-.dc-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
-.dc-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dc-name{font-size:13px;font-weight:600;color:#e6edf3;word-break:break-word;line-height:1.35}
-.dc-role{font-size:11px;color:#929EB0;margin-top:2px}
-.dc-fields{display:flex;flex-direction:column;gap:5px}
-.dc-field{display:flex;align-items:center;gap:6px;font-size:12px}
-.dc-label{color:#4a5568;width:44px;flex-shrink:0;font-weight:500}
-.dc-value{color:#a0aec0;word-break:break-all}
-.dc-value.ip{font-family:monospace;font-size:11px;color:#68d391}
-.dc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05)}
-.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.status-dot.active{background:#4ade80;box-shadow:0 0 4px rgba(74,222,128,.5)}
-.status-dot.offline{background:#fc8181;box-shadow:0 0 4px rgba(252,129,129,.4)}
-.status-dot.planned{background:#60a5fa}
-.status-dot.staged{background:#fbbf24}
-.status-dot.decommissioning{background:#9ca3af}
-.status-text{font-size:11px;color:#929EB0;display:flex;align-items:center;gap:5px}
-.device-type-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#1a2235;border:1px solid #1e2635;border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-head{padding:20px 24px 16px;border-bottom:1px solid #1e2635;display:flex;align-items:center;justify-content:space-between}
+.modal-head h3{font-size:15px;font-weight:600;color:#fff}
+.modal-close{background:none;border:none;color:#64748b;cursor:pointer;padding:4px}
+.modal-close:hover{color:#e2e8f0}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #1e2635;display:flex;justify-content:flex-end;gap:10px}
 
-/* Site section headers */
-.site-section{margin-bottom:28px}
-.site-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.site-name{font-size:14px;font-weight:600;color:#e6edf3}
-.site-count{font-size:11px;color:#929EB0;padding:2px 8px;background:rgba(255,255,255,0.06);border-radius:10px}
+/* FORM */
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-control{width:100%;padding:9px 12px;background:#0f1117;border:1px solid #1e2635;border-radius:6px;color:#e2e8f0;font-size:13px;outline:none;transition:border-color .15s}
+.form-control:focus{border-color:#FF6600}
+select.form-control option{background:#1a2235}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-note{font-size:11px;color:#475569;margin-top:4px}
 
-/* ── Prefix Table ── */
-.prefix-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.07)}
-table{width:100%;border-collapse:collapse;font-size:13px}
-thead tr{background:rgba(26,34,46,0.8)}
-th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:#929EB0;letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,0.07);white-space:nowrap}
-th.sortable{cursor:pointer;user-select:none}
-th.sortable:hover{color:#e6edf3}
-tbody tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .1s}
-tbody tr:hover{background:rgba(255,102,0,0.04)}
-tbody tr:last-child{border-bottom:none}
-td{padding:10px 14px;color:#a0aec0;vertical-align:middle}
-td.prefix-val{font-family:monospace;font-size:12px;color:#68d391;font-weight:600}
-.family-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.04em}
-.family-badge.v4{background:rgba(41,120,255,0.15);color:#60a5fa}
-.family-badge.v6{background:rgba(112,64,192,0.15);color:#c084fc}
-.prefix-status{display:inline-flex;align-items:center;gap:5px;font-size:11px}
-.prefix-status .dot{width:6px;height:6px;border-radius:50%}
-.dot-active{background:#4ade80}
-.dot-reserved{background:#fbbf24}
-.dot-deprecated{background:#9ca3af}
-.dot-container{background:#60a5fa}
-td.empty-cell{color:#4a5568;font-style:italic}
+/* SYNC BANNER */
+.sync-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(41,120,255,.08);border:1px solid rgba(41,120,255,.2);border-radius:8px;margin-bottom:14px;font-size:13px;color:#60a5fa}
 
-/* ── Loading spinner ── */
+/* DETAIL PANEL */
+.detail-panel{background:#1a2235;border:1px solid #1e2635;border-radius:8px;padding:16px;margin-top:8px;display:none}
+.detail-panel.open{display:block}
+.dp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.dp-title{font-size:14px;font-weight:600;color:#fff}
+.dp-sub{font-size:12px;color:#64748b;margin-top:2px}
+.dp-section{margin-top:12px}
+.dp-section-title{font-size:11px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:12px}
+.alert-success{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80}
+.alert-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #1e2635;border-top-color:#FF6600;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:20px;height:20px;border:2px solid rgba(255,102,0,0.2);border-top-color:#FF6600;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-
-/* Results count */
-.results-info{font-size:12px;color:#4a5568;margin:8px 0 12px;display:flex;align-items:center;gap:8px}
-.results-info strong{color:#929EB0}
-
-/* Empty site state */
-.no-results{padding:32px;text-align:center;color:#4a5568;font-size:13px;background:rgba(255,255,255,0.02);border-radius:10px}
-
-/* prefix filter row */
-.prefix-controls{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
-.family-filter button{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#929EB0;font-family:inherit;transition:.15s}
-.family-filter button:hover{border-color:rgba(255,102,0,0.3);color:#ccc}
-.family-filter button.active{background:rgba(255,102,0,0.15);border-color:rgba(255,102,0,0.4);color:#FF6600}
-
-@media(max-width:640px){
-  .page-header,.controls,.content,.tabs{padding-left:16px;padding-right:16px}
-  .device-grid{grid-template-columns:1fr}
-}
 </style>
 </head>
 <body>
 
-<!-- ── Navbar ── -->
-<nav class="navbar">
-  <a class="nav-brand" href="/">
-    <svg class="nav-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-      <defs>
-        <linearGradient id="nbog" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stop-color="#FF3500"/><stop offset="100%" stop-color="#FF7A00"/></linearGradient>
-        <linearGradient id="nbbl" x1="1" y1="0" x2=".2" y2="1"><stop offset="0%" stop-color="#0A44B0"/><stop offset="100%" stop-color="#2978FF"/></linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="22" fill="#0B1221"/>
-      <path fill="url(#nbbl)" d="M33 24 L65 24 L84 50 L65 76 L54 76 L60 90 L47 76 L33 76 L14 50 Z"/>
-      <path fill="url(#nbog)" d="M70 17 L40 17 L17 50 L30 50 L45 30 L70 30 Z"/>
-      <path fill="url(#nbog)" d="M17 50 L40 83 L50 83 L44 97 L37 83 L70 83 L70 70 L45 70 L30 50 Z"/>
-      <circle cx="37" cy="50" r="4.2" fill="#FF6600"/>
-      <circle cx="50" cy="50" r="4.2" fill="#7040C0"/>
-      <circle cx="63" cy="50" r="4.2" fill="#2978FF"/>
-    </svg>
-    <span class="nav-title-text">NEX <span>NetOps</span></span>
-  </a>
-  <div class="nav-links">
-    <div class="nav-item">
-      <button class="nav-btn" id="btnFerramentas" onclick="toggleNavDD('ferramentasDD','btnFerramentas')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        Ferramentas
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="nav-dropdown" id="ferramentasDD">
-        <div class="nav-dd-header">Gerador de Scripts</div>
-        <a href="/ferramentas/link-dedicado/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Dedicado<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/link-semi-dedicado/" class="nav-dd-item"><div class="dd-icon purple"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>Link Semi-Dedicado<span class="dd-badge green">Disponível</span></a>
-        <hr class="nav-dd-sep">
-        <div class="nav-dd-header">Consultas</div>
-        <a href="/ferramentas/circuitos/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>Circuitos Provisionados<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/inadimplencia/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(255,80,80,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>Inadimplência<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/ipcalc/" class="nav-dd-item"><div class="dd-icon green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv4<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/ipcalc6/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(129,140,248,0.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 10h8M8 14h5"/><circle cx="16" cy="16" r="3"/></svg></div>Calculadora IPv6<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/gpon-diagnostico/" class="nav-dd-item"><div class="dd-icon teal"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d2c8" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg></div>GPON Diagnóstico<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/cgnat-diagnostico/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>CGNAT Diagnóstico<span class="dd-badge green">Disponível</span></a>
-        <a href="/ferramentas/synapse/" class="nav-dd-item"><div class="dd-icon" style="background:rgba(0,200,255,0.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="2"><circle cx="12" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><line x1="12" y1="7" x2="5" y2="17"/><line x1="12" y1="7" x2="19" y2="17"/></svg></div>Synapse IoT Builder<span class="dd-badge green">Disponível</span></a>
-      </div>
-    </div>
-    <div class="nav-item">
-      <button class="nav-btn" id="btnTopologias" onclick="toggleNavDD('topologiasDD','btnTopologias')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="16" y="3" width="6" height="6" rx="1"/><rect x="9" y="15" width="6" height="6" rx="1"/><path d="M5 9v4h14V9"/><line x1="12" y1="13" x2="12" y2="15"/></svg>
-        Topologias de Rede
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="nav-dropdown" id="topologiasDD">
-        <div class="nav-dd-header">Escritório PQS</div>
-        <a href="/rede/escritorio-pqs-1andar/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>1º Andar — Rack Central<span class="dd-badge green">Disponível</span></a>
-        <hr class="nav-dd-sep">
-        <div class="nav-dd-header">Backbone</div>
-        <a href="/topologias/bgp-upstream/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Topologia BGP — AS265019<span class="dd-badge green">Disponível</span></a>
-        <a href="/topologias/cgnat/" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></div>Mapa CGNAT<span class="dd-badge green">Disponível</span></a>
-      </div>
-    </div>
-    <div class="nav-item">
-      <button class="nav-btn active-section" id="btnDocumentacao" onclick="toggleNavDD('documentacaoDD','btnDocumentacao')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Documentação
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="nav-dropdown" id="documentacaoDD">
-        <div class="nav-dd-header">Inventário</div>
-        <a href="/documentacao/" class="nav-dd-item"><div class="dd-icon orange"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg></div>Dispositivos por POP<span class="dd-badge green">Disponível</span></a>
-        <hr class="nav-dd-sep">
-        <div class="nav-dd-header">Endereçamento</div>
-        <a href="/documentacao/?tab=prefixos" class="nav-dd-item"><div class="dd-icon blue"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2978FF" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>Prefixos IP / IPAM<span class="dd-badge green">Disponível</span></a>
-      </div>
-    </div>
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">Nex<span>Ops</span></div>
+  <div class="nav-item">
+    <button class="nav-btn" onclick="location.href='/'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="7" height="7"/><rect x="15" y="3" width="7" height="7"/><rect x="2" y="14" width="7" height="7"/><rect x="15" y="14" width="7" height="7"/></svg>
+      Ferramentas
+    </button>
+  </div>
+  <div class="nav-item">
+    <button class="nav-btn" onclick="location.href='/topologias/'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51L8.59 10.49"/></svg>
+      Topologias de Rede
+    </button>
+  </div>
+  <div class="nav-item">
+    <button class="nav-btn active-section">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Documentação
+    </button>
   </div>
   <div class="nav-right">
-    <div class="nav-item" style="position:relative">
-      <button class="user-btn" id="userBtn" onclick="toggleNavDD('userDD','userBtn')">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <span id="userLabel">...</span>
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="user-dropdown" id="userDD">
-        <div class="ud-name" id="udName">—</div>
-        <div class="ud-role" id="udRole">—</div>
-        <hr class="ud-sep">
-        <button class="btn-ud-logout" onclick="localStorage.removeItem('netops_token');window.location.href='/login'">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sair
-        </button>
-      </div>
+    <div class="nav-user" id="navUser" onclick="logout()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="navUserName">...</span>
     </div>
   </div>
 </nav>
 
-<!-- ── Page Header ── -->
-<div class="page-header">
-  <div class="page-title">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6600" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    Documentação de Rede
+<!-- MAIN -->
+<div class="page">
+  <div class="page-header">
+    <h1>Documentação de Rede</h1>
+    <p>IPAM integrado — dispositivos, VLANs, prefixos IPv4/IPv6, ASNs e POPs</p>
   </div>
-  <div class="page-subtitle">Inventário de dispositivos e endereçamento IP — NexTelecom AS265019</div>
-  <div class="stats-row">
-    <div class="stat-chip loading" id="chip-devices"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Dispositivos</div>
-    <div class="stat-chip loading" id="chip-sites"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Sites</div>
-    <div class="stat-chip loading" id="chip-prefixes"><div class="spinner" style="width:12px;height:12px;border-width:1.5px"></div> Prefixos</div>
-    <div class="stat-chip" id="chip-updated" style="display:none"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> <span id="updated-ts">—</span></div>
+
+  <!-- GLOBAL SEARCH -->
+  <div class="search-wrap">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input class="search-input" id="globalSearch" placeholder="Buscar dispositivo, VLAN, subnet, POP, ASN..." autocomplete="off" oninput="onGlobalSearch(this.value)">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-chip" onclick="switchTab('dispositivos')">
+      <div class="stat-icon" style="background:rgba(99,102,241,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <div><div class="stat-num" id="sDevices">—</div><div class="stat-label">Dispositivos</div></div>
+    </div>
+    <div class="stat-chip" onclick="switchTab('vlans')">
+      <div class="stat-icon" style="background:rgba(245,158,11,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      <div><div class="stat-num" id="sVlans">—</div><div class="stat-label">VLANs</div></div>
+    </div>
+    <div class="stat-chip" onclick="switchTab('ipv4')">
+      <div class="stat-icon" style="background:rgba(34,197,94,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div><div class="stat-num" id="sV4">—</div><div class="stat-label">Prefixos IPv4</div></div>
+    </div>
+    <div class="stat-chip" onclick="switchTab('ipv6')">
+      <div class="stat-icon" style="background:rgba(6,182,212,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+      <div><div class="stat-num" id="sV6">—</div><div class="stat-label">Prefixos IPv6</div></div>
+    </div>
+    <div class="stat-chip" onclick="switchTab('asn')">
+      <div class="stat-icon" style="background:rgba(236,72,153,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+      <div><div class="stat-num" id="sAsn">—</div><div class="stat-label">ASNs</div></div>
+    </div>
+    <div class="stat-chip" onclick="switchTab('pops')">
+      <div class="stat-icon" style="background:rgba(255,102,0,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+      <div><div class="stat-num" id="sPops">—</div><div class="stat-label">POPs</div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dispositivos')" id="tab-dispositivos">Dispositivos</button>
+    <button class="tab-btn" onclick="switchTab('vlans')" id="tab-vlans">VLANs</button>
+    <button class="tab-btn" onclick="switchTab('ipv4')" id="tab-ipv4">Prefixos IPv4</button>
+    <button class="tab-btn" onclick="switchTab('ipv6')" id="tab-ipv6">Prefixos IPv6</button>
+    <button class="tab-btn" onclick="switchTab('asn')" id="tab-asn">ASN</button>
+    <button class="tab-btn" onclick="switchTab('pops')" id="tab-pops">POPs</button>
+  </div>
+
+  <!-- TAB: DISPOSITIVOS -->
+  <div class="tab-content active" id="content-dispositivos">
+    <div class="sync-bar">
+      <span>Dispositivos importados do Netbox. Clique em sincronizar para atualizar.</span>
+      <button class="btn btn-ghost btn-sm" onclick="syncNetbox()" id="btnSync">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Sincronizar Netbox
+      </button>
+    </div>
+    <div class="toolbar">
+      <div class="toolbar-search-wrap">
+        <svg class="s-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="form-control toolbar-search" id="devSearch" placeholder="Filtrar dispositivos..." oninput="filterDevices()" style="padding-left:34px">
+      </div>
+      <select class="form-control" id="devSiteFilter" onchange="filterDevices()" style="width:180px">
+        <option value="">Todos os sites</option>
+      </select>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalDevice')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Dispositivo
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr>
+          <th>Dispositivo</th><th>Role</th><th>Site / POP</th>
+          <th>IP Gerência</th><th>Fabricante / Modelo</th><th>Status</th><th>Topologia</th><th></th>
+        </tr></thead>
+        <tbody id="devTbody"><tr><td colspan="8" class="empty-state"><div class="spinner"></div> Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: VLANs -->
+  <div class="tab-content" id="content-vlans">
+    <div class="toolbar">
+      <div class="toolbar-search-wrap">
+        <svg class="s-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="form-control toolbar-search" id="vlanSearch" placeholder="Filtrar VLANs..." oninput="loadVlans()" style="padding-left:34px">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalVlan')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova VLAN
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>VLAN ID</th><th>Nome</th><th>Descrição</th><th>Dispositivo</th><th></th></tr></thead>
+        <tbody id="vlanTbody"><tr><td colspan="5" class="empty-state">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: IPv4 -->
+  <div class="tab-content" id="content-ipv4">
+    <div class="toolbar">
+      <div class="toolbar-search-wrap">
+        <svg class="s-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="form-control toolbar-search" id="v4Search" placeholder="Filtrar prefixos..." oninput="loadSubnets(4)" style="padding-left:34px">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openSubnetModal(4)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Prefixo
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Prefixo</th><th>Nome</th><th>Seção</th><th>Parent</th><th>VLAN</th><th>Dispositivo</th><th>Status</th><th></th></tr></thead>
+        <tbody id="v4Tbody"><tr><td colspan="8" class="empty-state">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: IPv6 -->
+  <div class="tab-content" id="content-ipv6">
+    <div class="toolbar">
+      <div class="toolbar-search-wrap">
+        <svg class="s-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="form-control toolbar-search" id="v6Search" placeholder="Filtrar prefixos IPv6..." oninput="loadSubnets(6)" style="padding-left:34px">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openSubnetModal(6)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Prefixo IPv6
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Prefixo</th><th>Nome</th><th>Seção</th><th>Parent</th><th>VLAN</th><th>Dispositivo</th><th>Status</th><th></th></tr></thead>
+        <tbody id="v6Tbody"><tr><td colspan="8" class="empty-state">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: ASN -->
+  <div class="tab-content" id="content-asn">
+    <div class="toolbar">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalAsn')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo ASN
+      </button>
+    </div>
+    <div id="asnList"></div>
+  </div>
+
+  <!-- TAB: POPs -->
+  <div class="tab-content" id="content-pops">
+    <div class="toolbar">
+      <button class="btn btn-primary btn-sm" onclick="openModal('modalPop')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo POP
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>POP</th><th>Localização</th><th>Descrição</th><th>Dispositivos</th><th></th></tr></thead>
+        <tbody id="popTbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
-<!-- ── Controls ── -->
-<div class="controls">
-  <div class="search-row">
-    <div class="search-wrap">
-      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input id="searchInput" type="text" placeholder="Buscar dispositivo, IP, descrição..." oninput="onSearch()">
+<!-- MODALS -->
+<!-- Device Modal -->
+<div class="modal-overlay" id="modalDevice">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalDeviceTitle">Novo Dispositivo</h3>
+      <button class="modal-close" onclick="closeModal('modalDevice')">✕</button>
     </div>
-    <button class="btn-refresh" id="btnRefresh" onclick="loadAll(true)">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-      Atualizar
-    </button>
-  </div>
-  <div class="site-pills" id="sitePills">
-    <span class="pill active" data-site="" onclick="filterBySite(this,'')">Todos</span>
+    <div class="modal-body">
+      <input type="hidden" id="devId">
+      <div class="form-row">
+        <div class="form-group"><label>Nome *</label><input class="form-control" id="devName" placeholder="ex: SW-PQS-01"></div>
+        <div class="form-group"><label>Hostname</label><input class="form-control" id="devHostname" placeholder="ex: sw-pqs-01.nex"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Role</label><input class="form-control" id="devRole" placeholder="ex: Core Switch"></div>
+        <div class="form-group"><label>Status</label>
+          <select class="form-control" id="devStatus">
+            <option value="active">Ativo</option>
+            <option value="planned">Planejado</option>
+            <option value="staged">Em implantação</option>
+            <option value="decommissioning">Desativando</option>
+            <option value="offline">Offline</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fabricante</label><input class="form-control" id="devManuf" placeholder="ex: Huawei"></div>
+        <div class="form-group"><label>Modelo</label><input class="form-control" id="devModel" placeholder="ex: CE6720"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Site</label><input class="form-control" id="devSite" placeholder="ex: PQS"></div>
+        <div class="form-group"><label>POP</label>
+          <select class="form-control" id="devPop"><option value="">Selecionar POP...</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>IP de Gerência</label><input class="form-control" id="devMgmtIp" placeholder="ex: 10.20.30.1"></div>
+      <div class="form-group"><label>Notas</label><textarea class="form-control" id="devNotes" rows="2" placeholder="Informações adicionais..."></textarea></div>
+      <div id="devAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalDevice')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveDevice()">Salvar</button>
+    </div>
   </div>
 </div>
 
-<!-- ── Tabs ── -->
-<div class="tabs">
-  <button class="tab-btn active" id="tab-dispositivos" onclick="switchTab('dispositivos')">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg>
-    Dispositivos
-    <span class="tab-count" id="count-dispositivos">—</span>
-  </button>
-  <button class="tab-btn" id="tab-prefixos" onclick="switchTab('prefixos')">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-    Prefixos IP
-    <span class="tab-count" id="count-prefixos">—</span>
-  </button>
+<!-- VLAN Modal -->
+<div class="modal-overlay" id="modalVlan">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalVlanTitle">Nova VLAN</h3>
+      <button class="modal-close" onclick="closeModal('modalVlan')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="vlanId">
+      <div class="form-row">
+        <div class="form-group"><label>VLAN ID *</label><input class="form-control" id="vlanNum" type="number" min="1" max="4094" placeholder="ex: 100"></div>
+        <div class="form-group"><label>Nome *</label><input class="form-control" id="vlanName" placeholder="ex: CORE_MPLS"></div>
+      </div>
+      <div class="form-group"><label>Descrição</label><input class="form-control" id="vlanDesc" placeholder="Descrição da VLAN"></div>
+      <div class="form-group"><label>Dispositivo Associado</label>
+        <select class="form-control" id="vlanDevice"><option value="">Nenhum (VLAN global)</option></select>
+      </div>
+      <div id="vlanAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalVlan')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveVlan()">Salvar</button>
+    </div>
+  </div>
 </div>
 
-<!-- ── Content ── -->
-<div class="content">
-
-  <!-- Dispositivos tab -->
-  <div class="tab-panel active" id="panel-dispositivos">
-    <div id="devices-container">
-      <div class="state-msg">
-        <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
-        <p>Carregando dispositivos...</p>
+<!-- Subnet Modal -->
+<div class="modal-overlay" id="modalSubnet">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalSubnetTitle">Novo Prefixo</h3>
+      <button class="modal-close" onclick="closeModal('modalSubnet')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="subnetId">
+      <input type="hidden" id="subnetFamily" value="4">
+      <div class="form-group"><label>Prefixo (CIDR) *</label><input class="form-control" id="subnetCidr" placeholder="ex: 10.0.0.0/24 ou 2804::/32"></div>
+      <div class="form-group"><label>Nome</label><input class="form-control" id="subnetName" placeholder="Descrição do prefixo"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Seção</label><input class="form-control" id="subnetSection" placeholder="ex: NEXTELECOM/IPV4"></div>
+        <div class="form-group"><label>Parent</label><input class="form-control" id="subnetParent" placeholder="ex: 10.0.0.0/16"></div>
       </div>
+      <div class="form-row">
+        <div class="form-group"><label>VLAN Associada</label>
+          <select class="form-control" id="subnetVlan"><option value="">Nenhuma</option></select>
+        </div>
+        <div class="form-group"><label>Dispositivo</label>
+          <select class="form-control" id="subnetDevice"><option value="">Nenhum</option></select>
+        </div>
+      </div>
+      <div id="subnetAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalSubnet')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSubnet()">Salvar</button>
     </div>
   </div>
+</div>
 
-  <!-- Prefixos tab -->
-  <div class="tab-panel" id="panel-prefixos">
-    <div class="prefix-controls">
-      <div class="family-filter" style="display:flex;gap:6px">
-        <button class="active" data-family="" onclick="filterFamily(this,'')">Todos</button>
-        <button data-family="4" onclick="filterFamily(this,'4')">IPv4</button>
-        <button data-family="6" onclick="filterFamily(this,'6')">IPv6</button>
-      </div>
-      <div id="prefix-results-info" class="results-info"></div>
+<!-- ASN Modal -->
+<div class="modal-overlay" id="modalAsn">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalAsnTitle">Novo ASN</h3>
+      <button class="modal-close" onclick="closeModal('modalAsn')">✕</button>
     </div>
-    <div id="prefixes-container">
-      <div class="state-msg">
-        <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
-        <p>Carregando prefixos...</p>
+    <div class="modal-body">
+      <input type="hidden" id="asnId">
+      <div class="form-row">
+        <div class="form-group"><label>Número ASN *</label><input class="form-control" id="asnNum" type="number" placeholder="ex: 265019"></div>
+        <div class="form-group"><label>Nome *</label><input class="form-control" id="asnName" placeholder="ex: AS265019 - NexTelecom"></div>
       </div>
+      <div class="form-group"><label>Descrição</label><input class="form-control" id="asnDesc" placeholder="Descrição do ASN"></div>
+      <div id="asnAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAsn')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAsn()">Salvar</button>
     </div>
   </div>
+</div>
 
+<!-- ASN Prefix Modal -->
+<div class="modal-overlay" id="modalAsnPrefix">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Novo Prefixo ASN</h3>
+      <button class="modal-close" onclick="closeModal('modalAsnPrefix')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="asnPrefixAsnId">
+      <div class="form-group"><label>Prefixo (CIDR) *</label><input class="form-control" id="asnPrefixCidr" placeholder="ex: 45.183.80.0/21 ou 2804:14c::/32"></div>
+      <div class="form-group"><label>Descrição</label><input class="form-control" id="asnPrefixDesc" placeholder="ex: Bloco principal IPv4"></div>
+      <div id="asnPrefixAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalAsnPrefix')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveAsnPrefix()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- POP Modal -->
+<div class="modal-overlay" id="modalPop">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalPopTitle">Novo POP</h3>
+      <button class="modal-close" onclick="closeModal('modalPop')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="popId">
+      <div class="form-row">
+        <div class="form-group"><label>Nome *</label><input class="form-control" id="popName" placeholder="ex: PQS"></div>
+        <div class="form-group"><label>Localização</label><input class="form-control" id="popLocation" placeholder="ex: Salvador - BA"></div>
+      </div>
+      <div class="form-group"><label>Descrição</label><input class="form-control" id="popDesc" placeholder="Descrição do POP"></div>
+      <div id="popAlert"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalPop')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePop()">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-// ── Auth ───────────────────────────────────────────────────────────────
-const tok = localStorage.getItem('netops_token');
-if (!tok) { window.location.href = '/login'; }
+const API = '/api';
+let TOKEN = localStorage.getItem('netops_token');
+let currentUser = null;
+let allDevices = [], allPops = [], allVlans = [];
+let searchTimer = null;
 
-async function apiFetch(url) {
-  const r = await fetch(url, { headers: { Authorization: 'Bearer ' + tok } });
-  if (r.status === 401) { localStorage.removeItem('netops_token'); window.location.href = '/login'; }
+// Auth check
+if (!TOKEN) { location.href = '/login'; }
+
+function authHdr() { return { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }; }
+
+async function apiFetch(path, opts = {}) {
+  const r = await fetch(API + path, { headers: authHdr(), ...opts });
+  if (r.status === 401) { localStorage.removeItem('netops_token'); location.href = '/login'; return; }
   return r.json();
 }
 
-// Load user info
-(async () => {
+// User info
+async function initUser() {
   try {
-    const d = await apiFetch('/api/auth/me');
-    if (!d.ok) { localStorage.removeItem('netops_token'); window.location.href = '/login'; return; }
-    const initials = d.user.username.slice(0,2).toUpperCase();
-    document.getElementById('userAvatar').textContent = initials;
-    document.getElementById('userLabel').textContent = d.user.username;
-    document.getElementById('udName').textContent = d.user.username;
-    document.getElementById('udRole').textContent = d.user.role;
-  } catch(_) {}
-})();
-
-// ── Nav dropdown ──────────────────────────────────────────────────────
-function toggleNavDD(id, btnId) {
-  const dd = document.getElementById(id);
-  const btn = document.getElementById(btnId);
-  const isOpen = dd.classList.contains('open');
-  document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
-  document.querySelectorAll('.nav-btn.open').forEach(el => el.classList.remove('open'));
-  if (!isOpen) { dd.classList.add('open'); btn.classList.add('open'); }
+    const r = await apiFetch('/auth/me');
+    if (r && r.user) {
+      currentUser = r.user;
+      document.getElementById('navUserName').textContent = r.user.username || r.user.email;
+    }
+  } catch(e) {}
 }
-document.addEventListener('click', e => {
-  if (!e.target.closest('.nav-item')) {
-    document.querySelectorAll('.nav-dropdown.open').forEach(el => el.classList.remove('open'));
-    document.querySelectorAll('.nav-btn.open').forEach(el => el.classList.remove('open'));
-  }
-});
 
-// ── State ─────────────────────────────────────────────────────────────
-let allDevices = [];
-let allPrefixes = [];
-let allSites = [];
-let activeSiteId = '';
-let activeFamily = '';
-let searchQ = '';
-let searchTimer = null;
+function logout() {
+  localStorage.removeItem('netops_token');
+  location.href = '/login';
+}
 
-// ── Tabs ──────────────────────────────────────────────────────────────
+// Stats
+async function loadStats() {
+  const d = await apiFetch('/doc/stats');
+  if (!d || !d.ok) return;
+  document.getElementById('sDevices').textContent = d.devices;
+  document.getElementById('sVlans').textContent = d.vlans;
+  document.getElementById('sV4').textContent = d.subnets_v4;
+  document.getElementById('sV6').textContent = d.subnets_v6;
+  document.getElementById('sAsn').textContent = d.asns;
+  document.getElementById('sPops').textContent = d.pops;
+}
+
+// TAB SWITCHING
 function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.stat-chip').forEach(c => c.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('content-' + name).classList.add('active');
+  if (name === 'dispositivos') loadDevices();
+  else if (name === 'vlans') loadVlans();
+  else if (name === 'ipv4') loadSubnets(4);
+  else if (name === 'ipv6') loadSubnets(6);
+  else if (name === 'asn') loadAsn();
+  else if (name === 'pops') loadPops();
 }
 
-// Check URL param for tab
-const urlTab = new URLSearchParams(location.search).get('tab');
-if (urlTab === 'prefixos') switchTab('prefixos');
-
-// ── Load all data ─────────────────────────────────────────────────────
-async function loadAll(force) {
-  const btn = document.getElementById('btnRefresh');
-  btn.disabled = true;
-  try { await Promise.all([loadSites(), loadDevices(), loadPrefixes()]); }
-  finally { btn.disabled = false; }
-}
-
-async function loadSites() {
-  try {
-    const d = await apiFetch('/api/netbox/sites');
-    if (!d.ok) return;
-    allSites = d.results || [];
-    renderSitePills();
-    document.getElementById('chip-sites').innerHTML = '<strong>' + allSites.length + '</strong> Sites';
-    document.getElementById('chip-sites').classList.remove('loading');
-  } catch(e) { console.error('sites:', e); }
-}
-
-async function loadDevices() {
-  document.getElementById('devices-container').innerHTML = '<div class="state-msg"><div class="spinner" style="width:32px;height:32px;border-width:3px"></div><p>Carregando dispositivos...</p></div>';
-  try {
-    const d = await apiFetch('/api/netbox/devices?limit=500');
-    if (!d.ok) { showDeviceError('Erro ao carregar dispositivos: ' + d.error); return; }
-    allDevices = d.results || [];
-    document.getElementById('chip-devices').innerHTML = '<strong>' + allDevices.length + '</strong> Dispositivos';
-    document.getElementById('chip-devices').classList.remove('loading');
-    document.getElementById('count-dispositivos').textContent = allDevices.length;
-    updateTimestamp();
-    renderDevices();
-  } catch(e) { showDeviceError(e.message); }
-}
-
-async function loadPrefixes() {
-  document.getElementById('prefixes-container').innerHTML = '<div class="state-msg"><div class="spinner" style="width:32px;height:32px;border-width:3px"></div><p>Carregando prefixos...</p></div>';
-  try {
-    const d = await apiFetch('/api/netbox/prefixes?limit=500');
-    if (!d.ok) { showPrefixError('Erro ao carregar prefixos: ' + d.error); return; }
-    allPrefixes = d.results || [];
-    document.getElementById('chip-prefixes').innerHTML = '<strong>' + allPrefixes.length + '</strong> Prefixos';
-    document.getElementById('chip-prefixes').classList.remove('loading');
-    document.getElementById('count-prefixos').textContent = allPrefixes.length;
-    renderPrefixes();
-  } catch(e) { showPrefixError(e.message); }
-}
-
-function updateTimestamp() {
-  const now = new Date();
-  const brt = new Date(now.getTime() - 3 * 3600000);
-  const h = String(brt.getUTCHours()).padStart(2,'0');
-  const m = String(brt.getUTCMinutes()).padStart(2,'0');
-  document.getElementById('updated-ts').textContent = 'Atualizado ' + h + ':' + m;
-  document.getElementById('chip-updated').style.display = 'flex';
-}
-
-// ── Site Pills ────────────────────────────────────────────────────────
-function renderSitePills() {
-  const container = document.getElementById('sitePills');
-  container.innerHTML = '<span class="pill active" data-site="" onclick="filterBySite(this,\'\')">Todos</span>';
-  allSites.forEach(s => {
-    const sp = document.createElement('span');
-    sp.className = 'pill';
-    sp.dataset.site = s.id;
-    sp.textContent = s.name;
-    sp.onclick = () => filterBySite(sp, String(s.id));
-    container.appendChild(sp);
-  });
-}
-
-function filterBySite(el, siteId) {
-  document.querySelectorAll('#sitePills .pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  activeSiteId = siteId;
-  renderDevices();
-}
-
-// ── Search ────────────────────────────────────────────────────────────
-function onSearch() {
+// GLOBAL SEARCH
+function onGlobalSearch(q) {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
-    renderDevices();
-    renderPrefixes();
-  }, 220);
+  const el = document.getElementById('searchResults');
+  if (!q.trim()) { el.classList.remove('open'); return; }
+  searchTimer = setTimeout(async () => {
+    const d = await apiFetch('/doc/search?q=' + encodeURIComponent(q));
+    if (!d || !d.ok) return;
+    let html = '';
+    if (d.devices.length) {
+      html += `<div class="sr-section"><div class="sr-label">Dispositivos</div>`;
+      d.devices.forEach(x => { html += `<div class="sr-item" onclick="switchTab('dispositivos')"><span class="sr-type device">DEV</span><span class="sr-main">${x.label}</span><span class="sr-sub">${x.sub||''}</span></div>`; });
+      html += '</div>';
+    }
+    if (d.vlans.length) {
+      html += `<div class="sr-section"><div class="sr-label">VLANs</div>`;
+      d.vlans.forEach(x => { html += `<div class="sr-item" onclick="switchTab('vlans')"><span class="sr-type vlan">VLAN</span><span class="sr-main">${x.label}</span><span class="sr-sub">ID ${x.sub}</span></div>`; });
+      html += '</div>';
+    }
+    if (d.subnets.length) {
+      html += `<div class="sr-section"><div class="sr-label">Prefixos</div>`;
+      d.subnets.forEach(x => { const tab = x.label.includes(':') ? 'ipv6' : 'ipv4'; html += `<div class="sr-item" onclick="switchTab('${tab}')"><span class="sr-type subnet">IP</span><span class="sr-main mono">${x.label}</span><span class="sr-sub">${x.sub||''}</span></div>`; });
+      html += '</div>';
+    }
+    if (d.pops.length) {
+      html += `<div class="sr-section"><div class="sr-label">POPs</div>`;
+      d.pops.forEach(x => { html += `<div class="sr-item" onclick="switchTab('pops')"><span class="sr-type pop">POP</span><span class="sr-main">${x.label}</span><span class="sr-sub">${x.sub||''}</span></div>`; });
+      html += '</div>';
+    }
+    if (d.asn.length) {
+      html += `<div class="sr-section"><div class="sr-label">ASN</div>`;
+      d.asn.forEach(x => { html += `<div class="sr-item" onclick="switchTab('asn')"><span class="sr-type asn">ASN</span><span class="sr-main">${x.label}</span><span class="sr-sub">AS${x.sub}</span></div>`; });
+      html += '</div>';
+    }
+    if (!html) html = '<div class="empty-state" style="padding:20px"><p>Nenhum resultado para "' + q + '"</p></div>';
+    el.innerHTML = html;
+    el.classList.add('open');
+  }, 300);
+}
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').classList.remove('open'); });
+
+// DEVICES
+async function loadDevices() {
+  const q = document.getElementById('devSearch').value;
+  const site = document.getElementById('devSiteFilter').value;
+  const d = await apiFetch(`/doc/devices?q=${encodeURIComponent(q)}&site=${encodeURIComponent(site)}&limit=200`);
+  if (!d || !d.ok) return;
+  allDevices = d.results;
+  // Populate site filter
+  const sites = [...new Set(d.results.map(x => x.site_name).filter(Boolean))].sort();
+  const sel = document.getElementById('devSiteFilter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Todos os sites</option>' + sites.map(s => `<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('');
+  renderDevices(d.results);
 }
 
-// ── Render Devices ────────────────────────────────────────────────────
-function filterDevices() {
-  return allDevices.filter(d => {
-    if (activeSiteId && String(d.site?.id) !== activeSiteId) return false;
-    if (!searchQ) return true;
-    const haystack = [d.name, d.primary_ip?.address, d.device_type?.model, d.device_role?.name, d.site?.name, d.serial].filter(Boolean).join(' ').toLowerCase();
-    return haystack.includes(searchQ);
-  });
+function filterDevices() { loadDevices(); }
+
+function renderDevices(devs) {
+  const tbody = document.getElementById('devTbody');
+  if (!devs.length) { tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><p>Nenhum dispositivo encontrado</p></div></td></tr>'; return; }
+  tbody.innerHTML = devs.map(d => {
+    const statusBadge = { active:'badge-green', offline:'badge-red', planned:'badge-gray', staged:'badge-blue', decommissioning:'badge-orange' }[d.status] || 'badge-gray';
+    const src = d.source === 'netbox' ? '<span class="badge badge-blue" style="font-size:9px">NB</span>' : '';
+    return `<tr>
+      <td><div style="font-weight:500;color:#e2e8f0">${d.name} ${src}</div><div style="font-size:11px;color:#475569">${d.hostname||''}</div></td>
+      <td>${d.role ? `<span class="badge badge-gray">${d.role}</span>` : '<span style="color:#475569">—</span>'}</td>
+      <td><div>${d.site_name||'—'}</div>${d.pop_name?`<div style="font-size:11px;color:#64748b">${d.pop_name}</div>`:''}</td>
+      <td>${d.management_ip ? `<span class="mono">${d.management_ip}</span>` : '<span style="color:#475569">—</span>'}</td>
+      <td><div style="font-size:12px">${d.manufacturer||'—'}</div><div style="font-size:11px;color:#475569">${d.model||''}</div></td>
+      <td><span class="badge ${statusBadge}">${d.status||'—'}</span></td>
+      <td>${d.topology_node_id ? `<a href="/topologias/?node=${d.topology_node_id}" class="btn btn-ghost btn-sm" style="font-size:11px">Ver</a>` : '<span style="color:#475569">—</span>'}</td>
+      <td><div class="actions">
+        <button class="btn btn-ghost btn-sm" onclick="editDevice(${JSON.stringify(d).replace(/"/g,'&quot;')})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDevice(${d.id})">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
 }
 
-function renderDevices() {
-  const filtered = filterDevices();
-  const container = document.getElementById('devices-container');
-  document.getElementById('count-dispositivos').textContent = filtered.length;
-
-  if (!filtered.length) {
-    container.innerHTML = '<div class="no-results">Nenhum dispositivo encontrado</div>';
-    return;
+async function syncNetbox() {
+  const btn = document.getElementById('btnSync');
+  btn.innerHTML = '<span class="spinner"></span> Sincronizando...';
+  btn.disabled = true;
+  const r = await apiFetch('/doc/sync/netbox', { method: 'POST' });
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Sincronizar Netbox';
+  if (r && r.ok) {
+    showAlert('devAlert', `Netbox sincronizado: ${r.inserted} inseridos, ${r.updated} atualizados`, 'success');
+    loadDevices(); loadStats();
   }
+}
 
-  // Group by site
-  const bySite = {};
-  filtered.forEach(d => {
-    const siteName = d.site?.name || 'Sem Site';
-    if (!bySite[siteName]) bySite[siteName] = [];
-    bySite[siteName].push(d);
-  });
+function editDevice(d) {
+  document.getElementById('modalDeviceTitle').textContent = 'Editar Dispositivo';
+  document.getElementById('devId').value = d.id;
+  document.getElementById('devName').value = d.name || '';
+  document.getElementById('devHostname').value = d.hostname || '';
+  document.getElementById('devRole').value = d.role || '';
+  document.getElementById('devStatus').value = d.status || 'active';
+  document.getElementById('devManuf').value = d.manufacturer || '';
+  document.getElementById('devModel').value = d.model || '';
+  document.getElementById('devSite').value = d.site_name || '';
+  document.getElementById('devMgmtIp').value = d.management_ip || '';
+  document.getElementById('devNotes').value = d.notes || '';
+  populatePopSelect('devPop', d.pop_id);
+  openModal('modalDevice');
+}
 
-  const siteOrder = Object.keys(bySite).sort();
-  container.innerHTML = siteOrder.map(siteName => {
-    const devs = bySite[siteName];
-    return `<div class="site-section">
-      <div class="site-header">
-        <span class="site-name">${esc(siteName)}</span>
-        <span class="site-count">${devs.length} device${devs.length !== 1 ? 's' : ''}</span>
+async function saveDevice() {
+  const id = document.getElementById('devId').value;
+  const body = {
+    name: document.getElementById('devName').value.trim(),
+    hostname: document.getElementById('devHostname').value.trim(),
+    role: document.getElementById('devRole').value.trim(),
+    status: document.getElementById('devStatus').value,
+    manufacturer: document.getElementById('devManuf').value.trim(),
+    model: document.getElementById('devModel').value.trim(),
+    site_name: document.getElementById('devSite').value.trim(),
+    management_ip: document.getElementById('devMgmtIp').value.trim(),
+    pop_id: document.getElementById('devPop').value || null,
+    notes: document.getElementById('devNotes').value.trim()
+  };
+  if (!body.name) { showAlert('devAlert', 'Nome é obrigatório', 'error'); return; }
+  const r = id
+    ? await apiFetch('/doc/devices/' + id, { method: 'PUT', body: JSON.stringify(body) })
+    : await apiFetch('/doc/devices', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalDevice'); loadDevices(); loadStats(); resetDeviceModal(); }
+  else showAlert('devAlert', (r && r.error) || 'Erro ao salvar', 'error');
+}
+
+function resetDeviceModal() {
+  document.getElementById('modalDeviceTitle').textContent = 'Novo Dispositivo';
+  ['devId','devName','devHostname','devRole','devManuf','devModel','devSite','devMgmtIp','devNotes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('devStatus').value = 'active';
+  document.getElementById('devAlert').innerHTML = '';
+}
+
+async function deleteDevice(id) {
+  if (!confirm('Excluir este dispositivo?')) return;
+  const r = await apiFetch('/doc/devices/' + id, { method: 'DELETE' });
+  if (r && r.ok) { loadDevices(); loadStats(); }
+}
+
+// VLANs
+async function loadVlans() {
+  const q = document.getElementById('vlanSearch').value;
+  const d = await apiFetch(`/doc/vlans?q=${encodeURIComponent(q)}`);
+  if (!d || !d.ok) return;
+  allVlans = d.results;
+  const tbody = document.getElementById('vlanTbody');
+  if (!d.results.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhuma VLAN cadastrada</p></div></td></tr>'; return; }
+  tbody.innerHTML = d.results.map(v => `<tr>
+    <td><span class="badge badge-orange">VLAN ${v.vlan_num}</span></td>
+    <td style="font-weight:500;color:#e2e8f0">${v.name}</td>
+    <td style="color:#64748b;font-size:12px">${v.description||'—'}</td>
+    <td>${v.device_name ? `<span class="badge badge-gray">${v.device_name}</span>` : '<span style="color:#475569">—</span>'}</td>
+    <td><div class="actions">
+      <button class="btn btn-ghost btn-sm" onclick="editVlan(${JSON.stringify(v).replace(/"/g,'&quot;')})">✎</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteVlan(${v.id})">✕</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function editVlan(v) {
+  document.getElementById('modalVlanTitle').textContent = 'Editar VLAN';
+  document.getElementById('vlanId').value = v.id;
+  document.getElementById('vlanNum').value = v.vlan_num;
+  document.getElementById('vlanName').value = v.name;
+  document.getElementById('vlanDesc').value = v.description || '';
+  populateDeviceSelect('vlanDevice', v.device_id);
+  openModal('modalVlan');
+}
+
+async function saveVlan() {
+  const id = document.getElementById('vlanId').value;
+  const body = {
+    vlan_num: parseInt(document.getElementById('vlanNum').value),
+    name: document.getElementById('vlanName').value.trim(),
+    description: document.getElementById('vlanDesc').value.trim(),
+    device_id: document.getElementById('vlanDevice').value || null
+  };
+  if (!body.vlan_num || !body.name) { showAlert('vlanAlert', 'VLAN ID e nome são obrigatórios', 'error'); return; }
+  const r = id
+    ? await apiFetch('/doc/vlans/' + id, { method: 'PUT', body: JSON.stringify(body) })
+    : await apiFetch('/doc/vlans', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalVlan'); loadVlans(); loadStats(); resetModal('modalVlan', ['vlanId','vlanNum','vlanName','vlanDesc']); }
+  else showAlert('vlanAlert', (r && r.error) || 'Erro ao salvar', 'error');
+}
+
+async function deleteVlan(id) {
+  if (!confirm('Excluir esta VLAN?')) return;
+  const r = await apiFetch('/doc/vlans/' + id, { method: 'DELETE' });
+  if (r && r.ok) { loadVlans(); loadStats(); }
+}
+
+// SUBNETS
+async function loadSubnets(family) {
+  const qId = family === 4 ? 'v4Search' : 'v6Search';
+  const tbId = family === 4 ? 'v4Tbody' : 'v6Tbody';
+  const q = document.getElementById(qId).value;
+  const d = await apiFetch(`/doc/subnets?family=${family}&q=${encodeURIComponent(q)}&limit=500`);
+  if (!d || !d.ok) return;
+  const tbody = document.getElementById(tbId);
+  if (!d.results.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>Nenhum prefixo IPv${family} encontrado</p></div></td></tr>`; return; }
+  tbody.innerHTML = d.results.map(s => `<tr>
+    <td><span class="mono">${s.subnet}</span>${s.is_full ? ' <span class="badge badge-red" style="font-size:9px">FULL</span>' : ''}</td>
+    <td style="font-size:12px">${s.name||'<span style="color:#475569">—</span>'}</td>
+    <td style="font-size:11px;color:#64748b">${s.section_name||'—'}</td>
+    <td style="font-size:11px;color:#475569"><span class="mono">${s.parent_subnet||'—'}</span></td>
+    <td>${s.vlan_label ? `<span class="badge badge-orange">VLAN ${s.vlan_num} ${s.vlan_label}</span>` : '<span style="color:#475569">—</span>'}</td>
+    <td>${s.device_name ? `<span class="badge badge-gray" style="font-size:11px">${s.device_name}</span>` : '<span style="color:#475569">—</span>'}</td>
+    <td><span class="badge ${s.source==='phpipam'?'badge-cyan':'badge-gray'}">${s.source||'manual'}</span></td>
+    <td><div class="actions">
+      <button class="btn btn-ghost btn-sm" onclick="editSubnet(${JSON.stringify(s).replace(/"/g,'&quot;')})">✎</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteSubnet(${s.id})">✕</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openSubnetModal(family) {
+  document.getElementById('subnetFamily').value = family;
+  document.getElementById('modalSubnetTitle').textContent = 'Novo Prefixo IPv' + family;
+  populateDeviceSelect('subnetDevice', null);
+  populateVlanSelect('subnetVlan', null);
+  openModal('modalSubnet');
+}
+
+function editSubnet(s) {
+  document.getElementById('subnetId').value = s.id;
+  document.getElementById('subnetFamily').value = s.family;
+  document.getElementById('modalSubnetTitle').textContent = 'Editar Prefixo IPv' + s.family;
+  document.getElementById('subnetCidr').value = s.subnet;
+  document.getElementById('subnetName').value = s.name || '';
+  document.getElementById('subnetSection').value = s.section_name || '';
+  document.getElementById('subnetParent').value = s.parent_subnet || '';
+  populateDeviceSelect('subnetDevice', s.device_id);
+  populateVlanSelect('subnetVlan', s.vlan_id);
+  openModal('modalSubnet');
+}
+
+async function saveSubnet() {
+  const id = document.getElementById('subnetId').value;
+  const family = parseInt(document.getElementById('subnetFamily').value);
+  const body = {
+    subnet: document.getElementById('subnetCidr').value.trim(),
+    name: document.getElementById('subnetName').value.trim(),
+    section_name: document.getElementById('subnetSection').value.trim(),
+    parent_subnet: document.getElementById('subnetParent').value.trim(),
+    vlan_id: document.getElementById('subnetVlan').value || null,
+    device_id: document.getElementById('subnetDevice').value || null,
+    family
+  };
+  if (!body.subnet) { showAlert('subnetAlert', 'Prefixo é obrigatório', 'error'); return; }
+  const r = id
+    ? await apiFetch('/doc/subnets/' + id, { method: 'PUT', body: JSON.stringify(body) })
+    : await apiFetch('/doc/subnets', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalSubnet'); loadSubnets(family); loadStats(); resetModal('modalSubnet', ['subnetId','subnetCidr','subnetName','subnetSection','subnetParent']); }
+  else showAlert('subnetAlert', (r && r.error) || 'Erro ao salvar', 'error');
+}
+
+async function deleteSubnet(id) {
+  if (!confirm('Excluir este prefixo?')) return;
+  const r = await apiFetch('/doc/subnets/' + id, { method: 'DELETE' });
+  if (r && r.ok) { const family = document.getElementById('content-ipv4').classList.contains('active') ? 4 : 6; loadSubnets(family); loadStats(); }
+}
+
+// ASN
+async function loadAsn() {
+  const d = await apiFetch('/doc/asn');
+  if (!d || !d.ok) return;
+  const container = document.getElementById('asnList');
+  if (!d.results.length) { container.innerHTML = '<div class="empty-state" style="padding:48px 0"><p>Nenhum ASN cadastrado</p></div>'; return; }
+  container.innerHTML = d.results.map(a => {
+    const blocks = a.blocks || [];
+    const v4 = blocks.filter(b => b.family === 4);
+    const v6 = blocks.filter(b => b.family === 6);
+    return `<div style="background:#161b27;border:1px solid #1e2635;border-radius:8px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:#fff">${a.name}</div>
+          <div style="font-size:12px;color:#64748b;margin-top:3px">${a.description||''}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="openAsnPrefixModal(${a.id})">+ Prefixo</button>
+          <button class="btn btn-ghost btn-sm" onclick="editAsn(${JSON.stringify(a).replace(/"/g,'&quot;')})">✎</button>
+        </div>
       </div>
-      <div class="device-grid">${devs.map(deviceCard).join('')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Prefixos IPv4 (${v4.length})</div>
+          ${v4.length ? v4.map(b => `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1e2635">
+            <span class="mono" style="color:#4ade80">${b.prefix}</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              ${b.description ? `<span style="font-size:11px;color:#475569">${b.description}</span>` : ''}
+              <button class="btn btn-danger btn-sm" onclick="deleteAsnPrefix(${b.id})" style="padding:2px 6px;font-size:11px">✕</button>
+            </div>
+          </div>`).join('') : '<div style="font-size:12px;color:#475569">Nenhum prefixo IPv4</div>'}
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">Prefixos IPv6 (${v6.length})</div>
+          ${v6.length ? v6.map(b => `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1e2635">
+            <span class="mono" style="color:#22d3ee;font-size:11px">${b.prefix}</span>
+            <button class="btn btn-danger btn-sm" onclick="deleteAsnPrefix(${b.id})" style="padding:2px 6px;font-size:11px">✕</button>
+          </div>`).join('') : '<div style="font-size:12px;color:#475569">Nenhum prefixo IPv6</div>'}
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
 
-function deviceCard(d) {
-  const role = d.device_role?.name || '—';
-  const roleColor = roleColorMap(role);
-  const status = d.status?.value || 'active';
-  const statusLabel = d.status?.label || status;
-  const ipRaw = d.primary_ip?.address || null;
-  const ip = ipRaw ? ipRaw.split('/')[0] : null;
-  const model = d.device_type?.model || '—';
-  const manufacturer = d.device_type?.manufacturer?.name || '';
-
-  return `<div class="device-card">
-    <div class="dc-header">
-      <div class="dc-icon" style="background:${roleColor.bg}">${roleIcon(role, roleColor.stroke)}</div>
-      <div>
-        <div class="dc-name">${esc(d.name || '—')}</div>
-        <div class="dc-role">${esc(role)}</div>
-      </div>
-    </div>
-    <div class="dc-fields">
-      ${ip ? `<div class="dc-field"><span class="dc-label">IP</span><span class="dc-value ip">${esc(ip)}</span></div>` : ''}
-      <div class="dc-field"><span class="dc-label">Modelo</span><span class="dc-value">${esc(manufacturer ? manufacturer + ' ' + model : model)}</span></div>
-    </div>
-    <div class="dc-footer">
-      <span class="status-text"><span class="status-dot ${status}"></span>${esc(statusLabel)}</span>
-      <span class="device-type-badge" style="background:${roleColor.badgeBg};color:${roleColor.badgeText}">${esc(role.toUpperCase().slice(0,8))}</span>
-    </div>
-  </div>`;
+function editAsn(a) {
+  document.getElementById('modalAsnTitle').textContent = 'Editar ASN';
+  document.getElementById('asnId').value = a.id;
+  document.getElementById('asnNum').value = a.asn_num;
+  document.getElementById('asnName').value = a.name;
+  document.getElementById('asnDesc').value = a.description || '';
+  openModal('modalAsn');
 }
 
-function roleColorMap(role) {
-  const r = role.toLowerCase();
-  if (r.includes('router') || r.includes('core') || r.includes('ne40') || r.includes('bng') || r.includes('bras')) return { bg:'rgba(255,102,0,0.1)', stroke:'#FF6600', badgeBg:'rgba(255,102,0,0.15)', badgeText:'#FF6600' };
-  if (r.includes('switch') || r.includes('sw') || r.includes('acesso')) return { bg:'rgba(41,120,255,0.1)', stroke:'#2978FF', badgeBg:'rgba(41,120,255,0.15)', badgeText:'#60a5fa' };
-  if (r.includes('olt') || r.includes('gpon') || r.includes('optical')) return { bg:'rgba(0,210,200,0.1)', stroke:'#00d2c8', badgeBg:'rgba(0,210,200,0.12)', badgeText:'#2dd4bf' };
-  if (r.includes('server') || r.includes('servidor')) return { bg:'rgba(112,64,192,0.1)', stroke:'#9b59b6', badgeBg:'rgba(112,64,192,0.15)', badgeText:'#c084fc' };
-  if (r.includes('firewall') || r.includes('fw') || r.includes('security')) return { bg:'rgba(252,129,129,0.1)', stroke:'#fc8181', badgeBg:'rgba(252,129,129,0.12)', badgeText:'#fc8181' };
-  if (r.includes('ap') || r.includes('wireless') || r.includes('wifi')) return { bg:'rgba(74,222,128,0.1)', stroke:'#4ade80', badgeBg:'rgba(74,222,128,0.12)', badgeText:'#4ade80' };
-  if (r.includes('cgnat') || r.includes('a10')) return { bg:'rgba(96,165,250,0.1)', stroke:'#60a5fa', badgeBg:'rgba(96,165,250,0.12)', badgeText:'#60a5fa' };
-  return { bg:'rgba(255,255,255,0.05)', stroke:'#929EB0', badgeBg:'rgba(255,255,255,0.08)', badgeText:'#929EB0' };
+async function saveAsn() {
+  const id = document.getElementById('asnId').value;
+  const body = { asn_num: parseInt(document.getElementById('asnNum').value), name: document.getElementById('asnName').value.trim(), description: document.getElementById('asnDesc').value.trim() };
+  if (!body.asn_num || !body.name) { showAlert('asnAlert', 'Número e nome são obrigatórios', 'error'); return; }
+  const r = id ? await apiFetch('/doc/asn/' + id, { method: 'PUT', body: JSON.stringify(body) }) : await apiFetch('/doc/asn', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalAsn'); loadAsn(); loadStats(); resetModal('modalAsn', ['asnId','asnNum','asnName','asnDesc']); }
+  else showAlert('asnAlert', (r && r.error) || 'Erro', 'error');
 }
 
-function roleIcon(role, color) {
-  const r = role.toLowerCase();
-  if (r.includes('router') || r.includes('core') || r.includes('bng') || r.includes('bras'))
-    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
-  if (r.includes('switch') || r.includes('sw'))
-    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
-  if (r.includes('olt') || r.includes('gpon'))
-    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>`;
-  if (r.includes('server') || r.includes('servidor'))
-    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
-  if (r.includes('firewall'))
-    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`;
-  return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`;
+function openAsnPrefixModal(asnId) {
+  document.getElementById('asnPrefixAsnId').value = asnId;
+  document.getElementById('asnPrefixCidr').value = '';
+  document.getElementById('asnPrefixDesc').value = '';
+  document.getElementById('asnPrefixAlert').innerHTML = '';
+  openModal('modalAsnPrefix');
 }
 
-function showDeviceError(msg) {
-  document.getElementById('devices-container').innerHTML = `<div class="state-msg error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${esc(msg)}</p></div>`;
+async function saveAsnPrefix() {
+  const asnId = document.getElementById('asnPrefixAsnId').value;
+  const body = { prefix: document.getElementById('asnPrefixCidr').value.trim(), description: document.getElementById('asnPrefixDesc').value.trim() };
+  if (!body.prefix) { showAlert('asnPrefixAlert', 'Prefixo é obrigatório', 'error'); return; }
+  const r = await apiFetch('/doc/asn/' + asnId + '/prefixes', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalAsnPrefix'); loadAsn(); }
+  else showAlert('asnPrefixAlert', (r && r.error) || 'Erro', 'error');
 }
 
-// ── Render Prefixes ───────────────────────────────────────────────────
-function filterPrefixes() {
-  return allPrefixes.filter(p => {
-    if (activeFamily && String(p.family?.value) !== activeFamily) return false;
-    if (!searchQ) return true;
-    const haystack = [p.prefix, p.description, p.site?.name, p.vrf?.name, p.status?.label].filter(Boolean).join(' ').toLowerCase();
-    return haystack.includes(searchQ);
-  });
+async function deleteAsnPrefix(id) {
+  if (!confirm('Remover este prefixo do ASN?')) return;
+  const r = await apiFetch('/doc/asn/prefixes/' + id, { method: 'DELETE' });
+  if (r && r.ok) loadAsn();
 }
 
-function filterFamily(el, family) {
-  document.querySelectorAll('.family-filter button').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  activeFamily = family;
-  renderPrefixes();
+// POPs
+async function loadPops() {
+  const d = await apiFetch('/doc/pops');
+  if (!d || !d.ok) return;
+  allPops = d.results;
+  const tbody = document.getElementById('popTbody');
+  if (!d.results.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><p>Nenhum POP cadastrado</p></div></td></tr>'; return; }
+  tbody.innerHTML = d.results.map(p => `<tr>
+    <td style="font-weight:500;color:#e2e8f0">${p.name}</td>
+    <td style="color:#64748b;font-size:12px">${p.location||'—'}</td>
+    <td style="color:#64748b;font-size:12px">${p.description||'—'}</td>
+    <td>${p.device_count ? `<span class="badge badge-gray">${p.device_count} dispositivos</span>` : '<span style="color:#475569">0</span>'}</td>
+    <td><div class="actions">
+      <button class="btn btn-ghost btn-sm" onclick="editPop(${JSON.stringify(p).replace(/"/g,'&quot;')})">✎</button>
+      <button class="btn btn-danger btn-sm" onclick="deletePop(${p.id})">✕</button>
+    </div></td>
+  </tr>`).join('');
 }
 
-function renderPrefixes() {
-  const filtered = filterPrefixes();
-  document.getElementById('count-prefixos').textContent = filtered.length;
-  document.getElementById('prefix-results-info').innerHTML = filtered.length !== allPrefixes.length ? `<strong>${filtered.length}</strong> de ${allPrefixes.length} prefixos` : '';
-
-  const container = document.getElementById('prefixes-container');
-  if (!filtered.length) {
-    container.innerHTML = '<div class="no-results">Nenhum prefixo encontrado</div>';
-    return;
-  }
-
-  const rows = filtered.map(p => {
-    const fam = p.family?.value;
-    const famLabel = fam === 4 ? '<span class="family-badge v4">IPv4</span>' : fam === 6 ? '<span class="family-badge v6">IPv6</span>' : '—';
-    const status = p.status?.value || 'active';
-    const dotClass = status === 'active' ? 'dot-active' : status === 'reserved' ? 'dot-reserved' : status === 'container' ? 'dot-container' : 'dot-deprecated';
-    const statusLabel = p.status?.label || status;
-    const site = p.site?.name || '<span class="empty-cell">—</span>';
-    const vrf = p.vrf?.name || '<span class="empty-cell">global</span>';
-    const desc = p.description || '<span class="empty-cell">—</span>';
-    return `<tr>
-      <td class="prefix-val">${esc(p.prefix)}</td>
-      <td>${famLabel}</td>
-      <td>${esc(site)}</td>
-      <td>${esc(vrf)}</td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(desc)}</td>
-      <td><span class="prefix-status"><span class="dot ${dotClass}"></span>${esc(statusLabel)}</span></td>
-    </tr>`;
-  }).join('');
-
-  container.innerHTML = `<div class="prefix-table-wrap"><table>
-    <thead><tr>
-      <th class="sortable" onclick="sortPrefixes('prefix')">Prefixo ↕</th>
-      <th>Família</th>
-      <th>Site</th>
-      <th>VRF</th>
-      <th>Descrição</th>
-      <th>Status</th>
-    </tr></thead>
-    <tbody>${rows}</tbody>
-  </table></div>`;
+function editPop(p) {
+  document.getElementById('modalPopTitle').textContent = 'Editar POP';
+  document.getElementById('popId').value = p.id;
+  document.getElementById('popName').value = p.name;
+  document.getElementById('popLocation').value = p.location || '';
+  document.getElementById('popDesc').value = p.description || '';
+  openModal('modalPop');
 }
 
-let sortDir = 1;
-function sortPrefixes(field) {
-  sortDir *= -1;
-  allPrefixes.sort((a, b) => {
-    const va = a.prefix || '';
-    const vb = b.prefix || '';
-    return va.localeCompare(vb) * sortDir;
-  });
-  renderPrefixes();
+async function savePop() {
+  const id = document.getElementById('popId').value;
+  const body = { name: document.getElementById('popName').value.trim(), location: document.getElementById('popLocation').value.trim(), description: document.getElementById('popDesc').value.trim() };
+  if (!body.name) { showAlert('popAlert', 'Nome é obrigatório', 'error'); return; }
+  const r = id ? await apiFetch('/doc/pops/' + id, { method: 'PUT', body: JSON.stringify(body) }) : await apiFetch('/doc/pops', { method: 'POST', body: JSON.stringify(body) });
+  if (r && r.ok) { closeModal('modalPop'); loadPops(); loadStats(); resetModal('modalPop', ['popId','popName','popLocation','popDesc']); }
+  else showAlert('popAlert', (r && r.error) || 'Erro', 'error');
 }
 
-function showPrefixError(msg) {
-  document.getElementById('prefixes-container').innerHTML = `<div class="state-msg error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><p>${esc(msg)}</p></div>`;
+async function deletePop(id) {
+  if (!confirm('Excluir este POP?')) return;
+  const r = await apiFetch('/doc/pops/' + id, { method: 'DELETE' });
+  if (r && r.ok) { loadPops(); loadStats(); }
 }
 
-function esc(s) {
-  if (s == null) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// SELECT POPULATORS
+async function populatePopSelect(selId, selectedId) {
+  if (!allPops.length) { const d = await apiFetch('/doc/pops'); if (d && d.ok) allPops = d.results; }
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">Selecionar POP...</option>' + allPops.map(p => `<option value="${p.id}" ${p.id==selectedId?'selected':''}>${p.name}</option>`).join('');
 }
 
-// ── Boot ──────────────────────────────────────────────────────────────
-loadAll();
+async function populateDeviceSelect(selId, selectedId) {
+  if (!allDevices.length) { const d = await apiFetch('/doc/devices?limit=200'); if (d && d.ok) allDevices = d.results; }
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">Nenhum</option>' + allDevices.map(d => `<option value="${d.id}" ${d.id==selectedId?'selected':''}>${d.name}</option>`).join('');
+}
+
+async function populateVlanSelect(selId, selectedId) {
+  if (!allVlans.length) { const d = await apiFetch('/doc/vlans'); if (d && d.ok) allVlans = d.results; }
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">Nenhuma</option>' + allVlans.map(v => `<option value="${v.id}" ${v.id==selectedId?'selected':''}>VLAN ${v.vlan_num} — ${v.name}</option>`).join('');
+}
+
+// MODAL UTILS
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  // Pre-populate device/vlan selects when needed
+  if (id === 'modalVlan') { populateDeviceSelect('vlanDevice', null); }
+  if (id === 'modalSubnet') { populateDeviceSelect('subnetDevice', null); populateVlanSelect('subnetVlan', null); }
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); }));
+
+function resetModal(id, fields) {
+  fields.forEach(f => { const el = document.getElementById(f); if (el) el.value = ''; });
+  const alertEl = document.getElementById(id.replace('modal','').toLowerCase() + 'Alert');
+  if (alertEl) alertEl.innerHTML = '';
+}
+
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  setTimeout(() => { el.innerHTML = ''; }, 4000);
+}
+
+// INIT
+(async () => {
+  await initUser();
+  await loadStats();
+  await loadDevices();
+  await loadPops();
+  await loadVlans();
+})();
 </script>
 </body>
 </html>
