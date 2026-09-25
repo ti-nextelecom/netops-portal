@@ -711,7 +711,7 @@ function renderDevices(devs) {
     const statusBadge = { active:'badge-green', offline:'badge-red', planned:'badge-gray', staged:'badge-blue', decommissioning:'badge-orange' }[d.status] || 'badge-gray';
 
     return `<tr>
-      <td><div style="font-weight:500;color:#e2e8f0">${d.name}</div><div style="font-size:11px;color:#475569">${d.hostname||''}</div></td>
+      <td><div style="font-weight:500;color:#e2e8f0">${d.name}${d.owner ? ` <span class="badge ${d.owner.toUpperCase()==='NEX'?'badge-blue':'badge-gray'}" style="font-size:9px">${d.owner.toUpperCase()}</span>` : ''}</div><div style="font-size:11px;color:#475569">${d.hostname||''}</div></td>
       <td>${d.role ? `<span class="badge badge-gray">${d.role}</span>` : '<span style="color:#475569">—</span>'}</td>
       <td><div>${d.site_name||'—'}</div>${d.pop_name?`<div style="font-size:11px;color:#64748b">${d.pop_name}</div>`:''}</td>
       <td>${d.management_ip ? `<span class="mono">${d.management_ip}</span>` : '<span style="color:#475569">—</span>'}</td>
@@ -767,7 +767,8 @@ async function saveDevice() {
     site_name: document.getElementById('devSite').value.trim(),
     management_ip: document.getElementById('devMgmtIp').value.trim(),
     pop_id: document.getElementById('devPop').value || null,
-    notes: document.getElementById('devNotes').value.trim()
+    owner: (document.getElementById('devOwner')?.value||'').trim().toUpperCase()||null,
+      notes: document.getElementById('devNotes').value.trim()
   };
   if (!body.name) { showAlert('devAlert', 'Nome é obrigatório', 'error'); return; }
   const r = id
