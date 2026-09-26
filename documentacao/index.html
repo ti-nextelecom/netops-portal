@@ -304,7 +304,7 @@ select.form-control option{background:#1a2235}
     </div>
     <div class="tbl-wrap">
       <table class="tbl">
-        <thead><tr><th>Prefixo</th><th>Nome</th><th>Seção</th><th>Parent</th><th>VLAN</th><th>Dispositivo</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Prefixo <span class="cat-info" data-tip="Bloco de endereços IP em notação CIDR (ex: 10.0.0.0/24)" onclick="event.stopPropagation()">i</span></th><th>Nome <span class="cat-info" data-tip="Descrição ou identificação do bloco" onclick="event.stopPropagation()">i</span></th><th>Tipo <span class="cat-info" data-tip="Static: IPs fixos. DHCP: endereços distribuídos dinamicamente." onclick="event.stopPropagation()">i</span></th><th>Uso <span class="cat-info" data-tip="Inteiro: bloco usado por completo. Subdividido: dividido em sub-redes menores." onclick="event.stopPropagation()">i</span></th><th>Parent <span class="cat-info" data-tip="Bloco pai que engloba este prefixo" onclick="event.stopPropagation()">i</span></th><th>VLAN</th><th>Dispositivo</th><th></th></tr></thead>
         <tbody id="v4Tbody"><tr><td colspan="8" class="empty-state">Carregando...</td></tr></tbody>
       </table>
     </div>
@@ -324,7 +324,7 @@ select.form-control option{background:#1a2235}
     </div>
     <div class="tbl-wrap">
       <table class="tbl">
-        <thead><tr><th>Prefixo</th><th>Nome</th><th>Seção</th><th>Parent</th><th>VLAN</th><th>Dispositivo</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th>Prefixo <span class="cat-info" data-tip="Bloco de endereços IP em notação CIDR (ex: 2804::/32)" onclick="event.stopPropagation()">i</span></th><th>Nome <span class="cat-info" data-tip="Descrição ou identificação do bloco" onclick="event.stopPropagation()">i</span></th><th>Tipo <span class="cat-info" data-tip="Static: IPs fixos. DHCP: endereços distribuídos dinamicamente." onclick="event.stopPropagation()">i</span></th><th>Uso <span class="cat-info" data-tip="Inteiro: bloco usado por completo. Subdividido: dividido em sub-redes menores." onclick="event.stopPropagation()">i</span></th><th>Parent <span class="cat-info" data-tip="Bloco pai que engloba este prefixo" onclick="event.stopPropagation()">i</span></th><th>VLAN</th><th>Dispositivo</th><th></th></tr></thead>
         <tbody id="v6Tbody"><tr><td colspan="8" class="empty-state">Carregando...</td></tr></tbody>
       </table>
     </div>
@@ -578,9 +578,20 @@ select.form-control option{background:#1a2235}
       <div class="form-group"><label>Prefixo (CIDR) *</label><input class="form-control" id="subnetCidr" placeholder="ex: 10.0.0.0/24 ou 2804::/32"></div>
       <div class="form-group"><label>Nome</label><input class="form-control" id="subnetName" placeholder="Descrição do prefixo"></div>
       <div class="form-row">
-        <div class="form-group"><label>Seção</label><input class="form-control" id="subnetSection" placeholder="ex: NEXTELECOM/IPV4"></div>
-        <div class="form-group"><label>Parent</label><input class="form-control" id="subnetParent" placeholder="ex: 10.0.0.0/16"></div>
+        <div class="form-group"><label>Tipo de Alocação</label>
+          <select class="form-control" id="subnetAllocType">
+            <option value="static">Static</option>
+            <option value="dhcp">DHCP</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Uso do Bloco</label>
+          <select class="form-control" id="subnetUsageType">
+            <option value="inteiro">Bloco Inteiro</option>
+            <option value="subdividido">Subdividido em sub-redes</option>
+          </select>
+        </div>
       </div>
+      <div class="form-group"><label>Parent</label><input class="form-control" id="subnetParent" placeholder="ex: 10.0.0.0/16"></div>
       <div class="form-row">
         <div class="form-group"><label>VLAN Associada</label>
           <select class="form-control" id="subnetVlan"><option value="">Nenhuma</option></select>
@@ -1086,13 +1097,13 @@ async function loadSubnets(family) {
   const tbody = document.getElementById(tbId);
   if (!d.results.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><p>Nenhum prefixo IPv${family} encontrado</p></div></td></tr>`; return; }
   tbody.innerHTML = d.results.map(s => `<tr>
-    <td><span class="mono">${s.subnet}</span>${s.is_full ? ' <span class="badge badge-red" style="font-size:9px">FULL</span>' : ''}</td>
+    <td><span class="mono">${s.subnet}</span></td>
     <td style="font-size:12px">${s.name||'<span style="color:#475569">—</span>'}</td>
-    <td style="font-size:11px;color:#64748b">${s.section_name||'—'}</td>
+    <td><span class="badge ${s.allocation_type==='dhcp'?'badge-blue':'badge-gray'}">${(s.allocation_type||'static').toUpperCase()}</span></td>
+    <td><span class="badge ${s.usage_type==='subdividido'?'badge-orange':'badge-gray'}">${(s.usage_type||'inteiro').toUpperCase()}</span></td>
     <td style="font-size:11px;color:#475569"><span class="mono">${s.parent_subnet||'—'}</span></td>
     <td>${s.vlan_label ? `<span class="badge badge-orange">VLAN ${s.vlan_num} ${s.vlan_label}</span>` : '<span style="color:#475569">—</span>'}</td>
     <td>${s.device_name ? `<span class="badge badge-gray" style="font-size:11px">${s.device_name}</span>` : '<span style="color:#475569">—</span>'}</td>
-    <td><span class="badge ${s.source==='phpipam'?'badge-cyan':'badge-gray'}">${s.source||'manual'}</span></td>
     <td><div class="actions">
       <button class="btn btn-ghost btn-sm" onclick="editSubnet(${JSON.stringify(s).replace(/"/g,'&quot;')})">✎</button>
       <button class="btn btn-danger btn-sm" onclick="deleteSubnet(${s.id})">✕</button>
@@ -1114,7 +1125,8 @@ function editSubnet(s) {
   document.getElementById('modalSubnetTitle').textContent = 'Editar Prefixo IPv' + s.family;
   document.getElementById('subnetCidr').value = s.subnet;
   document.getElementById('subnetName').value = s.name || '';
-  document.getElementById('subnetSection').value = s.section_name || '';
+  document.getElementById('subnetAllocType').value = s.allocation_type || 'static';
+  document.getElementById('subnetUsageType').value = s.usage_type || 'inteiro';
   document.getElementById('subnetParent').value = s.parent_subnet || '';
   populateDeviceSelect('subnetDevice', s.device_id);
   populateVlanSelect('subnetVlan', s.vlan_id);
@@ -1127,7 +1139,8 @@ async function saveSubnet() {
   const body = {
     subnet: document.getElementById('subnetCidr').value.trim(),
     name: document.getElementById('subnetName').value.trim(),
-    section_name: document.getElementById('subnetSection').value.trim(),
+    allocation_type: document.getElementById('subnetAllocType').value,
+    usage_type: document.getElementById('subnetUsageType').value,
     parent_subnet: document.getElementById('subnetParent').value.trim(),
     vlan_id: document.getElementById('subnetVlan').value || null,
     device_id: document.getElementById('subnetDevice').value || null,
@@ -1137,7 +1150,7 @@ async function saveSubnet() {
   const r = id
     ? await apiFetch('/doc/subnets/' + id, { method: 'PUT', body: JSON.stringify(body) })
     : await apiFetch('/doc/subnets', { method: 'POST', body: JSON.stringify(body) });
-  if (r && r.ok) { closeModal('modalSubnet'); loadSubnets(family); loadStats(); resetModal('modalSubnet', ['subnetId','subnetCidr','subnetName','subnetSection','subnetParent']); }
+  if (r && r.ok) { closeModal('modalSubnet'); loadSubnets(family); loadStats(); resetModal('modalSubnet', ['subnetId','subnetCidr','subnetName','subnetParent']); }
   else showAlert('subnetAlert', (r && r.error) || 'Erro ao salvar', 'error');
 }
 
